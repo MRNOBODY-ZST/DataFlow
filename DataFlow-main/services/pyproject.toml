@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "services"
+version = "0.1.0"
+description = "Python Service for data consuming and processing"
+authors = ["Shentai Zhang"]
+license = "MIT Licence"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^2.3.1"
+ray = {extras = ["default"], version = "^2.47.1"}
+torch = { version = "^2.7.1+cu128", source = "torch-mirrors" }
+torchvision = { version = "^0.22.1+cu128", source = "torch-mirrors" }
+torchaudio = { version = "^2.7.1+cu128", source = "torch-mirrors" }
+fastapi = "^0.115.13"
+celery = {extras = ["auth", "msgpack", "redis"], version = "^5.5.3"}
+pandas = "^2.3.0"
+transformers = "^4.52.4"
+datasets = "^3.6.0"
+tokenizers = "^0.21.1"
+accelerate = "^1.8.1"
+peft = "^0.15.2"
+evaluate = "^0.4.4"
+opencv-python = "^4.11.0.86"
+scipy = "^1.15.3"
+sympy = "^1.14.0"
+cython = "^3.1.2"
+imageio = "^2.37.0"
+pillow = "^11.2.1"
+redis = "5.2.1"
+minio = "^7.2.15"
+kafka-python = "^2.2.13"
+kubernetes = "^33.1.0"
+matplotlib = "^3.10.3"
+seaborn = "^0.13.2"
+plotly = "^6.1.2"
+
+
+[[tool.poetry.source]]
+name = "mirrors"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "torch-mirrors"
+url = "https://download.pytorch.org/whl/cu128"
+priority = "supplemental"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

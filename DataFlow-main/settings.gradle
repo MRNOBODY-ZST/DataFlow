@@ -1,0 +1,24 @@
+pluginManagement {
+    repositories {
+        // 使用国内镜像替换默认仓库，解决插件下载超时问题
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        // 保留官方仓库作为备用
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        // 使用国内镜像替换默认仓库，解决项目依赖下载超时问题
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        // 保留官方仓库作为备用
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'DataFlow-main'
