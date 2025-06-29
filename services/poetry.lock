@@ -401,7 +401,6 @@ click-repl = ">=0.2.0"
 cryptography = {version = "44.0.2", optional = true, markers = "extra == \"auth\""}
 kombu = [
     {version = ">=5.5.2,<5.6"},
-    {version = "*", extras = ["msgpack"], optional = true, markers = "extra == \"msgpack\""},
     {version = "*", extras = ["redis"], optional = true, markers = "extra == \"redis\""},
 ]
 python-dateutil = ">=2.8.2"
@@ -1934,7 +1933,6 @@ files = [
 
 [package.dependencies]
 amqp = ">=5.1.1,<6.0.0"
-msgpack = {version = "1.1.0", optional = true, markers = "extra == \"msgpack\""}
 packaging = "*"
 redis = {version = ">=4.5.2,<4.5.5 || >4.5.5,<5.0.2 || >5.0.2,<=5.2.1", optional = true, markers = "extra == \"redis\""}
 tzdata = {version = ">=2025.2", markers = "python_version >= \"3.9\""}
@@ -5449,4 +5447,4 @@ reference = "mirrors"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "76dd282e0998f6aaae72186e4a8f1643394a5355eae3c5ae35bbfa99330aa52e"
+content-hash = "489d13c5b24146c2e5978829fdf4fecbc18d8bc8e3deecf011fcd8f4d154be91"
