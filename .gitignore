@@ -26,3 +26,5 @@ replay_pid*
 
 services/config/token.json
 services/config/client_secrets.json
+
+.idea
