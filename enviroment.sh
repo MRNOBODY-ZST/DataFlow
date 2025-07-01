@@ -20,6 +20,12 @@ sudo service docker start
 
 sudo service docker enable
 
+sudo rm -rf /etc/docker/daemon.json
+sudo mkdir -p /etc/docker
+
+# Configure Docker to use a registry mirror
+# This is useful for speeding up image pulls, especially in regions with slow access to Docker Hub
+# You can choose mirrors based on your location or preference.
 sudo tee /etc/docker/daemon.json <<-'EOF'
 {
     "registry-mirrors": [
