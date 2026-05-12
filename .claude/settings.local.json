@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew dependencies *)",
+      "Bash(java -version)",
+      "Bash(./gradlew compileJava)",
+      "Bash(npm install *)",
+      "Bash(npx vue-tsc *)"
+    ]
+  }
+}
