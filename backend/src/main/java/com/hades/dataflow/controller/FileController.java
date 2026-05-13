@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,10 +22,9 @@ public class FileController {
 
     @PostMapping("/presign-upload")
     public Mono<Map<String, String>> presignUpload(@RequestParam String filename) {
-        String key = "input/" + UUID.randomUUID() + "/" + filename;
         return minioService.ensureBucketsExist()
-                .then(minioService.presignedUploadUrl(minioService.getInputBucket(), key))
-                .map(url -> Map.of("url", url, "key", key));
+                .then(minioService.presignedUploadUrl(minioService.getInputBucket(), filename))
+                .map(url -> Map.of("url", url, "key", filename));
     }
 
     @GetMapping("/presign-download")
@@ -60,6 +60,36 @@ public class FileController {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only input bucket files can be deleted"));
         }
         return minioService.deleteObject(resolveBucket(bucket), key);
+    }
+
+    @PostMapping("/move")
+    public Mono<Map<String, String>> move(@RequestParam String bucket,
+                                          @RequestParam String srcKey,
+                                          @RequestParam String destKey) {
+        if (!"input".equals(bucket)) {
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only input bucket files can be moved"));
+        }
+        String resolved = resolveBucket(bucket);
+        return minioService.copyObject(resolved, srcKey, destKey)
+                .then(minioService.deleteObject(resolved, srcKey))
+                .thenReturn(Map.of("key", destKey));
+    }
+
+    @PostMapping("/batch-move")
+    public Flux<Map<String, String>> batchMove(@RequestParam String bucket,
+                                               @RequestBody List<Map<String, String>> moves) {
+        if (!"input".equals(bucket)) {
+            return Flux.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only input bucket files can be moved"));
+        }
+        String resolved = resolveBucket(bucket);
+        return Flux.fromIterable(moves)
+                .concatMap(m -> {
+                    String src = m.get("srcKey");
+                    String dest = m.get("destKey");
+                    return minioService.copyObject(resolved, src, dest)
+                            .then(minioService.deleteObject(resolved, src))
+                            .thenReturn(Map.of("srcKey", src, "destKey", dest));
+                });
     }
 
     private String resolveBucket(String bucket) {

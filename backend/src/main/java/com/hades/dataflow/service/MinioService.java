@@ -122,6 +122,25 @@ public class MinioService {
                 .then();
     }
 
+    public Mono<Void> copyObject(String bucket, String srcKey, String destKey) {
+        return Mono.fromRunnable(() -> {
+                    try {
+                        minioClient.copyObject(CopyObjectArgs.builder()
+                                .bucket(bucket)
+                                .object(destKey)
+                                .source(CopySource.builder()
+                                        .bucket(bucket)
+                                        .object(srcKey)
+                                        .build())
+                                .build());
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to copy object: " + srcKey + " -> " + destKey, e);
+                    }
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
+    }
+
     private FileMetadata toFileMetadata(Result<Item> result, String bucket) {
         try {
             var item = result.get();

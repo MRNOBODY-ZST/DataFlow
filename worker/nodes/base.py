@@ -14,6 +14,20 @@ class NodeContext:
     input_bucket: str
     output_bucket: str
     temp_bucket: str
+    output_prefix: str = ""
+    source_key: str = ""
+
+    def output_key(self, filename: str) -> str:
+        if self.output_prefix:
+            return f"{self.output_prefix}/{filename}"
+        return filename
+
+    @property
+    def source_filename(self) -> str:
+        if self.source_key:
+            import pathlib
+            return pathlib.PurePosixPath(self.source_key).name
+        return ""
 
 
 class BaseNode(ABC):

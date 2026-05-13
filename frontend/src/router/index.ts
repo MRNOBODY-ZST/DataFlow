@@ -11,6 +11,12 @@ const router = createRouter({
       meta: { public: true },
     },
     {
+      path: '/register',
+      name: 'register',
+      component: () => import('@/views/Register.vue'),
+      meta: { public: true },
+    },
+    {
       path: '/',
       redirect: '/dashboard',
     },
@@ -18,6 +24,11 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/views/Dashboard.vue'),
+    },
+    {
+      path: '/pipelines',
+      name: 'pipelines',
+      component: () => import('@/views/PipelineList.vue'),
     },
     {
       path: '/editor/:id',
@@ -40,6 +51,11 @@ const router = createRouter({
       name: 'task-detail',
       component: () => import('@/views/TaskDetail.vue'),
       props: true,
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('@/views/Settings.vue'),
     },
   ],
 })

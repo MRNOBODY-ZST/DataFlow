@@ -25,6 +25,12 @@ export const fileApi = {
   deleteFile: (bucket: FileBucket, key: string): Promise<void> =>
     http.delete('/files', { params: { bucket, key } }).then(() => undefined),
 
+  moveFile: (bucket: FileBucket, srcKey: string, destKey: string): Promise<{ key: string }> =>
+    http.post('/files/move', null, { params: { bucket, srcKey, destKey } }).then((r) => r.data),
+
+  batchMove: (bucket: FileBucket, moves: { srcKey: string; destKey: string }[]): Promise<{ srcKey: string; destKey: string }[]> =>
+    http.post('/files/batch-move', moves, { params: { bucket } }).then((r) => r.data),
+
   uploadToMinio: (presignedUrl: string, file: File, onProgress?: (pct: number) => void) =>
     new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest()
@@ -45,4 +51,28 @@ export const fileApi = {
       xhr.onerror = () => reject(new Error('Upload network error'))
       xhr.send(file)
     }),
+
+  async uploadBatch(
+    files: File[],
+    prefix: string,
+    onFileProgress?: (index: number, pct: number) => void,
+    onFileComplete?: (index: number, meta: FileMetadata) => void,
+  ): Promise<FileMetadata[]> {
+    const results: FileMetadata[] = []
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]!
+      const filename = prefix ? `${prefix}/${file.name}` : file.name
+      const { url, key } = await fileApi.presignUpload(filename)
+      await fileApi.uploadToMinio(url, file, (pct) => onFileProgress?.(i, pct))
+      const meta: FileMetadata = {
+        key,
+        size: file.size,
+        lastModified: new Date().toISOString(),
+        bucket: 'input',
+      }
+      results.push(meta)
+      onFileComplete?.(i, meta)
+    }
+    return results
+  },
 }

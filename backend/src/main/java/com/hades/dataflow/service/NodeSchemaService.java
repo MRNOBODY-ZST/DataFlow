@@ -21,9 +21,12 @@ public class NodeSchemaService {
         )));
 
         schemas.add(new NodeSchemaDTO("minio_reader", "MinIO 读取", "readers", "CloudArrowDownIcon", List.of(
+            new NodeSchemaDTO.FieldDef("batch", "批量模式（读取文件夹下所有文件并行处理）", "checkbox", null, false, false, null, null, null),
             new NodeSchemaDTO.FieldDef("key", "MinIO 对象 Key", "file-picker", "input/xxx/file", false, false, null, null, null),
+            new NodeSchemaDTO.FieldDef("prefix", "文件夹/前缀（批量模式）", "file-picker", "photos/", false, false, null, null, null),
               new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null)
         )));
+
 
         schemas.add(new NodeSchemaDTO("filter", "过滤", "transforms", "FunnelIcon", List.of(
                 new NodeSchemaDTO.FieldDef("query", "Pandas Query 表达式", "text", "age > 18", true, false, null, null, null)

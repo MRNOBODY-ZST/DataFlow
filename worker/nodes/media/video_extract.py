@@ -26,7 +26,7 @@ class VideoExtractNode(BaseNode):
                 response.release_conn()
 
         fps = float(ctx.config.get("fps", 1.0))
-        prefix = ctx.config.get("output_prefix", f"frames/{ctx.task_id}/")
+        prefix = ctx.output_key(ctx.config.get("output_prefix", "frames/"))
 
         with tempfile.TemporaryDirectory() as tmpdir:
             in_path = os.path.join(tmpdir, "input.mp4")

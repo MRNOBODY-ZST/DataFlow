@@ -1,7 +1,12 @@
 import os
+import pathlib
 import tempfile
 
 from nodes.base import BaseNode, NodeContext
+
+
+def _stem(key: str) -> str:
+    return pathlib.PurePosixPath(key).stem
 
 
 class AudioExtractNode(BaseNode):
@@ -19,7 +24,8 @@ class AudioExtractNode(BaseNode):
                 response.release_conn()
 
         audio_format = ctx.config.get("format", "mp3")
-        output_key = ctx.config.get("key", f"output/{ctx.task_id}/audio.{audio_format}")
+        default_name = f"{_stem(ctx.source_key)}.{audio_format}" if ctx.source_key else f"audio.{audio_format}"
+        output_key = ctx.output_key(ctx.config.get("key") or default_name)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             in_path = os.path.join(tmpdir, "input")

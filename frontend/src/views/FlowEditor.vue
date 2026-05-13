@@ -1,28 +1,45 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-6 lg:px-8">
-      <router-link to="/dashboard" class="text-sm text-gray-500 hover:text-indigo-600">← 返回流水线</router-link>
-      <span class="truncate text-lg font-semibold text-gray-900">{{ pipeline?.name ?? '加载中...' }}</span>
-      <div class="ml-auto flex gap-2">
-        <button class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50" :disabled="saving" @click="save">
-          {{ saving ? '保存中...' : '保存' }}
-        </button>
-        <button class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500" @click="showRunDialog = true">
-          运行
-        </button>
+  <AppLayout title="">
+    <div class="flex h-[calc(100vh-4rem)] flex-col bg-gray-50 dark:bg-gray-900">
+      <!-- Top bar -->
+      <div class="flex h-14 shrink-0 items-center gap-3 border-b border-gray-200 bg-white px-4 shadow-xs sm:px-6 dark:border-white/10 dark:bg-gray-900 dark:shadow-none">
+        <router-link to="/pipelines" class="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">
+          <ArrowLeftIcon class="size-5" />
+        </router-link>
+        <span class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ pipeline?.name ?? 'Loading...' }}</span>
+        <div class="ml-auto flex items-center gap-2">
+          <!-- Save status indicator -->
+          <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+            <span v-if="saveStatus === 'saved'" class="flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
+              <CheckCircleIcon class="size-4" />
+              Saved
+            </span>
+            <span v-else-if="saveStatus === 'error'" class="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400">
+              <ExclamationCircleIcon class="size-4" />
+              Error
+            </span>
+          </transition>
+          <button class="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" :disabled="saving" @click="save">
+            {{ saving ? 'Saving...' : 'Save' }}
+          </button>
+          <button class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="showRunDialog = true">
+            Run
+          </button>
+          <button class="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="drawerOpen = !drawerOpen">
+            <Squares2X2Icon class="size-5" />
+          </button>
+        </div>
       </div>
-    </div>
 
-    <div class="flex h-[calc(100vh-72px)] overflow-hidden border-t border-gray-200 bg-white">
-      <NodePanel @drag-start="onDragStart" />
-
-      <div class="relative flex-1" @drop="onDrop" @dragover.prevent>
+      <!-- Canvas + Drawer container -->
+      <div class="relative flex-1 overflow-hidden" @drop="onDrop" @dragover.prevent>
         <VueFlow
           v-model:nodes="nodes"
           v-model:edges="edges"
           :node-types="nodeTypes"
-          fit-view-on-init
-          @node-click="onNodeClick"
+          :edge-types="edgeTypes"
+          :delete-key-code="['Delete', 'Backspace']"
+          @node-double-click="onNodeDoubleClick"
           @pane-click="selectedNode = null"
           @connect="onConnect"
         >
@@ -30,40 +47,50 @@
           <Controls />
           <MiniMap />
         </VueFlow>
+
+        <!-- Node Drawer (right side, inside canvas area) -->
+        <NodeDrawer :open="drawerOpen" @close="drawerOpen = false" @drag-start="onDragStart" />
       </div>
 
-      <NodeConfig v-if="selectedNode" :node="selectedNode" @update="onNodeUpdate" @close="selectedNode = null" />
-    </div>
-  </div>
+      <!-- Node Config Modal -->
+      <NodeConfigModal :open="configOpen" :node="selectedNode" @update="onNodeUpdate" @close="configOpen = false" />
 
-  <TransitionRoot as="template" :show="showRunDialog">
-    <Dialog class="relative z-20" @close="showRunDialog = false">
-      <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
-        <div class="fixed inset-0 bg-gray-500/75 transition-opacity"></div>
-      </TransitionChild>
-      <div class="fixed inset-0 z-20 w-screen overflow-y-auto">
-        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-          <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-            <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-xl">
-              <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <DialogTitle as="h3" class="text-base font-semibold text-gray-900">运行流水线</DialogTitle>
-                <div class="mt-4 space-y-4">
-                  <p class="text-sm text-gray-600">确认运行此流水线？输入文件已在节点中配置。</p>
-                  <p v-if="runError" class="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{{ runError }}</p>
-                </div>
-              </div>
-              <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                <button type="button" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 sm:ml-3 sm:w-auto disabled:opacity-60" :disabled="running" @click="run">
-                  {{ running ? '提交中...' : '开始运行' }}
-                </button>
-                <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto" @click="showRunDialog = false">取消</button>
-              </div>
-            </DialogPanel>
+      <!-- Run Dialog -->
+      <TransitionRoot as="template" :show="showRunDialog">
+        <Dialog class="relative z-50" @close="showRunDialog = false">
+          <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="" leave="ease-in duration-200" leave-from="" leave-to="opacity-0">
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity dark:bg-gray-900/50"></div>
           </TransitionChild>
-        </div>
-      </div>
-    </Dialog>
-  </TransitionRoot>
+          <div class="fixed inset-0 z-50 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+              <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to=" translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from=" translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10">
+                  <div>
+                    <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-500/10">
+                      <PlayIcon class="size-6 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+                    </div>
+                    <div class="mt-3 text-center sm:mt-5">
+                      <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">Run Pipeline</DialogTitle>
+                      <div class="mt-2">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Confirm to run this pipeline? Input files are configured in nodes.</p>
+                        <p v-if="runError" class="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-400">{{ runError }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                    <button type="button" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 sm:col-start-2 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400" :disabled="running" @click="run">
+                      {{ running ? 'Submitting...' : 'Start' }}
+                    </button>
+                    <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="showRunDialog = false">Cancel</button>
+                  </div>
+                </DialogPanel>
+              </TransitionChild>
+            </div>
+          </div>
+        </Dialog>
+      </TransitionRoot>
+    </div>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
@@ -74,10 +101,13 @@ import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import { ArrowLeftIcon, CheckCircleIcon, ExclamationCircleIcon, PlayIcon, Squares2X2Icon } from '@heroicons/vue/24/outline'
 
-import NodePanel from '@/components/flow/NodePanel.vue'
-import NodeConfig from '@/components/flow/NodeConfig.vue'
+import AppLayout from '@/components/layout/AppLayout.vue'
+import NodeDrawer from '@/components/flow/NodeDrawer.vue'
+import NodeConfigModal from '@/components/flow/NodeConfigModal.vue'
 import GenericFlowNode from '@/components/flow/nodes/GenericFlowNode.vue'
+import AnimatedDashEdge from '@/components/flow/edges/AnimatedDashEdge.vue'
 
 import { usePipelineStore } from '@/stores/pipeline'
 import { useTaskStore } from '@/stores/task'
@@ -88,16 +118,21 @@ const router = useRouter()
 const pipelineStore = usePipelineStore()
 const taskStore = useTaskStore()
 const nodeSchemaStore = useNodeSchemaStore()
-const { addNodes, screenToFlowCoordinate, addEdges } = useVueFlow()
+const { addNodes, screenToFlowCoordinate, addEdges, updateNodeData, fitView, onNodesInitialized } = useVueFlow()
 
 const pipeline = ref<any>(null)
 const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
 const selectedNode = ref<Node | null>(null)
 const saving = ref(false)
+const saveStatus = ref<'idle' | 'saved' | 'error'>('idle')
 const showRunDialog = ref(false)
 const running = ref(false)
 const runError = ref('')
+const drawerOpen = ref(true)
+const configOpen = ref(false)
+
+let saveStatusTimer: ReturnType<typeof setTimeout> | null = null
 
 const nodeTypes = computed(() => {
   const map: Record<string, any> = { default: markRaw(GenericFlowNode) }
@@ -107,7 +142,13 @@ const nodeTypes = computed(() => {
   return map
 })
 
+const edgeTypes = { default: markRaw(AnimatedDashEdge) }
+
 let dragNodeType = ''
+
+onNodesInitialized(() => {
+  fitView({ maxZoom: 1, padding: 0 })
+})
 
 onMounted(async () => {
   await nodeSchemaStore.fetch()
@@ -134,24 +175,36 @@ function onDrop(event: DragEvent) {
   dragNodeType = ''
 }
 
-function onNodeClick({ node }: NodeMouseEvent) {
+function onNodeDoubleClick({ node }: NodeMouseEvent) {
   selectedNode.value = node
+  configOpen.value = true
 }
 
 function onNodeUpdate(updated: Node) {
-  const idx = nodes.value.findIndex((n) => n.id === updated.id)
-  if (idx !== -1) nodes.value[idx] = { ...nodes.value[idx], ...updated }
-  selectedNode.value = updated
+  updateNodeData(updated.id, { ...updated.data })
+  const node = nodes.value.find((n) => n.id === updated.id)
+  if (node) selectedNode.value = node
 }
 
 function onConnect(connection: any) {
   addEdges([connection])
 }
 
+function showSaveStatus(status: 'saved' | 'error') {
+  saveStatus.value = status
+  if (saveStatusTimer) clearTimeout(saveStatusTimer)
+  saveStatusTimer = setTimeout(() => {
+    saveStatus.value = 'idle'
+  }, 2000)
+}
+
 async function save() {
   saving.value = true
   try {
     await pipelineStore.saveGraph(Number(props.id), nodes.value, edges.value)
+    showSaveStatus('saved')
+  } catch {
+    showSaveStatus('error')
   } finally {
     saving.value = false
   }
@@ -166,7 +219,7 @@ async function run() {
     showRunDialog.value = false
     router.push(`/tasks/${task.id}`)
   } catch (e: any) {
-    runError.value = e.message || '任务提交失败'
+    runError.value = e.message || 'Failed to submit task'
   } finally {
     running.value = false
   }

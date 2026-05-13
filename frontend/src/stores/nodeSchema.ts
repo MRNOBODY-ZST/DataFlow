@@ -12,7 +12,7 @@ export interface WidgetConfig {
 export interface NodeFieldDef {
   key: string
   label: string
-  type: 'text' | 'number' | 'textarea' | 'select' | 'file-picker'
+  type: 'text' | 'number' | 'textarea' | 'select' | 'file-picker' | 'checkbox'
   placeholder: string
   required: boolean
   autoFilled: boolean

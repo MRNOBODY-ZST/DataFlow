@@ -1,7 +1,12 @@
 import os
+import pathlib
 import tempfile
 
 from nodes.base import BaseNode, NodeContext
+
+
+def _stem(key: str) -> str:
+    return pathlib.PurePosixPath(key).stem
 
 
 class VideoTranscodeNode(BaseNode):
@@ -21,7 +26,8 @@ class VideoTranscodeNode(BaseNode):
         codec = ctx.config.get("codec", "h264")
         bitrate = str(ctx.config.get("bitrate", 2000)) + "k"
         extension = "mp4" if codec in {"h264", "h265"} else "webm"
-        output_key = ctx.config.get("key", f"output/{ctx.task_id}/transcoded.{extension}")
+        default_name = f"{_stem(ctx.source_key)}.{extension}" if ctx.source_key else f"transcoded.{extension}"
+        output_key = ctx.output_key(ctx.config.get("key") or default_name)
 
         codec_map = {
             "h264": "libx264",

@@ -21,7 +21,7 @@ class MinioWriterNode(BaseNode):
         import pandas as pd
 
         data = inputs[0]
-        key = ctx.config.get("key", f"output/{ctx.task_id}/result")
+        key = ctx.config.get("key") or ctx.source_filename or "result"
         bucket = ctx.config.get("bucket", ctx.output_bucket)
 
         if isinstance(data, (bytes, bytearray)):
@@ -43,5 +43,6 @@ class MinioWriterNode(BaseNode):
         else:
             raise TypeError(f"MinioWriterNode: unsupported data type {type(data)}")
 
+        key = ctx.output_key(key)
         ctx.minio_client.put_object(bucket, key, io.BytesIO(raw), length=len(raw), content_type=content_type)
         return key

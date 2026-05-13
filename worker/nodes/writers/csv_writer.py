@@ -13,9 +13,10 @@ class CsvWriterNode(BaseNode):
         if not isinstance(data, pd.DataFrame):
             raise TypeError("csv_writer expects a pandas DataFrame")
 
-        key = ctx.config.get("key", f"output/{ctx.task_id}/result.csv")
+        key = ctx.config.get("key") or ctx.source_filename or "result.csv"
         if not key.endswith(".csv"):
             key += ".csv"
+        key = ctx.output_key(key)
 
         raw = data.to_csv(index=False).encode()
         ctx.minio_client.put_object(
