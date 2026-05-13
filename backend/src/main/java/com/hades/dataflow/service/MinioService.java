@@ -1,14 +1,19 @@
 package com.hades.dataflow.service;
 
+import com.hades.dataflow.domain.dto.FileMetadata;
 import io.minio.*;
 import io.minio.http.Method;
+import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -71,6 +76,64 @@ public class MinioService {
                         .expiry(presignExpiryMinutes, TimeUnit.MINUTES)
                         .build())
         ).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Flux<FileMetadata> listObjects(String bucket, String prefix) {
+        return Flux.defer(() -> Flux.fromIterable(
+                        minioClient.listObjects(ListObjectsArgs.builder()
+                                .bucket(bucket)
+                                .prefix(prefix == null ? "" : prefix)
+                                .recursive(true)
+                                .build())
+                ))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(result -> toFileMetadata(result, bucket))
+                .filter(file -> !file.getKey().endsWith("/"));
+    }
+
+    public Mono<FileMetadata> statObject(String bucket, String objectKey) {
+        return Mono.fromCallable(() -> {
+                    var stat = minioClient.statObject(StatObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(objectKey)
+                            .build());
+                    return new FileMetadata(
+                            objectKey,
+                            stat.size(),
+                            LocalDateTime.ofInstant(stat.lastModified().toInstant(), ZoneId.systemDefault()),
+                            bucket
+                    );
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Mono<Void> deleteObject(String bucket, String objectKey) {
+        return Mono.fromRunnable(() -> {
+                    try {
+                        minioClient.removeObject(RemoveObjectArgs.builder()
+                                .bucket(bucket)
+                                .object(objectKey)
+                                .build());
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to delete object: " + objectKey, e);
+                    }
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
+    }
+
+    private FileMetadata toFileMetadata(Result<Item> result, String bucket) {
+        try {
+            var item = result.get();
+            return new FileMetadata(
+                    item.objectName(),
+                    item.size(),
+                    LocalDateTime.ofInstant(item.lastModified().toInstant(), ZoneId.systemDefault()),
+                    bucket
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read MinIO object metadata", e);
+        }
     }
 
     public String getInputBucket() { return inputBucket; }

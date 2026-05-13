@@ -1,6 +1,7 @@
 services:
   mysql:
-    image: 'mysql:8.4'
+    # 9.7.0 LTS — verified on Aliyun mirror 2026-05
+    image: 'mysql:9.7.0'
     environment:
       - 'MYSQL_DATABASE=dataflow'
       - 'MYSQL_PASSWORD=dataflow123'
@@ -17,7 +18,8 @@ services:
       retries: 5
 
   mongodb:
-    image: 'mongo:7'
+    # 8.3.1 — verified on Aliyun mirror 2026-05
+    image: 'mongo:8.3.1'
     environment:
       - 'MONGO_INITDB_DATABASE=dataflow'
       - 'MONGO_INITDB_ROOT_PASSWORD=dataflow123'
@@ -26,16 +28,28 @@ services:
       - '27017:27017'
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
-    image: 'redis:7-alpine'
+    # 8.6.3-alpine — verified on Aliyun mirror 2026-05
+    image: 'redis:8.6.3-alpine'
     ports:
       - '6379:6379'
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
-    image: 'confluentinc/cp-kafka:7.7.1'
+    # 8.1.2 — verified on Aliyun mirror 2026-05, corresponds to Apache Kafka 4.x
+    image: 'confluentinc/cp-kafka:8.1.2'
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller

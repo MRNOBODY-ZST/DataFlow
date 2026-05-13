@@ -32,6 +32,9 @@ public class ProgressConsumer {
                     task.setStatus(event.getStatus());
                     if ("SUCCESS".equals(event.getStatus()) || "FAILED".equals(event.getStatus())) {
                         task.setFinishedAt(LocalDateTime.now());
+                        if ("SUCCESS".equals(event.getStatus()) && event.getOutputKey() != null && !event.getOutputKey().isBlank()) {
+                            task.setOutputPath(event.getOutputKey());
+                        }
                         if ("FAILED".equals(event.getStatus())) {
                             task.setErrorMsg(event.getMessage());
                         }

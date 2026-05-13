@@ -14,25 +14,35 @@ export const useTaskStore = defineStore('task', () => {
     loading.value = false
   }
 
-  async function submit(pipelineId: number, inputKey: string): Promise<Task> {
-    const { data } = await taskApi.submit(pipelineId, inputKey)
+  async function submit(pipelineId: number): Promise<Task> {
+    const { data } = await taskApi.submit(pipelineId)
     tasks.value.unshift(data)
     return data
   }
 
-  function subscribeProgress(taskId: number, onEvent: (e: { progress: number; status: string; message?: string }) => void): () => void {
+  function subscribeProgress(
+    taskId: number,
+    onEvent: (e: { progress: number; status: string; message?: string; outputKey?: string | null }) => void,
+  ): () => void {
     const auth = useAuthStore()
-    const url = `/api/tasks/${taskId}/progress`
+    const url = auth.token
+      ? `/api/tasks/${taskId}/progress?token=${encodeURIComponent(auth.token)}`
+      : `/api/tasks/${taskId}/progress`
     const source = new EventSource(url)
 
     source.addEventListener('progress', (e) => {
-      const data = JSON.parse(e.data)
+      const data = JSON.parse((e as MessageEvent).data)
       onEvent(data)
-      // sync local state
       const task = tasks.value.find((t) => t.id === taskId)
       if (task) {
         task.progress = data.progress
         task.status = data.status
+        if (data.outputKey) {
+          task.outputPath = data.outputKey
+        }
+        if (data.status === 'FAILED' && data.message) {
+          task.errorMsg = data.message
+        }
       }
       if (data.status === 'SUCCESS' || data.status === 'FAILED') {
         source.close()

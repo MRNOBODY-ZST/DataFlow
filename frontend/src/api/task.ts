@@ -13,8 +13,8 @@ export interface Task {
 }
 
 export const taskApi = {
-  submit: (pipelineId: number, inputKey: string) =>
-    http.post<Task>('/tasks', { pipelineId, inputKey }),
+  submit: (pipelineId: number) =>
+    http.post<Task>('/tasks', { pipelineId }),
 
   list: () => http.get<Task[]>('/tasks'),
 

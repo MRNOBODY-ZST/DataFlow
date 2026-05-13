@@ -23,13 +23,14 @@ def _get_producer() -> KafkaProducer:
     return _producer
 
 
-def report(task_id: str, node_id: str | None, progress: int, status: str, message: str = "") -> None:
+def report(task_id: str, node_id: str | None, progress: int, status: str, message: str = "", output_key: str | None = None) -> None:
     payload = {
         "taskId": task_id,
         "nodeId": node_id,
         "progress": max(0, min(100, progress)),
         "status": status,
         "message": message,
+        "outputKey": output_key,
     }
     try:
         _get_producer().send(TOPIC_PROGRESS, key=task_id, value=payload)

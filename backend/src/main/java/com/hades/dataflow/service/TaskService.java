@@ -40,15 +40,14 @@ public class TaskService {
                             .userId(userId)
                             .status("PENDING")
                             .progress(0)
-                            .inputPath(req.getInputKey())
+                            .inputPath(null)
                             .build();
                     return taskRepository.save(task)
                             .flatMap(saved ->
                                     taskProducer.dispatchTask(
                                             saved.getId(),
                                             saved.getPipelineId(),
-                                            pipeline.getGraphId(),
-                                            req.getInputKey()
+                                            pipeline.getGraphId()
                                     ).thenReturn(toResponse(saved))
                             );
                 });
@@ -76,7 +75,7 @@ public class TaskService {
                     // If already terminal, emit final state immediately
                     if ("SUCCESS".equals(task.getStatus()) || "FAILED".equals(task.getStatus())) {
                         return Flux.just(new TaskProgressEvent(
-                                taskId, null, task.getProgress(), task.getStatus(), task.getErrorMsg()));
+                                taskId, null, task.getProgress(), task.getStatus(), task.getErrorMsg(), task.getOutputPath()));
                     }
                     // Subscribe to Redis pub/sub channel
                     return redisTemplate.listenTo(ChannelTopic.of("progress:" + taskId))
@@ -85,7 +84,7 @@ public class TaskService {
                                     return objectMapper.readValue(msg.getMessage(), TaskProgressEvent.class);
                                 } catch (Exception e) {
                                     log.error("Failed to deserialize progress event", e);
-                                    return new TaskProgressEvent(taskId, null, 0, "ERROR", e.getMessage());
+                                    return new TaskProgressEvent(taskId, null, 0, "ERROR", e.getMessage(), null);
                                 }
                             })
                             .takeUntil(e -> "SUCCESS".equals(e.getStatus()) || "FAILED".equals(e.getStatus()));

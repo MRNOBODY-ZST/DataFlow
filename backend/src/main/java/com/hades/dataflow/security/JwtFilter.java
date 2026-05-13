@@ -22,11 +22,15 @@ public class JwtFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return chain.filter(exchange);
+        String token = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        } else if (exchange.getRequest().getPath().value().startsWith("/api/tasks/")
+                && exchange.getRequest().getPath().value().endsWith("/progress")) {
+            token = exchange.getRequest().getQueryParams().getFirst("token");
         }
-        String token = authHeader.substring(7);
-        if (!jwtUtil.isTokenValid(token)) {
+
+        if (token == null || token.isBlank() || !jwtUtil.isTokenValid(token)) {
             return chain.filter(exchange);
         }
         String username = jwtUtil.extractUsername(token);

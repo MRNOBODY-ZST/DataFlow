@@ -64,7 +64,7 @@ def _execute_node_remote(node_type: str, inputs: list, config: dict, ctx_kwargs:
     return node_cls().execute(inputs, ctx)
 
 
-def run_pipeline(graph: dict, task_id: str, input_key: str, reporter) -> str | None:
+def run_pipeline(graph: dict, task_id: str, reporter) -> str | None:
     nodes = graph.get("nodes", [])
     edges = graph.get("edges", [])
 
@@ -77,9 +77,6 @@ def run_pipeline(graph: dict, task_id: str, input_key: str, reporter) -> str | N
         node_type = node["type"]
         config = dict(node.get("data", {}))
 
-        # Inject input_key for source nodes (no incoming edges)
-        if not _get_input_node_ids(node_id, edges) and "key" not in config:
-            config["input_key"] = input_key
 
         input_refs = [results[src] for src in _get_input_node_ids(node_id, edges)]
         resolved_inputs = ray.get(input_refs) if input_refs else []
@@ -100,6 +97,5 @@ def run_pipeline(graph: dict, task_id: str, input_key: str, reporter) -> str | N
     last_node_id = ordered[-1]["id"] if ordered else None
     if last_node_id:
         output = ray.get(results[last_node_id])
-        reporter.report(task_id, last_node_id, 100, "SUCCESS")
         return output if isinstance(output, str) else None
     return None

@@ -1,8 +1,4 @@
--- DataFlow MySQL Schema
--- Run this after the database container starts
-
-CREATE DATABASE IF NOT EXISTS dataflow CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE dataflow;
+-- DataFlow MySQL schema for Spring SQL initialization
 
 CREATE TABLE IF NOT EXISTS users (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,

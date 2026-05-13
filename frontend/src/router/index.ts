@@ -26,6 +26,11 @@ const router = createRouter({
       props: true,
     },
     {
+      path: '/files',
+      name: 'files',
+      component: () => import('@/views/FileManager.vue'),
+    },
+    {
       path: '/tasks',
       name: 'tasks',
       component: () => import('@/views/TaskMonitor.vue'),

@@ -1,12 +1,17 @@
 from nodes.readers.csv_reader import CsvReaderNode
 from nodes.readers.json_reader import JsonReaderNode
 from nodes.readers.minio_reader import MinioReaderNode
-from nodes.transforms.filter_node import FilterNode
-from nodes.transforms.map_node import MapNode
 from nodes.transforms.aggregate_node import AggregateNode
-from nodes.media.image_resize import ImageResizeNode
+from nodes.transforms.filter_node import FilterNode
+from nodes.transforms.json_transform import JsonTransformNode
+from nodes.transforms.map_node import MapNode
+from nodes.media.audio_extract import AudioExtractNode
+from nodes.media.image_format_convert import ImageFormatConvertNode
 from nodes.media.image_ocr import ImageOCRNode
+from nodes.media.image_resize import ImageResizeNode
 from nodes.media.video_extract import VideoExtractNode
+from nodes.media.video_transcode import VideoTranscodeNode
+from nodes.writers.csv_writer import CsvWriterNode
 from nodes.writers.minio_writer import MinioWriterNode
 
 NODE_REGISTRY: dict = {
@@ -16,8 +21,13 @@ NODE_REGISTRY: dict = {
     "filter": FilterNode,
     "map": MapNode,
     "aggregate": AggregateNode,
+    "json_transform": JsonTransformNode,
     "image_resize": ImageResizeNode,
     "image_ocr": ImageOCRNode,
+    "image_format_convert": ImageFormatConvertNode,
     "video_extract": VideoExtractNode,
+    "video_transcode": VideoTranscodeNode,
+    "audio_extract": AudioExtractNode,
     "minio_writer": MinioWriterNode,
+    "csv_writer": CsvWriterNode,
 }

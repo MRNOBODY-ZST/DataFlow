@@ -13,4 +13,5 @@ public class TaskProgressEvent {
     private int progress;       // 0-100
     private String status;      // RUNNING, SUCCESS, FAILED
     private String message;
+    private String outputKey;
 }

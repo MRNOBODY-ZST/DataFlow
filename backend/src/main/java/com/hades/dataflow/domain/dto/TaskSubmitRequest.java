@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class TaskSubmitRequest {
     private Long pipelineId;
-    private String inputKey;
 }
