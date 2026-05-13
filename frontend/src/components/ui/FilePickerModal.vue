@@ -11,7 +11,7 @@
             <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10">
               <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="flex items-center justify-between">
-                  <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">Select File</DialogTitle>
+                  <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">{{ t('filePicker.selectFile') }}</DialogTitle>
                   <button type="button" class="rounded-md p-1 text-gray-400 hover:text-gray-600 dark:hover:text-white" @click="close">
                     <XMarkIcon class="size-5" />
                   </button>
@@ -38,15 +38,15 @@
                     <input
                       v-model="search"
                       type="text"
-                      placeholder="Search by key..."
+                      :placeholder="t('filePicker.searchByKey')"
                       class="w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                     />
-                    <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="refresh">Refresh</button>
+                    <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="refresh">{{ t('common.refresh') }}</button>
                   </div>
 
                   <!-- Folder breadcrumb -->
                   <div v-if="pickerMode === 'folder' && currentPrefix" class="flex items-center gap-1 text-sm">
-                    <button type="button" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400" @click="navigateToPrefix('')">root</button>
+                    <button type="button" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400" @click="navigateToPrefix('')">{{ t('filePicker.root') }}</button>
                     <template v-for="(seg, i) in prefixSegments" :key="i">
                       <ChevronRightIcon class="size-3 text-gray-400" />
                       <button type="button" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400" @click="navigateToPrefix(prefixSegments.slice(0, i + 1).join('/') + '/')">{{ seg }}</button>
@@ -54,8 +54,8 @@
                   </div>
 
                   <div class="max-h-96 overflow-y-auto rounded-lg border border-gray-200 dark:border-white/10">
-                    <div v-if="loading" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">Loading...</div>
-                    <div v-else-if="displayItems.length === 0" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No files found</div>
+                    <div v-if="loading" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">{{ t('common.loading') }}</div>
+                    <div v-else-if="displayItems.length === 0" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">{{ t('filePicker.noFiles') }}</div>
                     <ul v-else role="list" class="divide-y divide-gray-200 dark:divide-white/10">
                       <!-- Folders (in folder mode) -->
                       <li
@@ -73,7 +73,7 @@
                           class="rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-amber-400"
                           @click.stop="selectFolder(folder)"
                         >
-                          Select Folder
+                          {{ t('filePicker.selectFolder') }}
                         </button>
                       </li>
                       <!-- Files -->
@@ -86,7 +86,7 @@
                           <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ pickerMode === 'folder' ? fileName(file.key) : file.key }}</p>
                           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ prettySize(file.size) }} · {{ formatDate(file.lastModified) }}</p>
                         </div>
-                        <button type="button" class="shrink-0 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="select(file)">Select</button>
+                        <button type="button" class="shrink-0 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="select(file)">{{ t('common.select') }}</button>
                       </li>
                     </ul>
                   </div>
@@ -102,6 +102,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { XMarkIcon, FolderIcon } from '@heroicons/vue/24/outline'
 import { ChevronRightIcon } from '@heroicons/vue/20/solid'
@@ -113,6 +114,8 @@ type PickerMode = 'file' | 'folder'
 const props = defineProps<{ open: boolean; initialMode?: 'file' | 'folder' }>()
 const emit = defineEmits<{ close: []; select: [file: FileMetadata]; 'select-folder': [prefix: string] }>()
 
+const { t } = useI18n()
+
 const fileStore = useFileStore()
 const search = ref('')
 const pickerMode = ref<PickerMode>('file')
@@ -121,10 +124,10 @@ const allFiles = ref<FileMetadata[]>([])
 
 const loading = computed(() => fileStore.loading)
 
-const pickerModes: { key: PickerMode; label: string }[] = [
-  { key: 'file', label: 'Single File' },
-  { key: 'folder', label: 'Folder / Dataset' },
-]
+const pickerModes = computed(() => [
+  { key: 'file' as PickerMode, label: t('filePicker.singleFile') },
+  { key: 'folder' as PickerMode, label: t('filePicker.folderDataset') },
+])
 
 const prefixSegments = computed(() =>
   currentPrefix.value.replace(/\/$/, '').split('/').filter(Boolean),

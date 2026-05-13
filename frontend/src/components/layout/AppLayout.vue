@@ -26,7 +26,7 @@
                   <ul role="list" class="flex flex-1 flex-col gap-y-7">
                     <li>
                       <ul role="list" class="-mx-2 space-y-1">
-                        <li v-for="item in navigation" :key="item.name">
+                        <li v-for="item in navigation" :key="item.key">
                           <router-link :to="item.href" :class="[item.current ? 'bg-gray-50 text-indigo-600 dark:bg-white/5 dark:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
                             <component :is="item.icon" :class="[item.current ? 'text-indigo-600 dark:text-white' : 'text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
                             {{ item.name }}
@@ -37,7 +37,7 @@
                     <li class="mt-auto">
                       <router-link to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white">
                         <Cog6ToothIcon class="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white" aria-hidden="true" />
-                        Settings
+                        {{ t('nav.settings') }}
                       </router-link>
                     </li>
                   </ul>
@@ -58,7 +58,7 @@
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
             <li>
               <ul role="list" class="-mx-2 space-y-1">
-                <li v-for="item in navigation" :key="item.name">
+                <li v-for="item in navigation" :key="item.key">
                   <router-link :to="item.href" :class="[item.current ? 'bg-gray-50 text-indigo-600 dark:bg-white/5 dark:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
                     <component :is="item.icon" :class="[item.current ? 'text-indigo-600 dark:text-white' : 'text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
                     {{ item.name }}
@@ -69,7 +69,7 @@
             <li class="mt-auto">
               <router-link to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white">
                 <Cog6ToothIcon class="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white" aria-hidden="true" />
-                Settings
+                {{ t('nav.settings') }}
               </router-link>
             </li>
           </ul>
@@ -88,7 +88,7 @@
 
         <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
           <form class="grid flex-1 grid-cols-1" action="#" method="GET" @submit.prevent>
-            <input name="search" aria-label="Search" class="col-start-1 row-start-1 block size-full bg-white pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-400 sm:text-sm/6 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500" placeholder="Search..." />
+            <input name="search" aria-label="Search" class="col-start-1 row-start-1 block size-full bg-white pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-400 sm:text-sm/6 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500" :placeholder="t('common.search')" />
             <MagnifyingGlassIcon class="pointer-events-none col-start-1 row-start-1 size-5 self-center text-gray-400" aria-hidden="true" />
           </form>
           <div class="flex items-center gap-x-4 lg:gap-x-6">
@@ -105,14 +105,14 @@
                 <span class="sr-only">Open user menu</span>
                 <span class="flex size-8 items-center justify-center rounded-full bg-indigo-500 text-sm font-semibold text-white">{{ initials }}</span>
                 <span class="hidden lg:flex lg:items-center">
-                  <span class="ml-4 text-sm/6 font-semibold text-gray-900 dark:text-white" aria-hidden="true">{{ auth.username || 'User' }}</span>
+                  <span class="ml-4 text-sm/6 font-semibold text-gray-900 dark:text-white" aria-hidden="true">{{ auth.username || t('common.user') }}</span>
                   <ChevronDownIcon class="ml-2 size-5 text-gray-400 dark:text-gray-500" aria-hidden="true" />
                 </span>
               </MenuButton>
               <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform scale-100" leave-to-class="transform opacity-0 scale-95">
                 <MenuItems class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg outline-1 outline-gray-900/5 dark:bg-gray-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
                   <MenuItem v-slot="{ active }">
-                    <button type="button" :class="[active ? 'bg-gray-50 outline-hidden dark:bg-white/5' : '', 'block w-full px-3 py-1 text-left text-sm/6 text-gray-900 dark:text-white']" @click="logout">Sign out</button>
+                    <button type="button" :class="[active ? 'bg-gray-50 outline-hidden dark:bg-white/5' : '', 'block w-full px-3 py-1 text-left text-sm/6 text-gray-900 dark:text-white']" @click="logout">{{ t('common.signOut') }}</button>
                   </MenuItem>
                 </MenuItems>
               </transition>
@@ -131,6 +131,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   Dialog,
   DialogPanel,
@@ -156,16 +157,17 @@ import { useAuthStore } from '@/stores/auth'
 
 defineProps<{ title?: string }>()
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const sidebarOpen = ref(false)
 
 const navigation = computed(() => [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, current: route.path === '/dashboard' },
-  { name: 'Pipeline', href: '/pipelines', icon: RectangleGroupIcon, current: route.path.startsWith('/pipelines') || route.path.startsWith('/editor') },
-  { name: 'Files', href: '/files', icon: FolderIcon, current: route.path.startsWith('/files') },
-  { name: 'Tasks', href: '/tasks', icon: ClipboardDocumentListIcon, current: route.path.startsWith('/tasks') },
+  { key: 'dashboard', name: t('nav.dashboard'), href: '/dashboard', icon: HomeIcon, current: route.path === '/dashboard' },
+  { key: 'pipeline', name: t('nav.pipeline'), href: '/pipelines', icon: RectangleGroupIcon, current: route.path.startsWith('/pipelines') || route.path.startsWith('/editor') },
+  { key: 'files', name: t('nav.files'), href: '/files', icon: FolderIcon, current: route.path.startsWith('/files') },
+  { key: 'tasks', name: t('nav.tasks'), href: '/tasks', icon: ClipboardDocumentListIcon, current: route.path.startsWith('/tasks') },
 ])
 
 const initials = computed(() => (auth.username?.slice(0, 1) || 'U').toUpperCase())

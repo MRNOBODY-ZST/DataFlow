@@ -13,15 +13,9 @@ class MinioReaderNode(BaseNode):
 
     def execute(self, inputs: list, ctx: NodeContext):
         bucket = ctx.config.get("bucket", ctx.input_bucket)
-        batch = ctx.config.get("batch", False)
-        if isinstance(batch, str):
-            batch = batch.lower() in ("true", "1", "yes")
-
-        prefix = ctx.config.get("prefix", "")
         key = ctx.config.get("key", "")
-
-        if not batch and (prefix or key.endswith("/")):
-            batch = True
+        prefix = ctx.config.get("prefix", "")
+        batch = bool(prefix) or key.endswith("/")
 
         if batch:
             folder = prefix or key

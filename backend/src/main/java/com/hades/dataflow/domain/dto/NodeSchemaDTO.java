@@ -29,6 +29,7 @@ public class NodeSchemaDTO {
       private List<String> options;
         private String widget;
         private WidgetConfig widgetConfig;
+        private boolean inline;
     }
 
     @Data

@@ -15,7 +15,7 @@
                 </div>
                 <div class="mt-3 text-center sm:mt-5">
                   <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">
-                    {{ schema?.label || node?.type || 'Node Config' }}
+                    {{ schema?.label || node?.type || t('editor.nodeConfig') }}
                   </DialogTitle>
                   <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ node?.id }}</p>
                 </div>
@@ -56,14 +56,22 @@
                       :value-options="field.widgetConfig?.valueOptions ?? undefined"
                     />
 
+                    <JsonMapperWidget
+                      v-else-if="field.widget === 'json-mapper'"
+                      :model-value="localConfig[field.key]"
+                      :sample="localConfig['sample']"
+                      @update:model-value="localConfig[field.key] = $event"
+                      @update:sample="localConfig['sample'] = $event"
+                    />
+
                     <div v-else-if="field.type === 'file-picker'" class="space-y-2">
                       <div class="rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-300">
-                        {{ localConfig[field.key] || 'No file or folder selected' }}
+                        {{ localConfig[field.key] || t('editor.noFileSelected') }}
                       </div>
                       <div class="flex gap-2">
-                        <button type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="pickerField = field.key; showFilePicker = true">Choose</button>
+                        <button type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="pickerField = field.key; showFilePicker = true">{{ t('editor.choose') }}</button>
                         <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="manualMode[field.key] = !manualMode[field.key]">
-                          {{ manualMode[field.key] ? 'Hide manual' : 'Manual input' }}
+                          {{ manualMode[field.key] ? t('editor.hideManual') : t('editor.manualInput') }}
                         </button>
                       </div>
                       <input
@@ -109,8 +117,8 @@
               </div>
 
               <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-                <button type="button" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500" @click="apply">Apply</button>
-                <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20" @click="$emit('close')">Cancel</button>
+                <button type="button" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500" @click="apply">{{ t('common.apply') }}</button>
+                <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20" @click="$emit('close')">{{ t('common.cancel') }}</button>
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -124,6 +132,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { Cog6ToothIcon } from '@heroicons/vue/24/outline'
 import type { Node } from '@vue-flow/core'
@@ -132,11 +141,13 @@ import FilePickerModal from '@/components/ui/FilePickerModal.vue'
 import JMESPathBuilder from '@/components/flow/fields/JMESPathBuilder.vue'
 import StringArrayEditor from '@/components/flow/fields/StringArrayEditor.vue'
 import KeyValueEditor from '@/components/flow/fields/KeyValueEditor.vue'
+import JsonMapperWidget from '@/components/flow/fields/JsonMapperWidget.vue'
 import type { FileMetadata } from '@/api/file'
 
 const props = defineProps<{ open: boolean; node: Node | null }>()
 const emit = defineEmits<{ update: [node: Node]; close: [] }>()
 
+const { t } = useI18n()
 const nodeSchemaStore = useNodeSchemaStore()
 const localConfig = ref<Record<string, any>>({})
 const showFilePicker = ref(false)
@@ -173,10 +184,7 @@ function onFolderSelect(prefix: string) {
   showFilePicker.value = false
 }
 
-function isFieldVisible(field: { key: string }) {
-  const isBatch = !!localConfig.value.batch
-  if (field.key === 'key' && isBatch) return false
-  if (field.key === 'prefix' && !isBatch) return false
+function isFieldVisible(_field: { key: string }) {
   return true
 }
 

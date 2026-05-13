@@ -6,24 +6,24 @@
         <router-link to="/pipelines" class="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">
           <ArrowLeftIcon class="size-5" />
         </router-link>
-        <span class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ pipeline?.name ?? 'Loading...' }}</span>
+        <span class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ pipeline?.name ?? t('common.loading') }}</span>
         <div class="ml-auto flex items-center gap-2">
           <!-- Save status indicator -->
           <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
             <span v-if="saveStatus === 'saved'" class="flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
               <CheckCircleIcon class="size-4" />
-              Saved
+              {{ t('editor.saved') }}
             </span>
             <span v-else-if="saveStatus === 'error'" class="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400">
               <ExclamationCircleIcon class="size-4" />
-              Error
+              {{ t('editor.error') }}
             </span>
           </transition>
           <button class="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" :disabled="saving" @click="save">
-            {{ saving ? 'Saving...' : 'Save' }}
+            {{ saving ? t('editor.saving') : t('editor.save') }}
           </button>
           <button class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="showRunDialog = true">
-            Run
+            {{ t('editor.run') }}
           </button>
           <button class="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="drawerOpen = !drawerOpen">
             <Squares2X2Icon class="size-5" />
@@ -70,18 +70,18 @@
                       <PlayIcon class="size-6 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
                     </div>
                     <div class="mt-3 text-center sm:mt-5">
-                      <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">Run Pipeline</DialogTitle>
+                      <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">{{ t('editor.runPipeline') }}</DialogTitle>
                       <div class="mt-2">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Confirm to run this pipeline? Input files are configured in nodes.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('editor.runConfirm') }}</p>
                         <p v-if="runError" class="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-400">{{ runError }}</p>
                       </div>
                     </div>
                   </div>
                   <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
                     <button type="button" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 sm:col-start-2 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400" :disabled="running" @click="run">
-                      {{ running ? 'Submitting...' : 'Start' }}
+                      {{ running ? t('editor.submitting') : t('common.start') }}
                     </button>
-                    <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="showRunDialog = false">Cancel</button>
+                    <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="showRunDialog = false">{{ t('common.cancel') }}</button>
                   </div>
                 </DialogPanel>
               </TransitionChild>
@@ -96,6 +96,7 @@
 <script setup lang="ts">
 import { computed, markRaw, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { VueFlow, useVueFlow, type Edge, type Node, type NodeMouseEvent } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -114,6 +115,7 @@ import { useTaskStore } from '@/stores/task'
 import { useNodeSchemaStore } from '@/stores/nodeSchema'
 
 const props = defineProps<{ id: string }>()
+const { t } = useI18n()
 const router = useRouter()
 const pipelineStore = usePipelineStore()
 const taskStore = useTaskStore()
@@ -217,7 +219,7 @@ async function run() {
     await save()
     const task = await taskStore.submit(Number(props.id))
     showRunDialog.value = false
-    router.push(`/tasks/${task.id}`)
+    router.push('/tasks')
   } catch (e: any) {
     runError.value = e.message || 'Failed to submit task'
   } finally {

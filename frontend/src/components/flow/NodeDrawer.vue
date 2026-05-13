@@ -5,7 +5,7 @@
         <div class="relative w-72 border-l border-gray-200 bg-white shadow-xl dark:border-white/10 dark:bg-gray-800">
           <div class="flex h-full flex-col overflow-y-auto">
             <div class="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-white/10">
-              <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Node Library</h3>
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('editor.nodeLibrary') }}</h3>
               <button type="button" class="rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-white" @click="$emit('close')">
                 <XMarkIcon class="size-5" />
               </button>
@@ -23,7 +23,7 @@
             <div class="flex-1 overflow-y-auto">
               <Disclosure v-for="(items, category) in groupedNodes" :key="category" v-slot="{ open: isOpen }" default-open>
                 <DisclosureButton class="flex w-full items-center justify-between px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                  {{ categoryLabels[category] || category }}
+                  {{ t(`nodeCategories.${category}`, category) }}
                   <ChevronRightIcon :class="[isOpen ? 'rotate-90' : '', 'size-4 transition-transform']" />
                 </DisclosureButton>
                 <DisclosurePanel class="px-3 pb-3">
@@ -51,6 +51,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Disclosure, DisclosureButton, DisclosurePanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { ChevronRightIcon } from '@heroicons/vue/20/solid'
@@ -61,14 +62,10 @@ defineProps<{ open: boolean }>()
 defineEmits<{ 'drag-start': [type: string]; close: [] }>()
 
 const nodeSchemaStore = useNodeSchemaStore()
+const { t } = useI18n()
 const search = ref('')
 
-const categoryLabels: Record<string, string> = {
-  readers: 'Readers',
-  transforms: 'Transforms',
-  media: 'Media',
-  writers: 'Writers',
-}
+const categoryLabels: Record<string, string> = {}
 
 const groupedNodes = computed(() => {
   const query = search.value.trim().toLowerCase()

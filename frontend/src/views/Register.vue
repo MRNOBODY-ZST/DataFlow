@@ -4,32 +4,32 @@
       <div class="mx-auto w-full max-w-sm lg:w-96">
         <div>
           <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">DataFlow</h1>
-          <h2 class="mt-8 text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">Create your account</h2>
+          <h2 class="mt-8 text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">{{ t('auth.createAccountTitle') }}</h2>
           <p class="mt-2 text-sm/6 text-gray-500 dark:text-gray-400">
-            Already have an account?
+            {{ t('auth.hasAccount') }}
             {{ ' ' }}
-            <router-link to="/login" class="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">Sign in</router-link>
+            <router-link to="/login" class="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">{{ t('auth.signInLink') }}</router-link>
           </p>
         </div>
 
         <div class="mt-10">
           <form class="space-y-6" @submit.prevent="submit">
             <div>
-              <label for="username" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">Username</label>
+              <label for="username" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">{{ t('auth.username') }}</label>
               <div class="mt-2">
                 <input v-model="form.username" type="text" id="username" autocomplete="username" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
               </div>
             </div>
 
             <div>
-              <label for="email" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">Email (optional)</label>
+              <label for="email" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">{{ t('auth.email') }}</label>
               <div class="mt-2">
                 <input v-model="form.email" type="email" id="email" autocomplete="email" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
               </div>
             </div>
 
             <div>
-              <label for="password" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">Password</label>
+              <label for="password" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">{{ t('auth.password') }}</label>
               <div class="mt-2">
                 <input v-model="form.password" type="password" id="password" autocomplete="new-password" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
               </div>
@@ -39,7 +39,7 @@
 
             <div>
               <button type="submit" :disabled="loading" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500">
-                {{ loading ? 'Creating account...' : 'Create account' }}
+                {{ loading ? t('auth.creatingAccount') : t('auth.createAccount') }}
               </button>
             </div>
           </form>
@@ -50,8 +50,8 @@
       <div class="absolute inset-0 bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
         <div class="text-center text-white px-12">
           <RectangleGroupIcon class="mx-auto size-20 opacity-80" />
-          <h2 class="mt-6 text-3xl font-bold">Visual Data Pipeline</h2>
-          <p class="mt-4 text-lg opacity-80">Build, manage, and monitor your data processing workflows with a powerful visual editor.</p>
+          <h2 class="mt-6 text-3xl font-bold">{{ t('auth.heroTitle') }}</h2>
+          <p class="mt-4 text-lg opacity-80">{{ t('auth.heroDesc') }}</p>
         </div>
       </div>
     </div>
@@ -61,9 +61,11 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { RectangleGroupIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
 
+const { t } = useI18n()
 const router = useRouter()
 const auth = useAuthStore()
 

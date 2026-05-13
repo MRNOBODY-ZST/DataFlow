@@ -56,9 +56,6 @@ public class FileController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> delete(@RequestParam String bucket,
                              @RequestParam String key) {
-        if (!"input".equals(bucket)) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only input bucket files can be deleted"));
-        }
         return minioService.deleteObject(resolveBucket(bucket), key);
     }
 

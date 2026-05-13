@@ -47,12 +47,6 @@ const router = createRouter({
       component: () => import('@/views/TaskMonitor.vue'),
     },
     {
-      path: '/tasks/:id',
-      name: 'task-detail',
-      component: () => import('@/views/TaskDetail.vue'),
-      props: true,
-    },
-    {
       path: '/settings',
       name: 'settings',
       component: () => import('@/views/Settings.vue'),

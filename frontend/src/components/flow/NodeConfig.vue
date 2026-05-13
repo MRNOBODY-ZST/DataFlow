@@ -41,6 +41,15 @@
             :value-options="field.widgetConfig?.valueOptions ?? undefined"
       />
 
+          <!-- Json Mapper Widget -->
+          <JsonMapperWidget
+            v-else-if="field.widget === 'json-mapper'"
+            :model-value="localConfig[field.key]"
+            :sample="localConfig['sample']"
+            @update:model-value="localConfig[field.key] = $event"
+            @update:sample="localConfig['sample'] = $event"
+          />
+
           <!-- File Picker -->
        <div v-else-if="field.type === 'file-picker'" class="space-y-2">
             <div class="rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700">
@@ -115,6 +124,7 @@ import FilePickerModal from '@/components/ui/FilePickerModal.vue'
 import JMESPathBuilder from '@/components/flow/fields/JMESPathBuilder.vue'
 import StringArrayEditor from '@/components/flow/fields/StringArrayEditor.vue'
 import KeyValueEditor from '@/components/flow/fields/KeyValueEditor.vue'
+import JsonMapperWidget from '@/components/flow/fields/JsonMapperWidget.vue'
 import type { FileMetadata } from '@/api/file'
 
 const props = defineProps<{

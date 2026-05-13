@@ -15,7 +15,7 @@
                     <ArrowUpTrayIcon class="size-6 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
                   </div>
                   <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">Upload Files</DialogTitle>
+                    <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">{{ t('upload.title') }}</DialogTitle>
 
                     <!-- Mode tabs -->
                     <div class="mt-3 flex gap-2">
@@ -36,7 +36,7 @@
                     <div class="mt-4 space-y-4">
                       <!-- Dataset name (for dataset mode) -->
                       <div v-if="mode === 'dataset'" class="space-y-1.5">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dataset Name</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('upload.datasetName') }}</label>
                         <input
                           v-model="datasetName"
                           type="text"
@@ -49,10 +49,10 @@
                       <label class="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center hover:border-indigo-400 hover:bg-indigo-50/40 dark:border-white/20 dark:bg-white/5 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/5">
                         <ArrowUpTrayIcon class="size-8 text-gray-400 dark:text-gray-500" />
                         <span class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                          {{ mode === 'single' ? 'Click to select a file' : mode === 'batch' ? 'Click to select multiple files' : 'Click to select a folder' }}
+                          {{ mode === 'single' ? t('upload.clickSingle') : mode === 'batch' ? t('upload.clickBatch') : t('upload.clickFolder') }}
                         </span>
                         <span class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                          {{ mode === 'single' ? 'Single file upload' : mode === 'batch' ? 'Select multiple files at once' : 'Upload an entire folder as a dataset' }}
+                          {{ mode === 'single' ? t('upload.singleDesc') : mode === 'batch' ? t('upload.batchDesc') : t('upload.datasetDesc') }}
                         </span>
                         <input
                           v-if="mode === 'single'"
@@ -101,8 +101,8 @@
 
                       <!-- Summary -->
                       <div v-if="fileList.length > 1" class="text-xs text-gray-500 dark:text-gray-400">
-                        {{ fileList.length }} files · {{ prettySize(totalSize) }} total
-                        <span v-if="completedCount > 0"> · {{ completedCount }}/{{ fileList.length }} uploaded</span>
+                        {{ t('upload.filesTotal', { n: fileList.length, size: prettySize(totalSize) }) }}
+                        <span v-if="completedCount > 0"> · {{ t('upload.uploaded', { done: completedCount, total: fileList.length }) }}</span>
                       </div>
 
                       <p v-if="error" class="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-400">{{ error }}</p>
@@ -112,10 +112,10 @@
               </div>
               <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 dark:bg-gray-800/50">
                 <button type="button" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 sm:ml-3 sm:w-auto disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400" :disabled="fileList.length === 0 || uploading || (mode === 'dataset' && !datasetName.trim())" @click="upload">
-                  {{ uploading ? `Uploading ${completedCount}/${fileList.length}...` : 'Upload' }}
+                  {{ uploading ? t('upload.uploading', { done: completedCount, total: fileList.length }) : t('common.upload') }}
                 </button>
                 <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="close">
-                  Cancel
+                  {{ t('common.cancel') }}
                 </button>
               </div>
             </DialogPanel>
@@ -128,6 +128,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { ArrowUpTrayIcon, CheckCircleIcon, ExclamationCircleIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { fileApi, type FileMetadata } from '@/api/file'
@@ -137,6 +138,8 @@ type UploadMode = 'single' | 'batch' | 'dataset'
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: []; uploaded: [file: FileMetadata] }>()
 
+const { t } = useI18n()
+
 const mode = ref<UploadMode>('single')
 const datasetName = ref('')
 const fileList = ref<File[]>([])
@@ -145,11 +148,11 @@ const fileStatuses = ref<Record<number, 'pending' | 'uploading' | 'done' | 'erro
 const uploading = ref(false)
 const error = ref('')
 
-const modes: { key: UploadMode; label: string }[] = [
-  { key: 'single', label: 'Single File' },
-  { key: 'batch', label: 'Batch Upload' },
-  { key: 'dataset', label: 'Dataset' },
-]
+const modes = computed(() => [
+  { key: 'single' as UploadMode, label: t('upload.singleFile') },
+  { key: 'batch' as UploadMode, label: t('upload.batchUpload') },
+  { key: 'dataset' as UploadMode, label: t('upload.dataset') },
+])
 
 const totalSize = computed(() => fileList.value.reduce((sum, f) => sum + f.size, 0))
 const completedCount = computed(() => Object.values(fileStatuses.value).filter((s) => s === 'done').length)

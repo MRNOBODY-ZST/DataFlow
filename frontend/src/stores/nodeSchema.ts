@@ -19,6 +19,7 @@ export interface NodeFieldDef {
   options?: string[] | null
   widget?: string | null
   widgetConfig?: WidgetConfig | null
+  inline?: boolean
 }
 
 export interface NodeSchema {

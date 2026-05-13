@@ -1,8 +1,8 @@
 <template>
-  <AppLayout title="Dashboard">
+  <AppLayout :title="t('dashboard.title')">
     <div class="py-6 px-4 sm:px-6 lg:px-8">
       <!-- Stats with shared borders -->
-      <h3 class="text-base font-semibold text-gray-900 dark:text-white">Overview</h3>
+      <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('dashboard.overview') }}</h3>
       <dl class="mt-5 grid grid-cols-1 divide-gray-200 overflow-hidden rounded-lg bg-white shadow-sm md:grid-cols-4 md:divide-x md:divide-y-0 dark:divide-white/10 dark:bg-gray-800/75 dark:shadow-none dark:inset-ring dark:inset-ring-white/10">
         <div v-for="item in stats" :key="item.name" class="px-4 py-5 sm:p-6">
           <dt class="text-base font-normal text-gray-900 dark:text-gray-100">{{ item.name }}</dt>
@@ -21,14 +21,14 @@
 
       <!-- Bento Grid with ECharts -->
       <div class="mt-10">
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Statistics</h3>
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('dashboard.statistics') }}</h3>
         <div class="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-6 lg:grid-rows-2">
           <!-- Task Runs - large card -->
           <div class="flex p-px lg:col-span-4">
             <div class="w-full overflow-hidden rounded-lg bg-white shadow-sm outline outline-black/5 max-lg:rounded-t-4xl lg:rounded-tl-4xl dark:bg-gray-800 dark:shadow-none dark:outline-white/15">
               <div class="p-6">
-                <h4 class="text-sm/4 font-semibold text-gray-500 dark:text-gray-400">Task Runs</h4>
-                <p class="mt-2 text-lg font-medium tracking-tight text-gray-900 dark:text-white">Recent task execution history</p>
+                <h4 class="text-sm/4 font-semibold text-gray-500 dark:text-gray-400">{{ t('dashboard.taskRuns') }}</h4>
+                <p class="mt-2 text-lg font-medium tracking-tight text-gray-900 dark:text-white">{{ t('dashboard.recentHistory') }}</p>
                 <div ref="taskRunsEl" class="mt-4 h-64 w-full"></div>
               </div>
             </div>
@@ -37,8 +37,8 @@
           <div class="flex p-px lg:col-span-2">
             <div class="w-full overflow-hidden rounded-lg bg-white shadow-sm outline outline-black/5 lg:rounded-tr-4xl dark:bg-gray-800 dark:shadow-none dark:outline-white/15">
               <div class="p-6">
-                <h4 class="text-sm/4 font-semibold text-gray-500 dark:text-gray-400">Task Status</h4>
-                <p class="mt-2 text-lg font-medium tracking-tight text-gray-900 dark:text-white">Distribution</p>
+                <h4 class="text-sm/4 font-semibold text-gray-500 dark:text-gray-400">{{ t('dashboard.taskStatus') }}</h4>
+                <p class="mt-2 text-lg font-medium tracking-tight text-gray-900 dark:text-white">{{ t('dashboard.distribution') }}</p>
                 <div ref="statusPieEl" class="mt-4 h-64 w-full"></div>
               </div>
             </div>
@@ -47,8 +47,8 @@
           <div class="flex p-px lg:col-span-2">
             <div class="w-full overflow-hidden rounded-lg bg-white shadow-sm outline outline-black/5 lg:rounded-bl-4xl dark:bg-gray-800 dark:shadow-none dark:outline-white/15">
               <div class="p-6">
-                <h4 class="text-sm/4 font-semibold text-gray-500 dark:text-gray-400">Storage</h4>
-                <p class="mt-2 text-lg font-medium tracking-tight text-gray-900 dark:text-white">Bucket usage</p>
+                <h4 class="text-sm/4 font-semibold text-gray-500 dark:text-gray-400">{{ t('dashboard.storage') }}</h4>
+                <p class="mt-2 text-lg font-medium tracking-tight text-gray-900 dark:text-white">{{ t('dashboard.bucketUsage') }}</p>
                 <div ref="storageEl" class="mt-4 h-64 w-full"></div>
               </div>
             </div>
@@ -57,22 +57,22 @@
           <div class="flex p-px lg:col-span-4">
             <div class="w-full overflow-hidden rounded-lg bg-white shadow-sm outline outline-black/5 max-lg:rounded-b-4xl lg:rounded-br-4xl dark:bg-gray-800 dark:shadow-none dark:outline-white/15">
               <div class="p-6">
-                <h4 class="text-sm/4 font-semibold text-gray-500 dark:text-gray-400">Pipeline Activity</h4>
-                <p class="mt-2 text-lg font-medium tracking-tight text-gray-900 dark:text-white">Recent pipelines</p>
+                <h4 class="text-sm/4 font-semibold text-gray-500 dark:text-gray-400">{{ t('dashboard.pipelineActivity') }}</h4>
+                <p class="mt-2 text-lg font-medium tracking-tight text-gray-900 dark:text-white">{{ t('dashboard.recentPipelines') }}</p>
                 <div class="mt-4">
-                  <div v-if="pipelineStore.loading" class="py-8 text-center text-sm text-gray-500">Loading...</div>
+                  <div v-if="pipelineStore.loading" class="py-8 text-center text-sm text-gray-500">{{ t('common.loading') }}</div>
                   <div v-else-if="pipelineStore.pipelines.length === 0" class="py-8 text-center">
                     <FolderPlusIcon class="mx-auto size-10 text-gray-400" />
-                    <p class="mt-2 text-sm text-gray-500">No pipelines yet</p>
-                    <button type="button" class="mt-4 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500" @click="router.push('/pipelines')">Create Pipeline</button>
+                    <p class="mt-2 text-sm text-gray-500">{{ t('dashboard.noPipelines') }}</p>
+                    <button type="button" class="mt-4 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500" @click="router.push('/pipelines')">{{ t('dashboard.createPipeline') }}</button>
                   </div>
                   <ul v-else role="list" class="divide-y divide-gray-200 dark:divide-white/10">
                     <li v-for="pipeline in pipelineStore.pipelines.slice(0, 5)" :key="pipeline.id" class="flex items-center justify-between gap-4 py-3">
                       <div class="min-w-0">
                         <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ pipeline.name }}</p>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ pipeline.description || 'No description' }} · {{ new Date(pipeline.updatedAt).toLocaleString() }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ pipeline.description || t('dashboard.noDescription') }} · {{ new Date(pipeline.updatedAt).toLocaleString() }}</p>
                       </div>
-                      <button type="button" class="shrink-0 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500" @click="router.push(`/editor/${pipeline.id}`)">Edit</button>
+                      <button type="button" class="shrink-0 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500" @click="router.push(`/editor/${pipeline.id}`)">{{ t('common.edit') }}</button>
                     </li>
                   </ul>
                 </div>
@@ -88,6 +88,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import * as echarts from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart, PieChart } from 'echarts/charts'
@@ -101,6 +102,7 @@ import { useFileStore } from '@/stores/file'
 
 echarts.use([CanvasRenderer, BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent])
 
+const { t } = useI18n()
 const router = useRouter()
 const pipelineStore = usePipelineStore()
 const taskStore = useTaskStore()
@@ -140,17 +142,17 @@ function handleResize() {
 
 const taskCounts = computed(() => {
   const counts = { PENDING: 0, RUNNING: 0, SUCCESS: 0, FAILED: 0 }
-  for (const t of taskStore.tasks) {
-    counts[t.status] = (counts[t.status] || 0) + 1
+  for (const task of taskStore.tasks) {
+    counts[task.status] = (counts[task.status] || 0) + 1
   }
   return counts
 })
 
 const stats = computed(() => [
-  { name: 'Pipelines', stat: String(pipelineStore.pipelines.length), change: 'total', changeType: 'neutral' },
-  { name: 'Total Tasks', stat: String(taskStore.tasks.length), change: `${taskCounts.value.RUNNING} running`, changeType: taskCounts.value.RUNNING > 0 ? 'increase' : 'neutral' },
-  { name: 'Success Rate', stat: taskStore.tasks.length > 0 ? `${Math.round((taskCounts.value.SUCCESS / taskStore.tasks.length) * 100)}%` : '—', change: `${taskCounts.value.FAILED} failed`, changeType: taskCounts.value.FAILED > 0 ? 'decrease' : 'increase' },
-  { name: 'Input Files', stat: String(fileStore.filesByBucket.input.length), change: `${fileStore.filesByBucket.output.length} outputs`, changeType: 'neutral' },
+  { name: t('dashboard.pipelines'), stat: String(pipelineStore.pipelines.length), change: t('common.total'), changeType: 'neutral' },
+  { name: t('dashboard.totalTasks'), stat: String(taskStore.tasks.length), change: t('dashboard.running', { n: taskCounts.value.RUNNING }), changeType: taskCounts.value.RUNNING > 0 ? 'increase' : 'neutral' },
+  { name: t('dashboard.successRate'), stat: taskStore.tasks.length > 0 ? `${Math.round((taskCounts.value.SUCCESS / taskStore.tasks.length) * 100)}%` : '—', change: t('dashboard.failed', { n: taskCounts.value.FAILED }), changeType: taskCounts.value.FAILED > 0 ? 'decrease' : 'increase' },
+  { name: t('dashboard.inputFiles'), stat: String(fileStore.filesByBucket.input.length), change: t('dashboard.outputs', { n: fileStore.filesByBucket.output.length }), changeType: 'neutral' },
 ])
 
 function initCharts() {
@@ -177,25 +179,25 @@ function updateTaskRunsChart() {
   })
   const successByDay = new Array(7).fill(0)
   const failedByDay = new Array(7).fill(0)
-  for (const t of taskStore.tasks) {
-    const taskDate = new Date(t.createdAt)
+  for (const task of taskStore.tasks) {
+    const taskDate = new Date(task.createdAt)
     const now = new Date()
     const diffDays = Math.floor((now.getTime() - taskDate.getTime()) / (1000 * 60 * 60 * 24))
     if (diffDays >= 0 && diffDays < 7) {
       const idx = 6 - diffDays
-      if (t.status === 'SUCCESS') successByDay[idx]++
-      else if (t.status === 'FAILED') failedByDay[idx]++
+      if (task.status === 'SUCCESS') successByDay[idx]++
+      else if (task.status === 'FAILED') failedByDay[idx]++
     }
   }
   taskRunsChart.value.setOption({
     tooltip: { trigger: 'axis' },
-    legend: { data: ['Success', 'Failed'], textStyle: { color: '#9ca3af' } },
+    legend: { data: [t('dashboard.success'), t('task.failed')], textStyle: { color: '#9ca3af' } },
     grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
     xAxis: { type: 'category', data: days, axisLabel: { color: '#9ca3af' }, axisLine: { lineStyle: { color: '#374151' } } },
     yAxis: { type: 'value', minInterval: 1, axisLabel: { color: '#9ca3af' }, splitLine: { lineStyle: { color: '#374151', opacity: 0.3 } } },
     series: [
-      { name: 'Success', type: 'bar', stack: 'total', data: successByDay, itemStyle: { color: '#22c55e', borderRadius: [4, 4, 0, 0] } },
-      { name: 'Failed', type: 'bar', stack: 'total', data: failedByDay, itemStyle: { color: '#ef4444', borderRadius: [4, 4, 0, 0] } },
+      { name: t('dashboard.success'), type: 'bar', stack: 'total', data: successByDay, itemStyle: { color: '#22c55e', borderRadius: [4, 4, 0, 0] } },
+      { name: t('task.failed'), type: 'bar', stack: 'total', data: failedByDay, itemStyle: { color: '#ef4444', borderRadius: [4, 4, 0, 0] } },
     ],
   })
 }
@@ -211,10 +213,10 @@ function updateStatusPieChart() {
       itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
       label: { show: true, color: '#9ca3af' },
       data: [
-        { value: taskCounts.value.SUCCESS, name: 'Success', itemStyle: { color: '#22c55e' } },
-        { value: taskCounts.value.FAILED, name: 'Failed', itemStyle: { color: '#ef4444' } },
-        { value: taskCounts.value.RUNNING, name: 'Running', itemStyle: { color: '#3b82f6' } },
-        { value: taskCounts.value.PENDING, name: 'Pending', itemStyle: { color: '#9ca3af' } },
+        { value: taskCounts.value.SUCCESS, name: t('dashboard.success'), itemStyle: { color: '#22c55e' } },
+        { value: taskCounts.value.FAILED, name: t('task.failed'), itemStyle: { color: '#ef4444' } },
+        { value: taskCounts.value.RUNNING, name: t('task.running'), itemStyle: { color: '#3b82f6' } },
+        { value: taskCounts.value.PENDING, name: t('dashboard.pending'), itemStyle: { color: '#9ca3af' } },
       ].filter(d => d.value > 0),
     }],
   })
@@ -229,8 +231,8 @@ function updateStorageChart() {
       radius: '65%',
       label: { show: true, color: '#9ca3af' },
       data: [
-        { value: fileStore.filesByBucket.input.length, name: 'Input', itemStyle: { color: '#6366f1' } },
-        { value: fileStore.filesByBucket.output.length, name: 'Output', itemStyle: { color: '#8b5cf6' } },
+        { value: fileStore.filesByBucket.input.length, name: t('dashboard.input'), itemStyle: { color: '#6366f1' } },
+        { value: fileStore.filesByBucket.output.length, name: t('dashboard.output'), itemStyle: { color: '#8b5cf6' } },
       ].filter(d => d.value > 0),
     }],
   })
