@@ -93,13 +93,14 @@ def main():
         task = msg.value
         task_id = str(task["taskId"])
         graph_id = task["graphId"]
+        user_id = str(task.get("userId", ""))
 
-        logger.info("Received task %s (graph=%s)", task_id, graph_id)
+        logger.info("Received task %s (graph=%s, user=%s)", task_id, graph_id, user_id)
         reporter.report(task_id, None, 0, "RUNNING", "Pipeline started")
 
         try:
             graph = fetch_graph(graph_id)
-            output_key = run_pipeline(graph, task_id, reporter)
+            output_key = run_pipeline(graph, task_id, reporter, user_id=user_id)
             reporter.report(task_id, None, 100, "SUCCESS", "Pipeline completed", output_key=output_key)
             logger.info("Task %s completed. output=%s", task_id, output_key)
         except Exception as e:

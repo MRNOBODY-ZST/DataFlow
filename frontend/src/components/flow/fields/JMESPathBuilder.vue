@@ -10,7 +10,7 @@
             v-model="pathSegments[index]"
             type="text"
             placeholder="字段名或 [*]"
-            class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
             @input="updateExpression"
           />
           <button
@@ -47,7 +47,7 @@
         <div class="text-xs font-medium text-gray-600">生成的表达式</div>
         <button
           type="button"
-          class="text-xs text-indigo-600 hover:text-indigo-700"
+          class="text-xs text-sky-600 hover:text-sky-700"
           @click="showManual = !showManual"
         >
           {{ showManual ? '使用构建器' : '手动编辑' }}
@@ -63,7 +63,7 @@
       v-model="manualExpression"
         rows="3"
         placeholder="items[*].name"
-        class="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm focus:border-indigo-500 focus:outline-none"
+        class="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm focus:border-sky-500 focus:outline-none"
         @input="onManualChange"
       />
     </div>

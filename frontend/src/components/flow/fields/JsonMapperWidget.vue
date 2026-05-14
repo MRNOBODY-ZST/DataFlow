@@ -22,7 +22,7 @@
     <!-- Open mapper button -->
     <button
       type="button"
-      class="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+      class="w-full rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400"
       @click="showMapper = true"
     >
       {{ t('jsonMapper.openMapper') }}

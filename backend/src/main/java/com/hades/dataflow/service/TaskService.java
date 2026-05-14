@@ -47,7 +47,8 @@ public class TaskService {
                                     taskProducer.dispatchTask(
                                             saved.getId(),
                                             saved.getPipelineId(),
-                                            pipeline.getGraphId()
+                                            pipeline.getGraphId(),
+                                            userId
                                     ).thenReturn(toResponse(saved))
                             );
                 });

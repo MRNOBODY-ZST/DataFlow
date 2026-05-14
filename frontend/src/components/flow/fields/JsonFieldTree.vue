@@ -5,7 +5,7 @@
       <div
         class="flex items-center gap-1 rounded px-1.5 py-0.5 transition-colors"
         :class="[
-          isDragging === item.path ? 'bg-indigo-100 dark:bg-indigo-500/20' : 'hover:bg-gray-100 dark:hover:bg-white/5',
+          isDragging === item.path ? 'bg-sky-100 dark:bg-sky-500/20' : 'hover:bg-gray-100 dark:hover:bg-white/5',
           (item.type !== 'object' || !item.hasChildren) ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer',
         ]"
         :style="{ paddingLeft: `${item.depth * 16 + 4}px` }"
@@ -202,7 +202,7 @@ function typeColor(type: string): string {
     number: 'text-blue-500',
     boolean: 'text-orange-500',
     object: 'text-purple-500',
-    array: 'text-indigo-500',
+    array: 'text-sky-500',
     null: 'text-gray-400',
   }
   return map[type] || 'text-gray-500'

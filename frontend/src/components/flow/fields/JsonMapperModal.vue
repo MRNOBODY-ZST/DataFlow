@@ -28,7 +28,7 @@
                     <span class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ t('jsonMapper.sourceJson') }}</span>
                     <button
                       type="button"
-                      class="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                      class="text-xs text-sky-600 hover:text-sky-500 dark:text-sky-400"
                       @click="showSampleEditor = !showSampleEditor"
                     >
                       {{ showSampleEditor ? t('jsonMapper.hideEditor') : t('jsonMapper.editSample') }}
@@ -41,7 +41,7 @@
                       v-model="sampleText"
                       rows="6"
                       placeholder='粘贴 JSON 样本，例如：&#10;{"users": [{"name": "Alice", "age": 30}]}'
-                      class="w-full rounded-md border-0 bg-gray-50 px-3 py-2 font-mono text-xs text-gray-700 ring-1 ring-gray-200 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600"
+                      class="w-full rounded-md border-0 bg-gray-50 px-3 py-2 font-mono text-xs text-gray-700 ring-1 ring-gray-200 focus:ring-2 focus:ring-sky-500 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600"
                       @input="parseSample"
                     />
                     <p v-if="parseError" class="mt-1 text-xs text-red-500">{{ parseError }}</p>
@@ -76,7 +76,7 @@
                     <div
                       v-if="mappings.length === 0"
                       class="flex h-full items-center justify-center rounded-lg border-2 border-dashed transition-colors"
-                      :class="dropHighlight ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-500/10' : 'border-gray-200 dark:border-gray-600'"
+                      :class="dropHighlight ? 'border-sky-400 bg-sky-50 dark:border-sky-500 dark:bg-sky-500/10' : 'border-gray-200 dark:border-gray-600'"
                     >
                       <p class="text-center text-sm text-gray-400 dark:text-gray-500">
                         {{ t('jsonMapper.emptyDropHint') }}
@@ -87,7 +87,7 @@
                       <div
                         v-for="(m, idx) in mappings"
                         :key="idx"
-                        class="group flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-colors hover:border-indigo-200 hover:bg-indigo-50/50 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-indigo-500/30"
+                        class="group flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-colors hover:border-sky-200 hover:bg-sky-50/50 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-sky-500/30"
                       >
                         <!-- Source path (read-only chip) -->
                         <div class="w-[45%] shrink-0 space-y-1">
@@ -103,7 +103,7 @@
                           <label class="block text-[10px] font-medium text-gray-400">{{ t('jsonMapper.targetName') }}</label>
                           <input
                             v-model="m.target"
-                            class="w-full rounded border-0 bg-white px-2 py-1 text-xs ring-1 ring-gray-200 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-600 dark:text-gray-200 dark:ring-gray-500"
+                            class="w-full rounded border-0 bg-white px-2 py-1 text-xs ring-1 ring-gray-200 focus:ring-2 focus:ring-sky-500 dark:bg-gray-600 dark:text-gray-200 dark:ring-gray-500"
                             :placeholder="t('jsonMapper.targetPlaceholder')"
                           />
                         </div>
@@ -113,7 +113,7 @@
                           <label class="block text-[10px] font-medium text-gray-400">{{ t('jsonMapper.defaultValue') }}</label>
                           <input
                             v-model="m.default"
-                            class="w-full rounded border-0 bg-white px-2 py-1 text-xs ring-1 ring-gray-200 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-600 dark:text-gray-200 dark:ring-gray-500"
+                            class="w-full rounded border-0 bg-white px-2 py-1 text-xs ring-1 ring-gray-200 focus:ring-2 focus:ring-sky-500 dark:bg-gray-600 dark:text-gray-200 dark:ring-gray-500"
                             placeholder="—"
                           />
                         </div>
@@ -131,7 +131,7 @@
                       <!-- Trailing drop zone -->
                       <div
                         class="flex h-12 items-center justify-center rounded-lg border-2 border-dashed transition-colors"
-                        :class="dropHighlight ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-500/10' : 'border-gray-200 dark:border-gray-600'"
+                        :class="dropHighlight ? 'border-sky-400 bg-sky-50 dark:border-sky-500 dark:bg-sky-500/10' : 'border-gray-200 dark:border-gray-600'"
                       >
                         <span class="text-xs text-gray-400">{{ t('jsonMapper.dropMore') }}</span>
                       </div>
@@ -142,7 +142,7 @@
                   <div class="border-t border-gray-100 px-4 py-2 dark:border-white/5">
                     <button
                       type="button"
-                      class="w-full rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-xs text-gray-500 transition-colors hover:border-indigo-300 hover:text-indigo-600 dark:border-gray-600 dark:hover:border-indigo-500 dark:hover:text-indigo-400"
+                      class="w-full rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-xs text-gray-500 transition-colors hover:border-sky-300 hover:text-sky-600 dark:border-gray-600 dark:hover:border-sky-500 dark:hover:text-sky-400"
                       @click="addManualMapping"
                     >
                       {{ t('jsonMapper.addMapping') }}
@@ -164,7 +164,7 @@
                   >{{ t('common.cancel') }}</button>
                   <button
                     type="button"
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                    class="rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400"
                     @click="apply"
                   >{{ t('jsonMapper.applyMapping') }}</button>
                 </div>

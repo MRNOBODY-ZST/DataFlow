@@ -12,7 +12,7 @@
               <DialogPanel class="pointer-events-auto relative w-screen max-w-md">
                 <TransitionChild as="template" enter="ease-in-out duration-500" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in-out duration-500" leave-from="opacity-100" leave-to="opacity-0">
                   <div class="absolute top-0 left-0 -ml-8 flex pt-4 pr-2 sm:-ml-10 sm:pr-4">
-                    <button type="button" class="relative rounded-md text-gray-300 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" @click="close">
+                    <button type="button" class="relative rounded-md text-gray-300 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600" @click="close">
                       <span class="absolute -inset-2.5"></span>
                       <span class="sr-only">Close panel</span>
                       <XMarkIcon class="size-6" aria-hidden="true" />
@@ -22,7 +22,7 @@
                 <div class="relative flex h-full flex-col overflow-y-auto bg-white p-8">
                   <div class="space-y-6 pb-16" v-if="file">
                     <div>
-                      <div class="flex size-16 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
+                      <div class="flex size-16 items-center justify-center rounded-lg bg-sky-100 text-sky-700">
                         <DocumentIcon class="size-8" />
                       </div>
                       <div class="mt-4 flex items-start justify-between">
@@ -50,7 +50,7 @@
                       </dl>
                     </div>
                     <div class="flex gap-3">
-                      <button type="button" class="flex-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500" @click="download">下载</button>
+                      <button type="button" class="flex-1 rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500" @click="download">下载</button>
                       <button
                         v-if="file.bucket === 'input'"
                         type="button"

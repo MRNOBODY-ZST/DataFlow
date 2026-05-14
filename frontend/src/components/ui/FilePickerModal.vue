@@ -26,7 +26,7 @@
                       type="button"
                       class="rounded-full px-3 py-1 text-xs font-medium"
                       :class="pickerMode === m.key
-                        ? 'bg-indigo-600 text-white dark:bg-indigo-500'
+                        ? 'bg-sky-600 text-white dark:bg-sky-500'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20'"
                       @click="pickerMode = m.key"
                     >
@@ -39,17 +39,17 @@
                       v-model="search"
                       type="text"
                       :placeholder="t('filePicker.searchByKey')"
-                      class="w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                      class="w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-sky-500"
                     />
                     <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="refresh">{{ t('common.refresh') }}</button>
                   </div>
 
                   <!-- Folder breadcrumb -->
                   <div v-if="pickerMode === 'folder' && currentPrefix" class="flex items-center gap-1 text-sm">
-                    <button type="button" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400" @click="navigateToPrefix('')">{{ t('filePicker.root') }}</button>
+                    <button type="button" class="text-sky-600 hover:text-sky-500 dark:text-sky-400" @click="navigateToPrefix('')">{{ t('filePicker.root') }}</button>
                     <template v-for="(seg, i) in prefixSegments" :key="i">
                       <ChevronRightIcon class="size-3 text-gray-400" />
-                      <button type="button" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400" @click="navigateToPrefix(prefixSegments.slice(0, i + 1).join('/') + '/')">{{ seg }}</button>
+                      <button type="button" class="text-sky-600 hover:text-sky-500 dark:text-sky-400" @click="navigateToPrefix(prefixSegments.slice(0, i + 1).join('/') + '/')">{{ seg }}</button>
                     </template>
                   </div>
 
@@ -86,7 +86,7 @@
                           <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ pickerMode === 'folder' ? fileName(file.key) : file.key }}</p>
                           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ prettySize(file.size) }} · {{ formatDate(file.lastModified) }}</p>
                         </div>
-                        <button type="button" class="shrink-0 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="select(file)">{{ t('common.select') }}</button>
+                        <button type="button" class="shrink-0 rounded-md bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400" @click="select(file)">{{ t('common.select') }}</button>
                       </li>
                     </ul>
                   </div>

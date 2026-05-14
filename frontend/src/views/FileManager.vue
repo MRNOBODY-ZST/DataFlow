@@ -10,7 +10,7 @@
             type="button"
             class="rounded-full px-3 py-1.5 text-sm font-medium"
             :class="fileStore.activeBucket === bucket
-              ? 'bg-indigo-600 text-white dark:bg-indigo-500'
+              ? 'bg-sky-600 text-white dark:bg-sky-500'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20'"
             @click="switchBucket(bucket)"
           >
@@ -35,7 +35,7 @@
               v-model="searchQuery"
               type="text"
               :placeholder="t('common.search')"
-              class="w-40 rounded-md bg-white px-3 py-1.5 pl-8 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+              class="w-40 rounded-md bg-white px-3 py-1.5 pl-8 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-sky-500"
             />
             <MagnifyingGlassIcon class="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
           </div>
@@ -44,7 +44,7 @@
             <button type="button" class="rounded-md bg-white px-2.5 py-1.5 text-gray-700 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="showNewFolder = true">
               <FolderPlusIcon class="size-4" />
             </button>
-            <button type="button" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="showUpload = true">{{ t('common.upload') }}</button>
+            <button type="button" class="rounded-md bg-sky-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400" @click="showUpload = true">{{ t('common.upload') }}</button>
           </template>
           <button type="button" class="rounded-md bg-white px-2.5 py-1.5 text-gray-700 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="refresh">
             <ArrowPathIcon class="size-4" />
@@ -54,14 +54,14 @@
 
       <!-- Breadcrumb -->
       <div class="flex shrink-0 items-center gap-1 border-b border-gray-100 bg-gray-50 px-4 py-1.5 text-sm dark:border-white/5 dark:bg-gray-800/50">
-        <button type="button" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400" @click="navigateTo('')">
+        <button type="button" class="text-sky-600 hover:text-sky-500 dark:text-sky-400" @click="navigateTo('')">
           <HomeIcon class="size-4" />
         </button>
         <template v-for="(seg, i) in breadcrumbs" :key="i">
           <ChevronRightIcon class="size-3 text-gray-400" />
           <button
             type="button"
-            class="truncate text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+            class="truncate text-sky-600 hover:text-sky-500 dark:text-sky-400"
             @click="navigateTo(breadcrumbs.slice(0, i + 1).join('/') + '/')"
           >{{ seg }}</button>
         </template>
@@ -82,7 +82,7 @@
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('files.noFilesHere') }}</p>
             <div class="mt-6 flex justify-center gap-2">
               <button v-if="isInputBucket" type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="showNewFolder = true">{{ t('files.newFolder') }}</button>
-              <button v-if="isInputBucket" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="showUpload = true">{{ t('common.upload') }}</button>
+              <button v-if="isInputBucket" type="button" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400" @click="showUpload = true">{{ t('common.upload') }}</button>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@
             v-for="folder in folders"
             :key="'d:' + folder"
             class="group relative flex cursor-pointer flex-col items-center rounded-lg border border-transparent p-3 transition-colors hover:border-amber-200 hover:bg-amber-50 dark:hover:border-amber-500/30 dark:hover:bg-amber-500/5"
-            :class="{ 'ring-2 ring-indigo-400 dark:ring-indigo-500': dragOverFolder === folder }"
+            :class="{ 'ring-2 ring-sky-400 dark:ring-sky-500': dragOverFolder === folder }"
             @click="navigateTo(folder)"
             @contextmenu.prevent.stop="onFolderContextMenu($event, folder)"
             @dragover.prevent="isInputBucket && (dragOverFolder = folder)"
@@ -111,7 +111,7 @@
             :key="file.key"
             class="group relative flex cursor-pointer flex-col items-center rounded-lg border p-3 transition-colors"
             :class="selectedKeys.has(file.key)
-              ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-500/50 dark:bg-indigo-500/10'
+              ? 'border-sky-400 bg-sky-50 dark:border-sky-500/50 dark:bg-sky-500/10'
               : 'border-transparent hover:border-gray-200 hover:bg-gray-50 dark:hover:border-white/10 dark:hover:bg-white/5'"
             :draggable="isInputBucket"
             @click.exact="openDetails(file)"
@@ -125,7 +125,7 @@
               <input
                 type="checkbox"
                 :checked="selectedKeys.has(file.key)"
-                class="size-3.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-white/20 dark:bg-white/5"
+                class="size-3.5 rounded border-gray-300 text-sky-600 focus:ring-sky-600 dark:border-white/20 dark:bg-white/5"
                 @click.stop
                 @change="toggleSelect(file.key)"
               />
@@ -191,12 +191,12 @@
           <input
             v-model="renameValue"
             type="text"
-            class="mt-3 w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500"
+            class="mt-3 w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-sky-500"
             @keydown.enter="doRename"
           />
           <div class="mt-4 flex justify-end gap-2">
             <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="showRename = false">{{ t('common.cancel') }}</button>
-            <button type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="doRename">{{ t('common.rename') }}</button>
+            <button type="button" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400" @click="doRename">{{ t('common.rename') }}</button>
           </div>
         </DialogPanel>
       </div>
@@ -220,12 +220,12 @@
             v-model="newFolderName"
             type="text"
             :placeholder="t('files.folderName')"
-            class="mt-3 w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+            class="mt-3 w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-sky-500"
             @keydown.enter="createFolder"
           />
           <div class="mt-4 flex justify-end gap-2">
             <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="showNewFolder = false">{{ t('common.cancel') }}</button>
-            <button type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" :disabled="!newFolderName.trim()" @click="createFolder">{{ t('common.create') }}</button>
+            <button type="button" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400" :disabled="!newFolderName.trim()" @click="createFolder">{{ t('common.create') }}</button>
           </div>
         </DialogPanel>
       </div>
@@ -245,7 +245,7 @@
             <button
               type="button"
               class="flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm"
-              :class="moveTarget === '' ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-500/50 dark:bg-indigo-500/10' : 'border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5'"
+              :class="moveTarget === '' ? 'border-sky-400 bg-sky-50 dark:border-sky-500/50 dark:bg-sky-500/10' : 'border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5'"
               @click="moveTarget = ''"
             ><HomeIcon class="size-4 text-gray-400" /> {{ t('files.root') }}</button>
             <button
@@ -253,19 +253,19 @@
               :key="f"
               type="button"
               class="flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm"
-              :class="moveTarget === f ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-500/50 dark:bg-indigo-500/10' : 'border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5'"
+              :class="moveTarget === f ? 'border-sky-400 bg-sky-50 dark:border-sky-500/50 dark:bg-sky-500/10' : 'border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5'"
               @click="moveTarget = f"
             ><FolderIcon class="size-4 text-amber-400" /> {{ f }}</button>
             <input
               v-model="moveNewFolder"
               type="text"
               :placeholder="t('files.newFolderPath')"
-              class="w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+              class="w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-sky-500"
             />
           </div>
           <div class="mt-4 flex justify-end gap-2">
             <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="showMoveDialog = false">{{ t('common.cancel') }}</button>
-            <button type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" :disabled="moving" @click="moveSelected">{{ moving ? t('files.moving') : t('common.move') }}</button>
+            <button type="button" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400" :disabled="moving" @click="moveSelected">{{ moving ? t('files.moving') : t('common.move') }}</button>
           </div>
         </DialogPanel>
       </div>
@@ -344,7 +344,7 @@
                       </dl>
                     </div>
                     <div class="flex gap-3">
-                      <button type="button" class="flex-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="downloadFile(detailFile)">{{ t('common.download') }}</button>
+                      <button type="button" class="flex-1 rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400" @click="downloadFile(detailFile)">{{ t('common.download') }}</button>
                       <button type="button" class="flex-1 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-gray-100 dark:inset-ring-white/5 dark:hover:bg-white/20" @click="removeDetail">{{ t('common.delete') }}</button>
                     </div>
                   </div>
@@ -705,7 +705,7 @@ function fileIconBg(key: string) {
   if (VIDEO_EXTS.includes(ext)) return 'bg-purple-500'
   if (AUDIO_EXTS.includes(ext)) return 'bg-amber-500'
   if (['csv', 'json', 'xml', 'yaml', 'yml'].includes(ext)) return 'bg-green-500'
-  return 'bg-indigo-500'
+  return 'bg-sky-500'
 }
 
 function prettySize(size: number) {

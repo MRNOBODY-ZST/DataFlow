@@ -28,7 +28,7 @@
                       <span>{{ task.progress }}%</span>
                     </div>
                     <div class="mt-1.5 h-2 rounded-full bg-gray-200 dark:bg-gray-700">
-                      <div class="h-2 rounded-full transition-all" :class="task.status === 'FAILED' ? 'bg-red-400' : 'bg-indigo-600 dark:bg-indigo-500'" :style="{ width: `${task.progress}%` }" />
+                      <div class="h-2 rounded-full transition-all" :class="task.status === 'FAILED' ? 'bg-red-400' : 'bg-sky-600 dark:bg-sky-500'" :style="{ width: `${task.progress}%` }" />
                     </div>
                   </div>
 
@@ -72,7 +72,7 @@
                         <div v-else class="px-3 py-3">
                           <button
                             type="button"
-                            class="rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                            class="rounded-md bg-sky-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400"
                             @click="downloadPreview(pv)"
                           >{{ t('common.download') }}</button>
                         </div>
@@ -89,7 +89,7 @@
                       <dd class="mt-1 sm:col-span-2 sm:mt-0">
                         <div class="flex items-center justify-between gap-3">
                           <span class="break-all text-sm text-gray-700 dark:text-gray-300">{{ task.outputPath }}</span>
-                          <button type="button" class="shrink-0 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="downloadResult">{{ t('common.download') }}</button>
+                          <button type="button" class="shrink-0 rounded-md bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400" @click="downloadResult">{{ t('common.download') }}</button>
                         </div>
                       </dd>
                     </div>

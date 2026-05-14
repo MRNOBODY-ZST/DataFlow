@@ -56,7 +56,7 @@
           {{ localConfig[field.key] || '未选择文件' }}
             </div>
             <div class="flex gap-2">
-              <button type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500" @click="pickerField = field.key; showFilePicker = true">选择文件</button>
+              <button type="button" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500" @click="pickerField = field.key; showFilePicker = true">选择文件</button>
               <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50" @click="manualMode[field.key] = !manualMode[field.key]">
            {{ manualMode[field.key] ? '隐藏手动输入' : '手动输入' }}
             </button>
@@ -65,7 +65,7 @@
               v-if="manualMode[field.key]"
               v-model="localConfig[field.key]"
               :placeholder="field.placeholder"
-              class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
             />
           </div>
 
@@ -73,7 +73,7 @@
           <select
             v-else-if="field.type === 'select'"
       v-model="localConfig[field.key]"
-       class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+       class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
           >
          <option v-for="option in field.options || []" :key="option" :value="option">{{ option }}</option>
           </select>
@@ -84,7 +84,7 @@
             v-model.number="localConfig[field.key]"
             type="number"
         :placeholder="field.placeholder"
-        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
           />
 
           <!-- Textarea -->
@@ -93,7 +93,7 @@
             v-model="localConfig[field.key]"
             rows="4"
             :placeholder="field.placeholder"
-            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
           />
 
           <!-- Text (default) -->
@@ -101,13 +101,13 @@
             v-else
             v-model="localConfig[field.key]"
             :placeholder="field.placeholder"
-            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
           />
      </div>
       </template>
     </div>
     <div class="border-t border-gray-100 p-4">
-      <button class="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white transition hover:bg-indigo-500" @click="apply">
+      <button class="w-full rounded-lg bg-sky-600 py-2 text-sm font-medium text-white transition hover:bg-sky-500" @click="apply">
         应用
       </button>
     </div>

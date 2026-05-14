@@ -1,8 +1,6 @@
 package com.hades.dataflow.service;
 
-import com.hades.dataflow.domain.dto.AuthResponse;
-import com.hades.dataflow.domain.dto.LoginRequest;
-import com.hades.dataflow.domain.dto.RegisterRequest;
+import com.hades.dataflow.domain.dto.*;
 import com.hades.dataflow.domain.entity.User;
 import com.hades.dataflow.repository.UserRepository;
 import com.hades.dataflow.security.JwtUtil;
@@ -55,5 +53,34 @@ public class AuthService {
                             user.getUsername(),
                             user.getId()));
                 });
+    }
+
+    public Mono<UserProfileResponse> getProfile(Long userId) {
+        return userRepository.findById(userId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")))
+                .map(user -> new UserProfileResponse(user.getId(), user.getUsername(), user.getEmail(), user.getCreatedAt()));
+    }
+
+    public Mono<UserProfileResponse> updateProfile(Long userId, UpdateProfileRequest req) {
+        return userRepository.findById(userId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")))
+                .flatMap(user -> {
+                    user.setEmail(req.getEmail());
+                    return userRepository.save(user);
+                })
+                .map(user -> new UserProfileResponse(user.getId(), user.getUsername(), user.getEmail(), user.getCreatedAt()));
+    }
+
+    public Mono<Void> changePassword(Long userId, ChangePasswordRequest req) {
+        return userRepository.findById(userId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")))
+                .flatMap(user -> {
+                    if (!passwordEncoder.matches(req.getCurrentPassword(), user.getPasswordHash())) {
+                        return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is incorrect"));
+                    }
+                    user.setPasswordHash(passwordEncoder.encode(req.getNewPassword()));
+                    return userRepository.save(user);
+                })
+                .then();
     }
 }

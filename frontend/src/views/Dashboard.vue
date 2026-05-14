@@ -7,7 +7,7 @@
         <div v-for="item in stats" :key="item.name" class="px-4 py-5 sm:p-6">
           <dt class="text-base font-normal text-gray-900 dark:text-gray-100">{{ item.name }}</dt>
           <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
-            <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
+            <div class="flex items-baseline text-2xl font-semibold text-sky-600 dark:text-sky-400">
               {{ item.stat }}
             </div>
             <div :class="[item.changeType === 'increase' ? 'bg-green-100 text-green-800 dark:bg-green-400/10 dark:text-green-400' : item.changeType === 'decrease' ? 'bg-red-100 text-red-800 dark:bg-red-400/10 dark:text-red-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-400/10 dark:text-gray-400', 'inline-flex items-baseline rounded-full px-2.5 py-0.5 text-sm font-medium md:mt-2 lg:mt-0']">
@@ -64,7 +64,7 @@
                   <div v-else-if="pipelineStore.pipelines.length === 0" class="py-8 text-center">
                     <FolderPlusIcon class="mx-auto size-10 text-gray-400" />
                     <p class="mt-2 text-sm text-gray-500">{{ t('dashboard.noPipelines') }}</p>
-                    <button type="button" class="mt-4 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500" @click="router.push('/pipelines')">{{ t('dashboard.createPipeline') }}</button>
+                    <button type="button" class="mt-4 rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500" @click="router.push('/pipelines')">{{ t('dashboard.createPipeline') }}</button>
                   </div>
                   <ul v-else role="list" class="divide-y divide-gray-200 dark:divide-white/10">
                     <li v-for="pipeline in pipelineStore.pipelines.slice(0, 5)" :key="pipeline.id" class="flex items-center justify-between gap-4 py-3">
@@ -72,7 +72,7 @@
                         <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ pipeline.name }}</p>
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ pipeline.description || t('dashboard.noDescription') }} · {{ new Date(pipeline.updatedAt).toLocaleString() }}</p>
                       </div>
-                      <button type="button" class="shrink-0 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500" @click="router.push(`/editor/${pipeline.id}`)">{{ t('common.edit') }}</button>
+                      <button type="button" class="shrink-0 rounded-md bg-sky-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-sky-500" @click="router.push(`/editor/${pipeline.id}`)">{{ t('common.edit') }}</button>
                     </li>
                   </ul>
                 </div>
@@ -191,8 +191,8 @@ function updateTaskRunsChart() {
   }
   taskRunsChart.value.setOption({
     tooltip: { trigger: 'axis' },
-    legend: { data: [t('dashboard.success'), t('task.failed')], textStyle: { color: '#9ca3af' } },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    legend: { data: [t('dashboard.success'), t('task.failed')], bottom: 0, textStyle: { color: '#9ca3af' } },
+    grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
     xAxis: { type: 'category', data: days, axisLabel: { color: '#9ca3af' }, axisLine: { lineStyle: { color: '#374151' } } },
     yAxis: { type: 'value', minInterval: 1, axisLabel: { color: '#9ca3af' }, splitLine: { lineStyle: { color: '#374151', opacity: 0.3 } } },
     series: [
@@ -231,7 +231,7 @@ function updateStorageChart() {
       radius: '65%',
       label: { show: true, color: '#9ca3af' },
       data: [
-        { value: fileStore.filesByBucket.input.length, name: t('dashboard.input'), itemStyle: { color: '#6366f1' } },
+        { value: fileStore.filesByBucket.input.length, name: t('dashboard.input'), itemStyle: { color: '#0ea5e9' } },
         { value: fileStore.filesByBucket.output.length, name: t('dashboard.output'), itemStyle: { color: '#8b5cf6' } },
       ].filter(d => d.value > 0),
     }],

@@ -5,7 +5,7 @@
         v-model="entries[index].key"
         type="text"
         :placeholder="keyPlaceholder"
-        class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+        class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
         @input="emitChange"
       />
       <span class="flex items-center text-gray-400">→</span>
@@ -14,13 +14,13 @@
         v-model="entries[index].value"
       type="text"
         :placeholder="valuePlaceholder"
-        class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+        class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
         @input="emitChange"
       />
       <select
         v-else-if="valueType === 'select'"
         v-model="entries[index].value"
-        class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+        class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
         @change="emitChange"
       >
         <option value="">选择...</option>
@@ -55,7 +55,7 @@
       v-model="manualValue"
       rows="4"
       placeholder='{"key1": "value1", "key2": "value2"}'
-      class="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-xs focus:border-indigo-500 focus:outline-none"
+      class="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-xs focus:border-sky-500 focus:outline-none"
       @input="onManualChange"
     />
   </div>

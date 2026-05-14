@@ -37,8 +37,8 @@
               type="button"
               role="switch"
               :aria-checked="!!nodeData[field.key]"
-              class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-1"
-              :class="nodeData[field.key] ? 'bg-indigo-600 dark:bg-indigo-500' : 'bg-gray-200 dark:bg-gray-600'"
+              class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-1"
+              :class="nodeData[field.key] ? 'bg-sky-600 dark:bg-sky-500' : 'bg-gray-200 dark:bg-gray-600'"
               @click.stop="updateField(field.key, !nodeData[field.key])"
             >
               <span
@@ -53,7 +53,7 @@
           <select
             v-else-if="field.type === 'select'"
             :value="nodeData[field.key] || ''"
-            class="nodrag nowheel w-full rounded-md border-0 bg-gray-50 px-2 py-1 text-xs text-gray-700 ring-1 ring-gray-200 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600"
+            class="nodrag nowheel w-full rounded-md border-0 bg-gray-50 px-2 py-1 text-xs text-gray-700 ring-1 ring-gray-200 focus:ring-2 focus:ring-sky-500 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600"
             @change.stop="updateField(field.key, ($event.target as HTMLSelectElement).value)"
           >
             <option v-for="option in field.options || []" :key="option" :value="option">{{ option }}</option>
@@ -65,14 +65,14 @@
             type="number"
             :value="nodeData[field.key] ?? ''"
             :placeholder="field.placeholder"
-            class="nodrag nowheel w-full rounded-md border-0 bg-gray-50 px-2 py-1 text-xs text-gray-700 ring-1 ring-gray-200 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600"
+            class="nodrag nowheel w-full rounded-md border-0 bg-gray-50 px-2 py-1 text-xs text-gray-700 ring-1 ring-gray-200 focus:ring-2 focus:ring-sky-500 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600"
             @change.stop="updateField(field.key, Number(($event.target as HTMLInputElement).value))"
           />
 
           <!-- File-picker: display only, click to open modal -->
           <div
             v-else-if="field.type === 'file-picker'"
-            class="nodrag cursor-pointer truncate rounded-md bg-gray-50 px-2 py-1 text-xs text-gray-500 ring-1 ring-gray-200 hover:ring-indigo-300 dark:bg-gray-700 dark:text-gray-400 dark:ring-gray-600 dark:hover:ring-indigo-500"
+            class="nodrag cursor-pointer truncate rounded-md bg-gray-50 px-2 py-1 text-xs text-gray-500 ring-1 ring-gray-200 hover:ring-sky-300 dark:bg-gray-700 dark:text-gray-400 dark:ring-gray-600 dark:hover:ring-sky-500"
             @dblclick.stop
           >
             {{ nodeData[field.key] || field.placeholder || 'Click to set' }}
@@ -84,7 +84,7 @@
             type="text"
             :value="nodeData[field.key] || ''"
             :placeholder="field.placeholder"
-            class="nodrag nowheel w-full rounded-md border-0 bg-gray-50 px-2 py-1 text-xs text-gray-700 ring-1 ring-gray-200 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600"
+            class="nodrag nowheel w-full rounded-md border-0 bg-gray-50 px-2 py-1 text-xs text-gray-700 ring-1 ring-gray-200 focus:ring-2 focus:ring-sky-500 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600"
             @change.stop="updateField(field.key, ($event.target as HTMLInputElement).value)"
           />
         </div>
@@ -138,7 +138,7 @@ const headerBg = computed(() => {
 const handleStyle = {
   width: '10px',
   height: '10px',
-  background: '#6366f1',
+  background: '#0ea5e9',
   border: '2px solid white',
 }
 

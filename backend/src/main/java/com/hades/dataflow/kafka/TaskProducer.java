@@ -17,11 +17,12 @@ public class TaskProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public Mono<Void> dispatchTask(Long taskId, Long pipelineId, String graphId) {
+    public Mono<Void> dispatchTask(Long taskId, Long pipelineId, String graphId, Long userId) {
         Map<String, Object> payload = Map.of(
                 "taskId", taskId,
                 "pipelineId", pipelineId,
-                "graphId", graphId
+                "graphId", graphId,
+                "userId", userId
         );
         return Mono.fromFuture(() ->
                         kafkaTemplate.send(KafkaConfig.TOPIC_TASK_DISPATCH, taskId.toString(), payload)

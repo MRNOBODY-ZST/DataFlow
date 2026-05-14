@@ -29,7 +29,7 @@
                   <span>{{ task.progress }}%</span>
                 </div>
                 <div class="mt-1 h-2 rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div class="h-2 rounded-full transition-all" :class="task.status === 'FAILED' ? 'bg-red-400' : 'bg-indigo-600 dark:bg-indigo-500'" :style="{ width: `${task.progress}%` }" />
+                  <div class="h-2 rounded-full transition-all" :class="task.status === 'FAILED' ? 'bg-red-400' : 'bg-sky-600 dark:bg-sky-500'" :style="{ width: `${task.progress}%` }" />
                 </div>
               </div>
               <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium" :class="statusClass(task.status)">{{ task.status }}</span>
@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import TaskDetailModal from '@/components/task/TaskDetailModal.vue'
@@ -52,24 +52,39 @@ import { useTaskStore } from '@/stores/task'
 
 const { t } = useI18n()
 const taskStore = useTaskStore()
-let timer: number | null = null
 
 const detailOpen = ref(false)
 const selectedTaskId = ref<number | null>(null)
+const sseUnsubs = new Map<number, () => void>()
 
-const hasRunningTask = computed(() => taskStore.tasks.some((task) => task.status === 'RUNNING' || task.status === 'PENDING'))
+const activeTasks = computed(() =>
+  taskStore.tasks.filter((t) => t.status === 'RUNNING' || t.status === 'PENDING'),
+)
+
+function subscribeActive() {
+  for (const task of activeTasks.value) {
+    if (sseUnsubs.has(task.id)) continue
+    const unsub = taskStore.subscribeProgress(task.id, () => {})
+    sseUnsubs.set(task.id, unsub)
+  }
+  for (const [id, unsub] of sseUnsubs) {
+    if (!activeTasks.value.some((t) => t.id === id)) {
+      unsub()
+      sseUnsubs.delete(id)
+    }
+  }
+}
+
+watch(activeTasks, subscribeActive, { deep: true })
 
 onMounted(async () => {
   await taskStore.fetchAll()
-  timer = window.setInterval(() => {
-    if (hasRunningTask.value) {
-      taskStore.fetchAll()
-    }
-  }, 10000)
+  subscribeActive()
 })
 
 onUnmounted(() => {
-  if (timer) window.clearInterval(timer)
+  for (const unsub of sseUnsubs.values()) unsub()
+  sseUnsubs.clear()
 })
 
 function openTask(id: number) {

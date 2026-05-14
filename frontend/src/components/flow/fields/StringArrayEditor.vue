@@ -5,7 +5,7 @@
         v-model="items[index]"
         type="text"
         :placeholder="placeholder"
-        class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+        class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
         @input="emitChange"
       />
       <button
@@ -37,7 +37,7 @@
       v-model="manualValue"
       rows="3"
       placeholder='["item1", "item2"]'
-      class="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-xs focus:border-indigo-500 focus:outline-none"
+      class="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-xs focus:border-sky-500 focus:outline-none"
       @input="onManualChange"
     />
   </div>

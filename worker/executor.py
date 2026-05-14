@@ -93,7 +93,7 @@ def _execute_batch_item(node_type: str, item_data, config: dict, ctx_kwargs: dic
     return node_cls().execute(inputs, ctx)
 
 
-def run_pipeline(graph: dict, task_id: str, reporter) -> str | None:
+def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "") -> str | None:
     nodes = graph.get("nodes", [])
     edges = graph.get("edges", [])
 
@@ -101,6 +101,9 @@ def run_pipeline(graph: dict, task_id: str, reporter) -> str | None:
     total = len(ordered)
     results: dict[str, object] = {}
     batch_mode: dict[str, bool] = {}
+    source_keys: dict[str, str] = {}
+
+    user_prefix = f"u/{user_id}" if user_id else ""
 
     for i, node in enumerate(ordered):
         node_id = node["id"]
@@ -113,15 +116,32 @@ def run_pipeline(graph: dict, task_id: str, reporter) -> str | None:
 
         any_batch_upstream = any(batch_mode.get(src, False) for src in input_node_ids)
 
+        node_source_key = config.get("key", "")
+        if not node_source_key:
+            for src_id in input_node_ids:
+                if source_keys.get(src_id):
+                    node_source_key = source_keys[src_id]
+                    break
+        source_keys[node_id] = node_source_key
+
+        scoped_config = dict(config)
+        if user_prefix:
+            if "key" in scoped_config and scoped_config["key"]:
+                scoped_config["key"] = f"{user_prefix}/{scoped_config['key']}"
+            if "prefix" in scoped_config and scoped_config["prefix"]:
+                scoped_config["prefix"] = f"{user_prefix}/{scoped_config['prefix']}"
+
+        output_prefix = f"{user_prefix}/run_{task_id}" if user_prefix else f"run_{task_id}"
+
         ctx_kwargs = {
             "task_id": task_id,
             "node_id": node_id,
-            "config": config,
+            "config": scoped_config,
             "input_bucket": MINIO_INPUT_BUCKET,
             "output_bucket": MINIO_OUTPUT_BUCKET,
             "temp_bucket": MINIO_TEMP_BUCKET,
-            "output_prefix": f"run_{task_id}",
-            "source_key": config.get("key", ""),
+            "output_prefix": output_prefix,
+            "source_key": node_source_key,
         }
 
         reporter.report(task_id, node_id, int((i / total) * 100), "RUNNING")
@@ -144,7 +164,7 @@ def run_pipeline(graph: dict, task_id: str, reporter) -> str | None:
                 if isinstance(item, dict) and "key" in item:
                     item_ctx["source_key"] = item["key"]
 
-                refs.append(_execute_batch_item.remote(node_type, item, config, item_ctx))
+                refs.append(_execute_batch_item.remote(node_type, item, scoped_config, item_ctx))
 
             collected = ray.get(refs)
             target_fmt = config.get("format", "")
@@ -171,7 +191,7 @@ def run_pipeline(graph: dict, task_id: str, reporter) -> str | None:
                 f"Processed {item_count} items",
             )
         else:
-            ref = _execute_node_remote.remote(node_type, resolved_inputs, config, ctx_kwargs)
+            ref = _execute_node_remote.remote(node_type, resolved_inputs, scoped_config, ctx_kwargs)
             output = ray.get(ref)
 
             if _is_batch_result(output):
@@ -185,7 +205,11 @@ def run_pipeline(graph: dict, task_id: str, reporter) -> str | None:
     last_node_id = ordered[-1]["id"] if ordered else None
     if last_node_id:
         output = ray.get(results[last_node_id])
+        strip = (user_prefix + "/") if user_prefix else ""
         if isinstance(output, list):
-            return f"run_{task_id}/"
-        return output if isinstance(output, str) else None
+            full = f"{output_prefix}/"
+            return full[len(strip):] if strip and full.startswith(strip) else full
+        if isinstance(output, str):
+            return output[len(strip):] if strip and output.startswith(strip) else output
+        return None
     return None

@@ -11,8 +11,8 @@
             <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10">
               <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
-                  <div class="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 sm:mx-0 sm:size-10 dark:bg-indigo-500/10">
-                    <ArrowUpTrayIcon class="size-6 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+                  <div class="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-sky-100 sm:mx-0 sm:size-10 dark:bg-sky-500/10">
+                    <ArrowUpTrayIcon class="size-6 text-sky-600 dark:text-sky-400" aria-hidden="true" />
                   </div>
                   <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                     <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">{{ t('upload.title') }}</DialogTitle>
@@ -25,7 +25,7 @@
                         type="button"
                         class="rounded-full px-3 py-1 text-xs font-medium"
                         :class="mode === m.key
-                          ? 'bg-indigo-600 text-white dark:bg-indigo-500'
+                          ? 'bg-sky-600 text-white dark:bg-sky-500'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20'"
                         @click="switchMode(m.key)"
                       >
@@ -41,12 +41,12 @@
                           v-model="datasetName"
                           type="text"
                           placeholder="e.g. my-image-dataset"
-                          class="w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                          class="w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-sky-500"
                         />
                       </div>
 
                       <!-- Drop zone -->
-                      <label class="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center hover:border-indigo-400 hover:bg-indigo-50/40 dark:border-white/20 dark:bg-white/5 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/5">
+                      <label class="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center hover:border-sky-400 hover:bg-sky-50/40 dark:border-white/20 dark:bg-white/5 dark:hover:border-sky-500/50 dark:hover:bg-sky-500/5">
                         <ArrowUpTrayIcon class="size-8 text-gray-400 dark:text-gray-500" />
                         <span class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                           {{ mode === 'single' ? t('upload.clickSingle') : mode === 'batch' ? t('upload.clickBatch') : t('upload.clickFolder') }}
@@ -86,7 +86,7 @@
                           <div class="flex items-center gap-2">
                             <div v-if="fileStatuses[i] === 'uploading'" class="flex items-center gap-1.5">
                               <div class="h-1.5 w-16 rounded-full bg-gray-200 dark:bg-gray-700">
-                                <div class="h-1.5 rounded-full bg-indigo-600 transition-all dark:bg-indigo-500" :style="{ width: `${fileProgress[i] || 0}%` }" />
+                                <div class="h-1.5 rounded-full bg-sky-600 transition-all dark:bg-sky-500" :style="{ width: `${fileProgress[i] || 0}%` }" />
                               </div>
                               <span class="text-xs text-gray-500">{{ fileProgress[i] || 0 }}%</span>
                             </div>
@@ -111,7 +111,7 @@
                 </div>
               </div>
               <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 dark:bg-gray-800/50">
-                <button type="button" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 sm:ml-3 sm:w-auto disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400" :disabled="fileList.length === 0 || uploading || (mode === 'dataset' && !datasetName.trim())" @click="upload">
+                <button type="button" class="inline-flex w-full justify-center rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 sm:ml-3 sm:w-auto disabled:opacity-60 dark:bg-sky-500 dark:hover:bg-sky-400" :disabled="fileList.length === 0 || uploading || (mode === 'dataset' && !datasetName.trim())" @click="upload">
                   {{ uploading ? t('upload.uploading', { done: completedCount, total: fileList.length }) : t('common.upload') }}
                 </button>
                 <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="close">

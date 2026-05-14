@@ -19,24 +19,25 @@
               </TransitionChild>
 
               <div class="relative flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 dark:bg-gray-900 dark:ring dark:ring-white/10 dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:bg-black/10">
-                <div class="relative flex h-16 shrink-0 items-center">
-                  <span class="text-xl font-bold text-indigo-600 dark:text-indigo-400">DataFlow</span>
+                <div class="relative flex h-16 shrink-0 items-center gap-2">
+                  <img src="/DataFlow.svg" alt="DataFlow" class="h-8 w-8" />
+                  <span class="text-xl font-bold text-sky-600 dark:text-sky-400">DataFlow</span>
                 </div>
                 <nav class="relative flex flex-1 flex-col">
                   <ul role="list" class="flex flex-1 flex-col gap-y-7">
                     <li>
                       <ul role="list" class="-mx-2 space-y-1">
                         <li v-for="item in navigation" :key="item.key">
-                          <router-link :to="item.href" :class="[item.current ? 'bg-gray-50 text-indigo-600 dark:bg-white/5 dark:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
-                            <component :is="item.icon" :class="[item.current ? 'text-indigo-600 dark:text-white' : 'text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
+                          <router-link :to="item.href" :class="[item.current ? 'bg-gray-50 text-sky-600 dark:bg-white/5 dark:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-sky-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                            <component :is="item.icon" :class="[item.current ? 'text-sky-600 dark:text-white' : 'text-gray-400 group-hover:text-sky-600 dark:group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
                             {{ item.name }}
                           </router-link>
                         </li>
                       </ul>
                     </li>
                     <li class="mt-auto">
-                      <router-link to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white">
-                        <Cog6ToothIcon class="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white" aria-hidden="true" />
+                      <router-link to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-sky-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white">
+                        <Cog6ToothIcon class="size-6 shrink-0 text-gray-400 group-hover:text-sky-600 dark:group-hover:text-white" aria-hidden="true" />
                         {{ t('nav.settings') }}
                       </router-link>
                     </li>
@@ -51,24 +52,25 @@
 
     <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
       <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4 dark:border-white/10 dark:bg-gray-900">
-        <div class="flex h-16 shrink-0 items-center">
-          <span class="text-xl font-bold text-indigo-600 dark:text-indigo-400">DataFlow</span>
+        <div class="flex h-16 shrink-0 items-center gap-2">
+          <img src="/DataFlow.svg" alt="DataFlow" class="h-8 w-8" />
+          <span class="text-xl font-bold text-sky-600 dark:text-sky-400">DataFlow</span>
         </div>
         <nav class="flex flex-1 flex-col">
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
             <li>
               <ul role="list" class="-mx-2 space-y-1">
                 <li v-for="item in navigation" :key="item.key">
-                  <router-link :to="item.href" :class="[item.current ? 'bg-gray-50 text-indigo-600 dark:bg-white/5 dark:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
-                    <component :is="item.icon" :class="[item.current ? 'text-indigo-600 dark:text-white' : 'text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
+                  <router-link :to="item.href" :class="[item.current ? 'bg-gray-50 text-sky-600 dark:bg-white/5 dark:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-sky-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                    <component :is="item.icon" :class="[item.current ? 'text-sky-600 dark:text-white' : 'text-gray-400 group-hover:text-sky-600 dark:group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
                     {{ item.name }}
                   </router-link>
                 </li>
               </ul>
             </li>
             <li class="mt-auto">
-              <router-link to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white">
-                <Cog6ToothIcon class="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-white" aria-hidden="true" />
+              <router-link to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-sky-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white">
+                <Cog6ToothIcon class="size-6 shrink-0 text-gray-400 group-hover:text-sky-600 dark:group-hover:text-white" aria-hidden="true" />
                 {{ t('nav.settings') }}
               </router-link>
             </li>
@@ -103,7 +105,7 @@
               <MenuButton class="relative flex items-center">
                 <span class="absolute -inset-1.5"></span>
                 <span class="sr-only">Open user menu</span>
-                <span class="flex size-8 items-center justify-center rounded-full bg-indigo-500 text-sm font-semibold text-white">{{ initials }}</span>
+                <span class="flex size-8 items-center justify-center rounded-full bg-sky-500 text-sm font-semibold text-white">{{ initials }}</span>
                 <span class="hidden lg:flex lg:items-center">
                   <span class="ml-4 text-sm/6 font-semibold text-gray-900 dark:text-white" aria-hidden="true">{{ auth.username || t('common.user') }}</span>
                   <ChevronDownIcon class="ml-2 size-5 text-gray-400 dark:text-gray-500" aria-hidden="true" />

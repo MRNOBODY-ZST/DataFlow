@@ -24,10 +24,10 @@
           <div class="hidden md:block">
             <div class="ml-4 flex items-center md:ml-6">
               <Menu as="div" class="relative ml-3">
-                <MenuButton class="relative flex max-w-xs items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+                <MenuButton class="relative flex max-w-xs items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500">
                   <span class="absolute -inset-1.5"></span>
                   <span class="sr-only">Open user menu</span>
-                  <span class="flex size-8 items-center justify-center rounded-full bg-indigo-500 text-sm font-semibold text-white">
+                  <span class="flex size-8 items-center justify-center rounded-full bg-sky-500 text-sm font-semibold text-white">
                     {{ initials }}
                   </span>
                 </MenuButton>
@@ -50,7 +50,7 @@
             </div>
           </div>
           <div class="-mr-2 flex md:hidden">
-            <DisclosureButton class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
+            <DisclosureButton class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-sky-500">
               <span class="absolute -inset-0.5"></span>
               <span class="sr-only">Open main menu</span>
               <Bars3Icon v-if="!open" class="block size-6" aria-hidden="true" />

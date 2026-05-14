@@ -16,7 +16,7 @@
                 v-model="search"
                 type="text"
                 placeholder="Search nodes..."
-                class="w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                class="w-full rounded-md bg-white px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-sky-500"
               />
             </div>
 
@@ -31,7 +31,7 @@
                     <div
                       v-for="item in items"
                       :key="item.type"
-                      class="flex cursor-grab items-center gap-2 rounded-lg border border-transparent px-2 py-2 text-sm text-gray-700 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 active:cursor-grabbing dark:text-gray-300 dark:hover:border-indigo-500/30 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400"
+                      class="flex cursor-grab items-center gap-2 rounded-lg border border-transparent px-2 py-2 text-sm text-gray-700 transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 active:cursor-grabbing dark:text-gray-300 dark:hover:border-sky-500/30 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
                       draggable="true"
                       @dragstart="$emit('drag-start', item.type)"
                     >

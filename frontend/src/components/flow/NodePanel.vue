@@ -5,7 +5,7 @@
         v-model="search"
         type="text"
         placeholder="搜索节点..."
-        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
       />
     </div>
 
@@ -17,7 +17,7 @@
         <div
           v-for="item in items"
           :key="item.type"
-          class="flex cursor-grab items-center gap-2 rounded-lg border border-transparent px-2 py-2 text-sm text-gray-700 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 active:cursor-grabbing"
+          class="flex cursor-grab items-center gap-2 rounded-lg border border-transparent px-2 py-2 text-sm text-gray-700 transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 active:cursor-grabbing"
           draggable="true"
           @dragstart="$emit('drag-start', item.type)"
         >

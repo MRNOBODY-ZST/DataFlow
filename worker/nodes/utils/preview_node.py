@@ -31,7 +31,7 @@ class PreviewNode(BaseNode):
         if data is None:
             return data
 
-        prefix = f"run_{ctx.task_id}/{ctx.node_id}"
+        prefix = f"{ctx.output_prefix}/{ctx.node_id}"
 
         custom_label = ctx.config.get("label", "").strip()
         if custom_label:

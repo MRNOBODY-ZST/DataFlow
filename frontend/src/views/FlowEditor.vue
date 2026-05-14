@@ -3,7 +3,7 @@
     <div class="flex h-[calc(100vh-4rem)] flex-col bg-gray-50 dark:bg-gray-900">
       <!-- Top bar -->
       <div class="flex h-14 shrink-0 items-center gap-3 border-b border-gray-200 bg-white px-4 shadow-xs sm:px-6 dark:border-white/10 dark:bg-gray-900 dark:shadow-none">
-        <router-link to="/pipelines" class="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">
+        <router-link to="/pipelines" class="text-sm text-gray-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400">
           <ArrowLeftIcon class="size-5" />
         </router-link>
         <span class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ pipeline?.name ?? t('common.loading') }}</span>
@@ -22,7 +22,7 @@
           <button class="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" :disabled="saving" @click="save">
             {{ saving ? t('editor.saving') : t('editor.save') }}
           </button>
-          <button class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400" @click="showRunDialog = true">
+          <button class="rounded-md bg-sky-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400" @click="showRunDialog = true">
             {{ t('editor.run') }}
           </button>
           <button class="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="drawerOpen = !drawerOpen">
@@ -66,8 +66,8 @@
               <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to=" translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from=" translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
                 <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10">
                   <div>
-                    <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-500/10">
-                      <PlayIcon class="size-6 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+                    <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-500/10">
+                      <PlayIcon class="size-6 text-sky-600 dark:text-sky-400" aria-hidden="true" />
                     </div>
                     <div class="mt-3 text-center sm:mt-5">
                       <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">{{ t('editor.runPipeline') }}</DialogTitle>
@@ -78,7 +78,7 @@
                     </div>
                   </div>
                   <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-                    <button type="button" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 sm:col-start-2 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-400" :disabled="running" @click="run">
+                    <button type="button" class="inline-flex w-full justify-center rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 sm:col-start-2 disabled:opacity-60 dark:bg-sky-500 dark:hover:bg-sky-400" :disabled="running" @click="run">
                       {{ running ? t('editor.submitting') : t('common.start') }}
                     </button>
                     <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="showRunDialog = false">{{ t('common.cancel') }}</button>
