@@ -243,6 +243,31 @@ export default {
     irreversible: '以下操作不可撤销，请谨慎操作。',
   },
 
+  search: {
+    placeholder: '搜索页面、功能...',
+    noResults: '未找到匹配结果',
+    goTo: '前往{page}',
+    newPipeline: '新建流水线',
+    createNewPipeline: '创建一个新的数据处理流水线',
+    uploadFiles: '上传文件',
+    uploadDesc: '前往文件管理上传文件',
+    toggleTheme: '切换主题',
+    toggleThemeDesc: '在浅色和深色模式之间切换',
+    toggleLang: '切换语言',
+    toggleLangDesc: '在中文和英文之间切换',
+  },
+
+  notification: {
+    title: '通知',
+    empty: '暂无通知',
+    markAllRead: '全部已读',
+    clearAll: '清空全部',
+    justNow: '刚刚',
+    minutesAgo: '{n} 分钟前',
+    hoursAgo: '{n} 小时前',
+    daysAgo: '{n} 天前',
+  },
+
   jsonMapper: {
     title: 'JSON 可视化映射',
     subtitle: '从左侧拖拽字段到右侧构建输出结构',

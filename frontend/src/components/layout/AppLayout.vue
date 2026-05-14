@@ -89,18 +89,30 @@
         <div class="h-6 w-px bg-gray-200 lg:hidden dark:bg-white/10" aria-hidden="true"></div>
 
         <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-          <form class="grid flex-1 grid-cols-1" action="#" method="GET" @submit.prevent>
-            <input name="search" aria-label="Search" class="col-start-1 row-start-1 block size-full bg-white pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-400 sm:text-sm/6 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500" :placeholder="t('common.search')" />
-            <MagnifyingGlassIcon class="pointer-events-none col-start-1 row-start-1 size-5 self-center text-gray-400" aria-hidden="true" />
-          </form>
-          <div class="flex items-center gap-x-4 lg:gap-x-6">
-            <button type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 dark:hover:text-white">
-              <span class="sr-only">View notifications</span>
-              <BellIcon class="size-6" aria-hidden="true" />
+          <!-- Search trigger -->
+          <button type="button" class="flex flex-1 items-center gap-2 text-gray-400" @click="openSearch">
+            <MagnifyingGlassIcon class="size-5 shrink-0" aria-hidden="true" />
+            <span class="hidden text-sm sm:block">{{ t('search.placeholder') }}</span>
+            <kbd class="ml-auto hidden rounded border border-gray-300 px-1.5 py-0.5 text-xs font-medium text-gray-400 sm:block dark:border-gray-600">Ctrl K</kbd>
+          </button>
+          <div class="flex items-center gap-x-4 lg:gap-x-5">
+            <!-- Language toggle -->
+            <button type="button" class="-m-2.5 p-2 text-gray-400 hover:text-gray-500 dark:hover:text-white" @click="toggleLocale" :title="t('search.toggleLang')">
+              <LanguageIcon class="size-5" aria-hidden="true" />
             </button>
+
+            <!-- Theme toggle -->
+            <button type="button" class="-m-2.5 p-2 text-gray-400 hover:text-gray-500 dark:hover:text-white" @click="toggleTheme" :title="t('search.toggleTheme')">
+              <MoonIcon v-if="!isDark" class="size-5" aria-hidden="true" />
+              <SunIcon v-else class="size-5" aria-hidden="true" />
+            </button>
+
+            <!-- Notifications -->
+            <NotificationPanel />
 
             <div class="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200 dark:lg:bg-white/10" aria-hidden="true"></div>
 
+            <!-- User menu -->
             <Menu as="div" class="relative">
               <MenuButton class="relative flex items-center">
                 <span class="absolute -inset-1.5"></span>
@@ -127,6 +139,8 @@
         <slot />
       </main>
     </div>
+
+    <CommandPalette ref="commandPaletteRef" />
   </div>
 </template>
 
@@ -146,24 +160,31 @@ import {
 } from '@headlessui/vue'
 import {
   Bars3Icon,
-  BellIcon,
   Cog6ToothIcon,
   FolderIcon,
   HomeIcon,
   RectangleGroupIcon,
   ClipboardDocumentListIcon,
   XMarkIcon,
+  SunIcon,
+  MoonIcon,
+  LanguageIcon,
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { useAuthStore } from '@/stores/auth'
+import CommandPalette from '@/components/ui/CommandPalette.vue'
+import NotificationPanel from '@/components/ui/NotificationPanel.vue'
 
 defineProps<{ title?: string }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const sidebarOpen = ref(false)
+const commandPaletteRef = ref<InstanceType<typeof CommandPalette> | null>(null)
+
+const isDark = ref(document.documentElement.classList.contains('dark'))
 
 const navigation = computed(() => [
   { key: 'dashboard', name: t('nav.dashboard'), href: '/dashboard', icon: HomeIcon, current: route.path === '/dashboard' },
@@ -173,6 +194,29 @@ const navigation = computed(() => [
 ])
 
 const initials = computed(() => (auth.username?.slice(0, 1) || 'U').toUpperCase())
+
+function openSearch() {
+  if (commandPaletteRef.value) commandPaletteRef.value.open = true
+}
+
+function toggleTheme() {
+  const html = document.documentElement
+  if (html.classList.contains('dark')) {
+    html.classList.remove('dark')
+    localStorage.setItem('df_theme', 'light')
+    isDark.value = false
+  } else {
+    html.classList.add('dark')
+    localStorage.setItem('df_theme', 'dark')
+    isDark.value = true
+  }
+}
+
+function toggleLocale() {
+  const next = locale.value === 'zh-CN' ? 'en' : 'zh-CN'
+  locale.value = next
+  localStorage.setItem('df_locale', next)
+}
 
 function logout() {
   auth.logout()

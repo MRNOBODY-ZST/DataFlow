@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { taskApi, type Task } from '@/api/task'
 import { useAuthStore } from './auth'
+import { useNotificationStore } from './notification'
 
 export const useTaskStore = defineStore('task', () => {
   const tasks = ref<Task[]>([])
@@ -17,6 +18,8 @@ export const useTaskStore = defineStore('task', () => {
   async function submit(pipelineId: number): Promise<Task> {
     const { data } = await taskApi.submit(pipelineId)
     tasks.value.unshift(data)
+    const notify = useNotificationStore()
+    notify.add('info', `Task #${data.id}`, `Pipeline ${pipelineId} submitted`)
     return data
   }
 
@@ -45,6 +48,12 @@ export const useTaskStore = defineStore('task', () => {
         }
       }
       if (data.status === 'SUCCESS' || data.status === 'FAILED') {
+        const notify = useNotificationStore()
+        if (data.status === 'SUCCESS') {
+          notify.add('success', `Task #${taskId}`, data.message || 'Completed successfully')
+        } else {
+          notify.add('error', `Task #${taskId}`, data.message || 'Task failed')
+        }
         source.close()
       }
     })

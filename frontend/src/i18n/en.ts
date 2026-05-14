@@ -243,6 +243,31 @@ export default {
     irreversible: 'These actions are irreversible. Please proceed with caution.',
   },
 
+  search: {
+    placeholder: 'Search pages, actions...',
+    noResults: 'No results found',
+    goTo: 'Go to {page}',
+    newPipeline: 'New Pipeline',
+    createNewPipeline: 'Create a new data processing pipeline',
+    uploadFiles: 'Upload Files',
+    uploadDesc: 'Go to file manager to upload files',
+    toggleTheme: 'Toggle Theme',
+    toggleThemeDesc: 'Switch between light and dark mode',
+    toggleLang: 'Toggle Language',
+    toggleLangDesc: 'Switch between Chinese and English',
+  },
+
+  notification: {
+    title: 'Notifications',
+    empty: 'No notifications',
+    markAllRead: 'Mark all read',
+    clearAll: 'Clear all',
+    justNow: 'Just now',
+    minutesAgo: '{n}m ago',
+    hoursAgo: '{n}h ago',
+    daysAgo: '{n}d ago',
+  },
+
   jsonMapper: {
     title: 'JSON Visual Mapper',
     subtitle: 'Drag fields from the left to build output structure on the right',
