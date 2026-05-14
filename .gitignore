@@ -4,3 +4,5 @@ tailwindui_template
 worker/venv
 .claude/
 .claude/settings.local.json
+DataFlow.pptx
+generate_ppt.py
