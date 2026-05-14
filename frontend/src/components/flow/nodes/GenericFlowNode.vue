@@ -130,6 +130,7 @@ const headerBg = computed(() => {
     transforms: 'bg-amber-500',
     media: 'bg-purple-500',
     writers: 'bg-emerald-500',
+    utils: 'bg-cyan-500',
   }
   return map[schema.value?.category || ''] || 'bg-gray-500'
 })

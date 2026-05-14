@@ -25,7 +25,7 @@ export interface NodeFieldDef {
 export interface NodeSchema {
   type: string
   label: string
-  category: 'readers' | 'transforms' | 'media' | 'writers'
+  category: 'readers' | 'transforms' | 'media' | 'writers' | 'utils'
   icon: string
   fields: NodeFieldDef[]
 }

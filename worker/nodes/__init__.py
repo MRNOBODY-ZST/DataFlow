@@ -18,6 +18,7 @@ from nodes.media.image_pooling import ImagePoolingNode
 from nodes.media.image_sharpen import ImageSharpenNode
 from nodes.media.image_threshold import ImageThresholdNode
 from nodes.media.video_transcode import VideoTranscodeNode
+from nodes.utils.preview_node import PreviewNode
 from nodes.writers.csv_writer import CsvWriterNode
 from nodes.writers.minio_writer import MinioWriterNode
 
@@ -42,6 +43,7 @@ NODE_REGISTRY: dict = {
     "image_sharpen": ImageSharpenNode,
     "image_edge_detect": ImageEdgeDetectNode,
     "image_threshold": ImageThresholdNode,
+    "preview": PreviewNode,
     "minio_writer": MinioWriterNode,
     "csv_writer": CsvWriterNode,
 }

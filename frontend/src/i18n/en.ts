@@ -128,6 +128,7 @@ export default {
     transforms: 'Transforms',
     media: 'Media',
     writers: 'Writers',
+    utils: 'Utils',
   },
 
   files: {
@@ -205,6 +206,10 @@ export default {
     running: 'Running',
     success: 'Success',
     failed: 'Failed',
+    preview: 'Preview',
+    previewFiles: 'Intermediate Previews',
+    noPreview: 'No preview files',
+    loadingPreview: 'Loading preview...',
   },
 
   settings: {

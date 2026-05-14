@@ -147,9 +147,13 @@ const nodeTypes = computed(() => {
 const edgeTypes = { default: markRaw(AnimatedDashEdge) }
 
 let dragNodeType = ''
+let initialLoadDone = false
 
 onNodesInitialized(() => {
-  fitView({ maxZoom: 1, padding: 0 })
+  if (!initialLoadDone) {
+    initialLoadDone = true
+    fitView({ maxZoom: 1, padding: 0 })
+  }
 })
 
 onMounted(async () => {
@@ -171,7 +175,7 @@ function onDrop(event: DragEvent) {
     id: `${dragNodeType}_${Date.now()}`,
     type: dragNodeType,
     position,
-    data: { label: schema?.label ?? dragNodeType },
+    data: {},
   }
   addNodes([newNode])
   dragNodeType = ''

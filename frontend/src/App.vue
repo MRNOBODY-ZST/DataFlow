@@ -4,12 +4,16 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import { useNodeSchemaStore } from '@/stores/nodeSchema'
 
+const auth = useAuthStore()
 const nodeSchemaStore = useNodeSchemaStore()
 
 onMounted(() => {
-  nodeSchemaStore.fetch()
+  if (auth.token) {
+    nodeSchemaStore.fetch()
+  }
 
   const theme = localStorage.getItem('df_theme') || 'system'
   const html = document.documentElement

@@ -128,6 +128,7 @@ export default {
     transforms: '转换器',
     media: '媒体',
     writers: '输出器',
+    utils: '工具',
   },
 
   files: {
@@ -205,6 +206,10 @@ export default {
     running: '运行中',
     success: '成功',
     failed: '失败',
+    preview: '预览',
+    previewFiles: '中间预览',
+    noPreview: '无预览文件',
+    loadingPreview: '加载预览...',
   },
 
   settings: {

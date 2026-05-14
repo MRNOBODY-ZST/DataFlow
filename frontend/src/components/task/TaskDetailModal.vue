@@ -8,7 +8,7 @@
       <div class="fixed inset-0 z-50 w-screen overflow-y-auto">
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to=" translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from=" translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-            <DialogPanel class="relative w-full max-w-lg transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10">
+            <DialogPanel class="relative w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10">
               <div v-if="!task" class="px-6 py-16 text-center text-sm text-gray-500 dark:text-gray-400">{{ t('common.loading') }}</div>
               <template v-else>
                 <!-- Header -->
@@ -33,6 +33,52 @@
                   </div>
 
                   <p v-if="task.errorMsg" class="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-400">{{ task.errorMsg }}</p>
+                </div>
+
+                <!-- Preview Section -->
+                <div v-if="previewGroups.length > 0" class="border-t border-gray-100 px-6 py-4 dark:border-white/5">
+                  <h4 class="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <EyeIcon class="size-4 text-gray-400" />
+                    {{ t('task.previewFiles') }}
+                  </h4>
+                  <div v-for="group in previewGroups" :key="group.nodeId" class="mt-3">
+                    <p class="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">Node: {{ group.nodeId }}</p>
+                    <div class="grid gap-3" :class="group.items.length === 1 ? 'grid-cols-1' : 'grid-cols-2'">
+                      <div
+                        v-for="pv in group.items"
+                        :key="pv.key"
+                        class="group overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-gray-700/50"
+                      >
+                        <div class="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300">{{ pv.name }}</div>
+                        <!-- Image preview -->
+                        <div v-if="pv.isImage" class="relative">
+                          <img
+                            v-if="pv.url"
+                            :src="pv.url"
+                            :alt="pv.name"
+                            class="max-h-64 w-full object-contain bg-[repeating-conic-gradient(#e5e7eb_0%_25%,transparent_0%_50%)] bg-[size:16px_16px] dark:bg-[repeating-conic-gradient(#374151_0%_25%,transparent_0%_50%)]"
+                          />
+                          <div v-else class="flex h-32 items-center justify-center text-xs text-gray-400">{{ t('task.loadingPreview') }}</div>
+                        </div>
+                        <!-- Text / JSON / CSV preview -->
+                        <div v-else-if="pv.isText" class="relative">
+                          <pre
+                            v-if="pv.textContent"
+                            class="max-h-48 overflow-auto px-3 py-2 text-xs text-gray-700 dark:text-gray-300"
+                          >{{ pv.textContent }}</pre>
+                          <div v-else class="flex h-20 items-center justify-center text-xs text-gray-400">{{ t('task.loadingPreview') }}</div>
+                        </div>
+                        <!-- Other: download link -->
+                        <div v-else class="px-3 py-3">
+                          <button
+                            type="button"
+                            class="rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                            @click="downloadPreview(pv)"
+                          >{{ t('common.download') }}</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Info -->
@@ -75,9 +121,28 @@
 import { ref, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import { EyeIcon } from '@heroicons/vue/24/outline'
 import { taskApi, type Task } from '@/api/task'
-import { fileApi } from '@/api/file'
+import { fileApi, type FileMetadata } from '@/api/file'
 import { useTaskStore } from '@/stores/task'
+
+const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff']
+const TEXT_EXTS = ['.txt', '.csv', '.json', '.xml', '.log']
+
+interface PreviewItem {
+  key: string
+  name: string
+  nodeId: string
+  isImage: boolean
+  isText: boolean
+  url: string | null
+  textContent: string | null
+}
+
+interface PreviewGroup {
+  nodeId: string
+  items: PreviewItem[]
+}
 
 const props = defineProps<{ open: boolean; taskId: number | null }>()
 defineEmits<{ close: [] }>()
@@ -85,14 +150,18 @@ defineEmits<{ close: [] }>()
 const taskStore = useTaskStore()
 const { t } = useI18n()
 const task = ref<Task | null>(null)
+const previewGroups = ref<PreviewGroup[]>([])
 let unsubscribe: (() => void) | null = null
 
 watch(() => [props.open, props.taskId] as const, async ([isOpen, id]) => {
   if (unsubscribe) { unsubscribe(); unsubscribe = null }
+  previewGroups.value = []
   if (!isOpen || !id) { task.value = null; return }
 
   const { data } = await taskApi.get(id)
   task.value = data
+
+  loadPreviews(id)
 
   if (data.status === 'PENDING' || data.status === 'RUNNING') {
     unsubscribe = taskStore.subscribeProgress(id, (event) => {
@@ -103,12 +172,67 @@ watch(() => [props.open, props.taskId] as const, async ([isOpen, id]) => {
       if (event.message && event.status === 'FAILED') task.value.errorMsg = event.message
       if (event.status === 'SUCCESS' || event.status === 'FAILED') {
         task.value.finishedAt = new Date().toISOString()
+        loadPreviews(id)
       }
     })
   }
 }, { immediate: true })
 
 onUnmounted(() => unsubscribe?.())
+
+async function loadPreviews(taskId: number) {
+  try {
+    const files: FileMetadata[] = await fileApi.listFiles('temp', `run_${taskId}/`)
+    if (!files.length) { previewGroups.value = []; return }
+
+    const grouped = new Map<string, PreviewItem[]>()
+
+    for (const f of files) {
+      if (f.key.endsWith('/')) continue
+      const parts = f.key.split('/')
+      // path: {taskId}/{nodeId}/{filename}
+      if (parts.length < 3) continue
+      const nodeId = parts[1]
+      const name = parts.slice(2).join('/')
+      const ext = name.includes('.') ? '.' + name.split('.').pop()!.toLowerCase() : ''
+
+      const item: PreviewItem = {
+        key: f.key,
+        name,
+        nodeId,
+        isImage: IMAGE_EXTS.includes(ext),
+        isText: TEXT_EXTS.includes(ext),
+        url: null,
+        textContent: null,
+      }
+
+      if (!grouped.has(nodeId)) grouped.set(nodeId, [])
+      grouped.get(nodeId)!.push(item)
+    }
+
+    previewGroups.value = Array.from(grouped.entries()).map(([nodeId, items]) => ({ nodeId, items }))
+
+    for (const group of previewGroups.value) {
+      for (const pv of group.items) {
+        if (pv.isImage) {
+          const { url } = await fileApi.presignDownload(pv.key, 'temp')
+          pv.url = url
+        } else if (pv.isText) {
+          const { url } = await fileApi.presignDownload(pv.key, 'temp')
+          try {
+            const resp = await fetch(url)
+            const text = await resp.text()
+            pv.textContent = text.length > 5000 ? text.slice(0, 5000) + '\n...' : text
+          } catch {
+            pv.textContent = '(failed to load)'
+          }
+        }
+      }
+    }
+  } catch {
+    previewGroups.value = []
+  }
+}
 
 function formatTime(iso: string): string {
   if (!iso) return ''
@@ -125,6 +249,11 @@ function formatTime(iso: string): string {
 async function downloadResult() {
   if (!task.value?.outputPath) return
   const { url } = await fileApi.presignDownload(task.value.outputPath, 'output')
+  window.open(url, '_blank')
+}
+
+async function downloadPreview(pv: PreviewItem) {
+  const { url } = await fileApi.presignDownload(pv.key, 'temp')
   window.open(url, '_blank')
 }
 

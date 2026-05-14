@@ -131,6 +131,10 @@ public class NodeSchemaService {
             new NodeSchemaDTO.FieldDef("format", "输出格式", "select", "PNG", false, false, List.of("JPEG", "PNG", "WEBP"), null, null, true)
         )));
 
+        schemas.add(new NodeSchemaDTO("preview", "预览", "utils", "EyeIcon", List.of(
+            new NodeSchemaDTO.FieldDef("label", "自定义文件名", "text", "留空则使用原文件名", false, false, null, null, null, true)
+        )));
+
         schemas.add(new NodeSchemaDTO("minio_writer", "MinIO 写出", "writers", "CloudArrowUpIcon", List.of(
                 new NodeSchemaDTO.FieldDef("key", "输出 Key", "text", "output/result", false, false, null, null, null, true),
                 new NodeSchemaDTO.FieldDef("bucket", "目标 Bucket（默认 dataflow-output）", "text", "dataflow-output", false, false, null, null, null, false)

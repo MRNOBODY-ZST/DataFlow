@@ -16,17 +16,41 @@ class MinioWriterNode(BaseNode):
         bucket: str   — destination bucket (default: output)
     """
 
+    _SIGNATURES = {
+        b"\xff\xd8\xff": ("image/jpeg", ".jpg"),
+        b"\x89PNG\r\n\x1a\n": ("image/png", ".png"),
+        b"RIFF": ("image/webp", ".webp"),
+        b"BM": ("image/bmp", ".bmp"),
+        b"II\x2a\x00": ("image/tiff", ".tiff"),
+        b"MM\x00\x2a": ("image/tiff", ".tiff"),
+        b"GIF8": ("image/gif", ".gif"),
+    }
+
+    @staticmethod
+    def _detect_image(data: bytes) -> tuple[str, str] | None:
+        for sig, result in MinioWriterNode._SIGNATURES.items():
+            if data[:len(sig)] == sig:
+                return result
+        return None
+
     def execute(self, inputs: list, ctx: NodeContext):
         import json
         import pandas as pd
 
         data = inputs[0]
-        key = ctx.config.get("key") or ctx.source_filename or "result"
+        key = ctx.config.get("key") or ctx.source_key or "result"
         bucket = ctx.config.get("bucket", ctx.output_bucket)
 
         if isinstance(data, (bytes, bytearray)):
             raw = bytes(data)
-            content_type = "application/octet-stream"
+            detected = self._detect_image(raw)
+            if detected:
+                content_type, ext = detected
+                if not any(key.lower().endswith(e) for e in
+                           (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff", ".gif")):
+                    key += ext
+            else:
+                content_type = "application/octet-stream"
         elif isinstance(data, pd.DataFrame):
             raw = data.to_csv(index=False).encode()
             content_type = "text/csv"
@@ -35,6 +59,8 @@ class MinioWriterNode(BaseNode):
         elif isinstance(data, str):
             raw = data.encode()
             content_type = "text/plain"
+            if not any(key.lower().endswith(e) for e in (".txt", ".text", ".log", ".csv", ".json", ".xml", ".html")):
+                key += ".txt"
         elif isinstance(data, (list, dict)):
             raw = json.dumps(data, ensure_ascii=False, indent=2).encode()
             content_type = "application/json"
