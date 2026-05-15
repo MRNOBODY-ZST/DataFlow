@@ -1,3 +1,5 @@
+from minio.error import S3Error
+
 from nodes.base import BaseNode, NodeContext
 
 
@@ -31,10 +33,24 @@ class MinioReaderNode(BaseNode):
                     response.close()
                     response.release_conn()
                 items.append({"key": obj.object_name, "data": data})
+            if not items:
+                raise FileNotFoundError(
+                    f"No objects found under prefix '{folder}' in bucket '{bucket}'"
+                )
             return items
 
         obj_key = key or ctx.config.get("input_key")
-        response = ctx.minio_client.get_object(bucket, obj_key)
+        if not obj_key:
+            raise ValueError("minio_reader: no 'key' configured and no upstream input")
+        try:
+            response = ctx.minio_client.get_object(bucket, obj_key)
+        except S3Error as e:
+            if e.code == "NoSuchKey":
+                raise FileNotFoundError(
+                    f"Object '{obj_key}' not found in bucket '{bucket}'. "
+                    f"Verify the file exists and the path is correct."
+                ) from e
+            raise
         try:
             data = response.read()
         finally:

@@ -46,7 +46,7 @@
             <div class="min-w-0 flex-1">
               <p class="text-sm font-medium text-gray-900 dark:text-white">{{ n.title }}</p>
               <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">{{ n.message }}</p>
-              <p class="mt-1 text-[10px] text-gray-400 dark:text-gray-500">{{ timeAgo(n.time) }}</p>
+              <p class="mt-1 text-[10px] text-gray-400 dark:text-gray-500">{{ timeAgo(n.createdAt) }}</p>
             </div>
             <button type="button" class="mt-0.5 shrink-0 text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400" @click.stop="store.remove(n.id)">
               <XMarkIcon class="size-4" />
@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { BellIcon } from '@heroicons/vue/24/outline'
@@ -114,7 +114,11 @@ const { t } = useI18n()
 const store = useNotificationStore()
 
 const visibleToasts = ref<Notification[]>([])
-const toastTimers = new Map<string, ReturnType<typeof setTimeout>>()
+const toastTimers = new Map<number, ReturnType<typeof setTimeout>>()
+
+onMounted(() => {
+  store.fetchAll()
+})
 
 watch(() => store.items.length, (newLen, oldLen) => {
   if (newLen > oldLen) {
@@ -127,7 +131,7 @@ watch(() => store.items.length, (newLen, oldLen) => {
   }
 })
 
-function dismissToast(id: string) {
+function dismissToast(id: number) {
   visibleToasts.value = visibleToasts.value.filter(t => t.id !== id)
   const timer = toastTimers.get(id)
   if (timer) {
@@ -136,8 +140,8 @@ function dismissToast(id: string) {
   }
 }
 
-function timeAgo(ts: number): string {
-  const diff = Math.floor((Date.now() - ts) / 1000)
+function timeAgo(ts: string): string {
+  const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 1000)
   if (diff < 60) return t('notification.justNow')
   if (diff < 3600) return t('notification.minutesAgo', { n: Math.floor(diff / 60) })
   if (diff < 86400) return t('notification.hoursAgo', { n: Math.floor(diff / 3600) })

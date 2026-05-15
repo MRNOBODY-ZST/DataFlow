@@ -35,3 +35,15 @@ CREATE TABLE IF NOT EXISTS tasks (
     INDEX idx_tasks_pipeline (pipeline_id),
     INDEX idx_tasks_status (status)
 );
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id    BIGINT       NOT NULL,
+    type       ENUM('success','error','info') NOT NULL DEFAULT 'info',
+    title      VARCHAR(256) NOT NULL,
+    message    TEXT,
+    `read`     BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at DATETIME     DEFAULT NOW(),
+    INDEX idx_notifications_user (user_id),
+    INDEX idx_notifications_user_read (user_id, `read`)
+);
