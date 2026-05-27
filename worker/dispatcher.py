@@ -4,8 +4,10 @@ import logging
 import os
 import signal
 import sys
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
 
 import ray
+import redis as redis_lib
 from kafka import KafkaConsumer
 from pymongo import MongoClient
 
@@ -17,7 +19,9 @@ logger = logging.getLogger("dispatcher")
 
 KAFKA_BOOTSTRAP = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://dataflow:dataflow123@localhost:27017/dataflow?authSource=admin")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 TOPIC_DISPATCH = "task.dispatch"
+PIPELINE_TIMEOUT = int(os.getenv("PIPELINE_TIMEOUT_SECONDS", "1800"))
 
 
 def _normalize_graph(doc: dict) -> dict:
@@ -66,6 +70,13 @@ def fetch_graph(graph_id: str) -> dict:
     return _normalize_graph(doc)
 
 
+def _make_cancel_check(task_id: str):
+    r = redis_lib.from_url(REDIS_URL)
+    def check():
+        return r.get(f"cancel:{task_id}") is not None
+    return check
+
+
 def main():
     ray.init(ignore_reinit_error=True)
     logger.info("Ray initialised. Connecting to Kafka %s ...", KAFKA_BOOTSTRAP)
@@ -96,16 +107,38 @@ def main():
         user_id = str(task.get("userId", ""))
 
         logger.info("Received task %s (graph=%s, user=%s)", task_id, graph_id, user_id)
+
+        cancel_check = _make_cancel_check(task_id)
+        if cancel_check():
+            reporter.report(task_id, None, 0, "CANCELLED", "Task was cancelled before execution")
+            logger.info("Task %s was cancelled before execution", task_id)
+            continue
+
         reporter.report(task_id, None, 0, "RUNNING", "Pipeline started")
 
         try:
             graph = fetch_graph(graph_id)
-            output_key = run_pipeline(graph, task_id, reporter, user_id=user_id)
-            reporter.report(task_id, None, 100, "SUCCESS", "Pipeline completed", output_key=output_key)
-            logger.info("Task %s completed. output=%s", task_id, output_key)
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                future = pool.submit(run_pipeline, graph, task_id, reporter, user_id=user_id, cancel_check=cancel_check)
+                output_key = future.result(timeout=PIPELINE_TIMEOUT)
+
+            if cancel_check():
+                reporter.report(task_id, None, 0, "CANCELLED", "Task cancelled during execution")
+                logger.info("Task %s cancelled", task_id)
+            else:
+                reporter.report(task_id, None, 100, "SUCCESS", "Pipeline completed", output_key=output_key)
+                logger.info("Task %s completed. output=%s", task_id, output_key)
+        except FuturesTimeout:
+            logger.error("Task %s timed out after %ds", task_id, PIPELINE_TIMEOUT)
+            reporter.report(task_id, None, 0, "FAILED", f"Pipeline timed out after {PIPELINE_TIMEOUT}s")
         except Exception as e:
-            logger.exception("Task %s failed", task_id)
-            reporter.report(task_id, None, 0, "FAILED", str(e))
+            err_msg = str(e)
+            if "cancelled" in err_msg.lower():
+                reporter.report(task_id, None, 0, "CANCELLED", err_msg)
+                logger.info("Task %s cancelled: %s", task_id, err_msg)
+            else:
+                logger.exception("Task %s failed", task_id)
+                reporter.report(task_id, None, 0, "FAILED", err_msg)
 
 
 if __name__ == "__main__":

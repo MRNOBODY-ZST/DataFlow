@@ -1,5 +1,5 @@
 import io
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class ImageOCRNode(BaseNode):
@@ -8,6 +8,21 @@ class ImageOCRNode(BaseNode):
     Config:
         lang: list[str] — language codes, default ["en"]
     """
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="image_ocr",
+            label="图片 OCR",
+            category="media",
+            icon="LanguageIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/image.jpg"),
+                FieldDef(key="lang", label="语言", type="text",
+                         placeholder='["ch_sim","en"]', widget="string-array", inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         import easyocr

@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 from minio.error import S3Error
 
 from nodes.base import BaseNode, NodeContext
+=======
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
+>>>>>>> 878b7e2 (feat: auto parser for nodes)
 
 
 class MinioReaderNode(BaseNode):
@@ -12,6 +16,21 @@ class MinioReaderNode(BaseNode):
         bucket: str    — source bucket (default: input)
         batch: bool    — when true, read all files under prefix and return list
     """
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="minio_reader",
+            label="MinIO 读取",
+            category="readers",
+            icon="CloudArrowDownIcon",
+            fields=[
+                FieldDef(key="key", label="文件或文件夹路径", type="file-picker",
+                         placeholder="input/xxx/file", required=True, inline=True),
+                FieldDef(key="bucket", label="源 Bucket（默认 dataflow-input）", type="text",
+                         placeholder="dataflow-input"),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         bucket = ctx.config.get("bucket", ctx.input_bucket)

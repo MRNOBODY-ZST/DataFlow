@@ -1,6 +1,7 @@
 ray
 kafka-python
 minio
+redis
 pillow
 opencv-python-headless
 easyocr

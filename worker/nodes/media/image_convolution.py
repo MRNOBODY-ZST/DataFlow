@@ -1,9 +1,34 @@
 import io
 import json
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class ImageConvolutionNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="image_convolution",
+            label="图片卷积",
+            category="media",
+            icon="AdjustmentsHorizontalIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/image.jpg"),
+                FieldDef(key="preset", label="预设卷积核", type="select",
+                         placeholder="blur",
+                         options=["blur", "sharpen", "contour", "detail", "edge_enhance", "emboss", "smooth", "custom"],
+                         inline=True),
+                FieldDef(key="kernel", label="自定义卷积核（JSON 数组，preset=custom 时生效）", type="textarea",
+                         placeholder="[0,-1,0,-1,5,-1,0,-1,0]"),
+                FieldDef(key="kernel_size", label="卷积核尺寸", type="select",
+                         placeholder="3", options=["3", "5"]),
+                FieldDef(key="offset", label="偏移量", type="number",
+                         placeholder="0"),
+                FieldDef(key="format", label="输出格式", type="select",
+                         placeholder="JPEG", options=["JPEG", "PNG", "WEBP"], inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         from PIL import Image, ImageFilter

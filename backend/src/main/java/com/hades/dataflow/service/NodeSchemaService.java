@@ -1,15 +1,77 @@
 package com.hades.dataflow.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hades.dataflow.domain.dto.NodeSchemaDTO;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.util.*;
 
 @Service
 public class NodeSchemaService {
 
+    private static final Logger log = LoggerFactory.getLogger(NodeSchemaService.class);
+
+    @Value("${dataflow.node-schema.path:../worker/node_schemas.json}")
+    private String schemaFilePath;
+
+    private List<NodeSchemaDTO> cachedSchemas;
+
+    @PostConstruct
+    public void init() {
+        this.cachedSchemas = loadSchemas();
+    }
+
     public List<NodeSchemaDTO> getAll() {
+        return cachedSchemas;
+    }
+
+    public void refresh() {
+        this.cachedSchemas = loadSchemas();
+        log.info("Node schemas refreshed, total: {}", cachedSchemas.size());
+    }
+
+    private List<NodeSchemaDTO> loadSchemas() {
+        List<NodeSchemaDTO> jsonSchemas = loadFromJson();
+        List<NodeSchemaDTO> fallback = getFallbackSchemas();
+
+        if (jsonSchemas != null && !jsonSchemas.isEmpty()) {
+            Map<String, NodeSchemaDTO> merged = new LinkedHashMap<>();
+            for (NodeSchemaDTO s : fallback) {
+                merged.put(s.getType(), s);
+            }
+            for (NodeSchemaDTO s : jsonSchemas) {
+                merged.put(s.getType(), s);
+            }
+            log.info("Loaded {} node schemas from JSON (fallback: {})", jsonSchemas.size(), fallback.size());
+            return new ArrayList<>(merged.values());
+        }
+
+        log.warn("JSON schema file not available, using fallback schemas");
+        return fallback;
+    }
+
+    private List<NodeSchemaDTO> loadFromJson() {
+        try {
+            File file = new File(schemaFilePath);
+            if (!file.exists()) {
+                log.warn("Schema file not found: {}", file.getAbsolutePath());
+                return null;
+            }
+            ObjectMapper om = new ObjectMapper();
+            return om.readValue(file, new TypeReference<List<NodeSchemaDTO>>() {});
+        } catch (Exception e) {
+            log.warn("Failed to load node schemas from JSON: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private List<NodeSchemaDTO> getFallbackSchemas() {
         List<NodeSchemaDTO> schemas = new ArrayList<>();
 
         schemas.add(new NodeSchemaDTO("csv_reader", "CSV 读取", "readers", "DocumentTextIcon", List.of(
@@ -138,6 +200,12 @@ public class NodeSchemaService {
         schemas.add(new NodeSchemaDTO("minio_writer", "MinIO 写出", "writers", "CloudArrowUpIcon", List.of(
                 new NodeSchemaDTO.FieldDef("key", "输出 Key", "text", "output/result", false, false, null, null, null, true),
                 new NodeSchemaDTO.FieldDef("bucket", "目标 Bucket（默认 dataflow-output）", "text", "dataflow-output", false, false, null, null, null, false)
+        )));
+
+        schemas.add(new NodeSchemaDTO("json_writer", "JSON 写出", "writers", "CodeBracketIcon", List.of(
+            new NodeSchemaDTO.FieldDef("key", "输出 Key", "text", "output/result.json", false, false, null, null, null, true),
+            new NodeSchemaDTO.FieldDef("indent", "缩进空格数", "number", "2", false, false, null, null, null, false),
+            new NodeSchemaDTO.FieldDef("ensure_ascii", "转义非 ASCII 字符", "checkbox", null, false, false, null, null, null, false)
         )));
 
         schemas.add(new NodeSchemaDTO("csv_writer", "CSV 写出", "writers", "TableCellsIcon", List.of(

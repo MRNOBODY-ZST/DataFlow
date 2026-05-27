@@ -22,17 +22,35 @@
               <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ t('task.taskId', { id: task.id }) }}</p>
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('task.pipelineId', { id: task.pipelineId }) }} · {{ formatTime(task.createdAt) }}</p>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
               <div class="w-32">
                 <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                   <span>{{ t('task.progress') }}</span>
                   <span>{{ task.progress }}%</span>
                 </div>
                 <div class="mt-1 h-2 rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div class="h-2 rounded-full transition-all" :class="task.status === 'FAILED' ? 'bg-red-400' : 'bg-sky-600 dark:bg-sky-500'" :style="{ width: `${task.progress}%` }" />
+                  <div class="h-2 rounded-full transition-all" :class="progressBarClass(task.status)" :style="{ width: `${task.progress}%` }" />
                 </div>
               </div>
-              <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium" :class="statusClass(task.status)">{{ task.status }}</span>
+              <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium" :class="statusClass(task.status)">{{ statusLabel(task.status) }}</span>
+              <button
+                v-if="task.status === 'PENDING' || task.status === 'RUNNING'"
+                type="button"
+                class="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-amber-600 dark:hover:bg-white/10 dark:hover:text-amber-400"
+                :title="t('task.cancelTask')"
+                @click.stop="handleCancel(task.id)"
+              >
+                <XMarkIcon class="size-4" />
+              </button>
+              <button
+                v-if="task.status === 'SUCCESS' || task.status === 'FAILED' || task.status === 'CANCELLED'"
+                type="button"
+                class="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-red-600 dark:hover:bg-white/10 dark:hover:text-red-400"
+                :title="t('task.deleteTask')"
+                @click.stop="handleDelete(task.id)"
+              >
+                <TrashIcon class="size-4" />
+              </button>
             </div>
           </li>
         </ul>
@@ -46,6 +64,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { XMarkIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import TaskDetailModal from '@/components/task/TaskDetailModal.vue'
 import { useTaskStore } from '@/stores/task'
@@ -92,6 +111,16 @@ function openTask(id: number) {
   detailOpen.value = true
 }
 
+async function handleCancel(id: number) {
+  if (!confirm(t('task.confirmCancel'))) return
+  await taskStore.cancelTask(id)
+}
+
+async function handleDelete(id: number) {
+  if (!confirm(t('task.confirmDelete'))) return
+  await taskStore.deleteTask(id)
+}
+
 function formatTime(iso: string): string {
   if (!iso) return ''
   return new Date(iso).toLocaleString('zh-CN', {
@@ -107,6 +136,24 @@ function statusClass(status: string) {
     RUNNING: 'bg-blue-100 text-blue-700 dark:bg-blue-400/10 dark:text-blue-400',
     SUCCESS: 'bg-green-100 text-green-700 dark:bg-green-400/10 dark:text-green-400',
     FAILED: 'bg-red-100 text-red-700 dark:bg-red-400/10 dark:text-red-400',
+    CANCELLED: 'bg-amber-100 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400',
   }[status] || 'bg-gray-100 text-gray-700 dark:bg-gray-400/10 dark:text-gray-400'
+}
+
+function progressBarClass(status: string) {
+  if (status === 'FAILED') return 'bg-red-400'
+  if (status === 'CANCELLED') return 'bg-amber-400'
+  return 'bg-sky-600 dark:bg-sky-500'
+}
+
+function statusLabel(status: string) {
+  const map: Record<string, string> = {
+    PENDING: t('task.pending'),
+    RUNNING: t('task.running'),
+    SUCCESS: t('task.success'),
+    FAILED: t('task.failed'),
+    CANCELLED: t('task.cancelled'),
+  }
+  return map[status] || status
 }
 </script>

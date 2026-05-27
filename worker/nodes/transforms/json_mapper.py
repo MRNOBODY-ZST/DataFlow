@@ -1,4 +1,4 @@
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 def _get_by_path(obj, path_parts: list[str]):
@@ -65,6 +65,21 @@ class JsonMapperNode(BaseNode):
             target: str  — dot-separated output path
             default: any — fallback value if source is None
     """
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="json_mapper",
+            label="JSON 可视化映射",
+            category="transforms",
+            icon="MapIcon",
+            fields=[
+                FieldDef(key="mappings", label="字段映射", type="text",
+                         widget="json-mapper", inline=True),
+                FieldDef(key="sample", label="JSON 样本（用于解析字段树）", type="textarea",
+                         placeholder=""),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         if not inputs:

@@ -20,6 +20,7 @@ from nodes.media.image_threshold import ImageThresholdNode
 from nodes.media.video_transcode import VideoTranscodeNode
 from nodes.utils.preview_node import PreviewNode
 from nodes.writers.csv_writer import CsvWriterNode
+from nodes.writers.json_writer import JsonWriterNode
 from nodes.writers.minio_writer import MinioWriterNode
 
 NODE_REGISTRY: dict = {
@@ -45,5 +46,6 @@ NODE_REGISTRY: dict = {
     "image_threshold": ImageThresholdNode,
     "preview": PreviewNode,
     "minio_writer": MinioWriterNode,
+    "json_writer": JsonWriterNode,
     "csv_writer": CsvWriterNode,
 }

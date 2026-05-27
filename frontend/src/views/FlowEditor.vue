@@ -53,7 +53,7 @@
       </div>
 
       <!-- Node Config Modal -->
-      <NodeConfigModal :open="configOpen" :node="selectedNode" @update="onNodeUpdate" @close="configOpen = false" />
+      <NodeConfigModal :open="configOpen" :node="selectedNode" :edges="edges" :all-nodes="nodes" @update="onNodeUpdate" @close="configOpen = false" />
 
       <!-- Run Dialog -->
       <TransitionRoot as="template" :show="showRunDialog">

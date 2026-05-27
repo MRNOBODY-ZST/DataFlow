@@ -1,8 +1,27 @@
 import io
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class ImageEdgeDetectNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="image_edge_detect",
+            label="边缘检测",
+            category="media",
+            icon="ViewfinderCircleIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/image.jpg"),
+                FieldDef(key="method", label="检测方法", type="select",
+                         placeholder="find_edges", required=True,
+                         options=["find_edges", "sobel", "contour", "edge_enhance", "edge_enhance_more"],
+                         inline=True),
+                FieldDef(key="format", label="输出格式", type="select",
+                         placeholder="PNG", options=["JPEG", "PNG", "WEBP"], inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         from PIL import Image, ImageFilter

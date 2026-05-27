@@ -2,7 +2,7 @@ import os
 import pathlib
 import tempfile
 
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 def _stem(key: str) -> str:
@@ -10,6 +10,23 @@ def _stem(key: str) -> str:
 
 
 class AudioExtractNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="audio_extract",
+            label="音频提取",
+            category="media",
+            icon="MusicalNoteIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/video.mp4"),
+                FieldDef(key="format", label="音频格式", type="select",
+                         placeholder="mp3", required=True,
+                         options=["mp3", "aac", "wav"], inline=True),
+            ],
+        )
+
     def execute(self, inputs: list, ctx: NodeContext):
         import ffmpeg
 

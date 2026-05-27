@@ -18,10 +18,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Set;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TaskService {
+
+    private static final Set<String> TERMINAL_STATUSES = Set.of("SUCCESS", "FAILED", "CANCELLED");
+    private static final Set<String> CANCELLABLE_STATUSES = Set.of("PENDING", "RUNNING");
 
     private final TaskRepository taskRepository;
     private final PipelineRepository pipelineRepository;
@@ -67,6 +74,52 @@ public class TaskService {
                 .map(this::toResponse);
     }
 
+    public Mono<TaskResponse> cancelTask(Long id, Long userId) {
+        return taskRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .filter(t -> t.getUserId().equals(userId))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN)))
+                .flatMap(task -> {
+                    if (!CANCELLABLE_STATUSES.contains(task.getStatus())) {
+                        return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task is not cancellable"));
+                    }
+                    task.setStatus("CANCELLED");
+                    task.setFinishedAt(LocalDateTime.now());
+                    return taskRepository.save(task);
+                })
+                .flatMap(task -> {
+                    // Signal worker to stop via Redis key
+                    Mono<Boolean> setCancel = redisTemplate.opsForValue()
+                            .set("cancel:" + id, "1", Duration.ofHours(1));
+                    // Notify SSE subscribers
+                    TaskProgressEvent event = new TaskProgressEvent(id, null, task.getProgress(), "CANCELLED", "Task cancelled by user", null);
+                    Mono<Long> publish;
+                    try {
+                        String json = objectMapper.writeValueAsString(event);
+                        publish = redisTemplate.convertAndSend("progress:" + id, json);
+                    } catch (Exception e) {
+                        log.error("Failed to serialize cancel event", e);
+                        publish = Mono.empty();
+                    }
+                    return Mono.when(setCancel, publish).thenReturn(toResponse(task));
+                });
+    }
+
+    public Mono<Void> deleteTask(Long id, Long userId) {
+        return taskRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .filter(t -> t.getUserId().equals(userId))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN)))
+                .flatMap(task -> {
+                    if (!TERMINAL_STATUSES.contains(task.getStatus())) {
+                        return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only finished tasks can be deleted"));
+                    }
+                    return taskRepository.delete(task)
+                            .then(redisTemplate.delete("cancel:" + id))
+                            .then();
+                });
+    }
+
     public Flux<TaskProgressEvent> subscribeProgress(Long taskId, Long userId) {
         // Verify ownership first
         return taskRepository.findById(taskId)
@@ -74,7 +127,7 @@ public class TaskService {
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN)))
                 .flatMapMany(task -> {
                     // If already terminal, emit final state immediately
-                    if ("SUCCESS".equals(task.getStatus()) || "FAILED".equals(task.getStatus())) {
+                    if (TERMINAL_STATUSES.contains(task.getStatus())) {
                         return Flux.just(new TaskProgressEvent(
                                 taskId, null, task.getProgress(), task.getStatus(), task.getErrorMsg(), task.getOutputPath()));
                     }
@@ -88,7 +141,7 @@ public class TaskService {
                                     return new TaskProgressEvent(taskId, null, 0, "ERROR", e.getMessage(), null);
                                 }
                             })
-                            .takeUntil(e -> "SUCCESS".equals(e.getStatus()) || "FAILED".equals(e.getStatus()));
+                            .takeUntil(e -> TERMINAL_STATUSES.contains(e.getStatus()));
                 });
     }
 

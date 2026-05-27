@@ -1,3 +1,5 @@
+name: dataflow
+
 services:
   mysql:
     # 9.7.0 LTS — verified on Aliyun mirror 2026-05

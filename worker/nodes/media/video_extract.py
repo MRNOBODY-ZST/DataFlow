@@ -1,7 +1,7 @@
 import io
 import os
 import tempfile
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class VideoExtractNode(BaseNode):
@@ -11,6 +11,23 @@ class VideoExtractNode(BaseNode):
         fps: float — frames per second to extract, default 1.0
         output_prefix: str — MinIO key prefix for output frames
     """
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="video_extract",
+            label="视频抽帧",
+            category="media",
+            icon="FilmIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/video.mp4"),
+                FieldDef(key="fps", label="抽帧率 (FPS)", type="number",
+                         placeholder="1", inline=True),
+                FieldDef(key="output_prefix", label="输出前缀", type="text",
+                         placeholder="frames/task1/"),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         import ffmpeg

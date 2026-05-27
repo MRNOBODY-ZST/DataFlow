@@ -1,8 +1,25 @@
 import io
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class ImageGaussianBlurNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="image_gaussian_blur",
+            label="高斯模糊",
+            category="media",
+            icon="EyeDropperIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/image.jpg"),
+                FieldDef(key="radius", label="模糊半径", type="number",
+                         placeholder="2", required=True, inline=True),
+                FieldDef(key="format", label="输出格式", type="select",
+                         placeholder="JPEG", options=["JPEG", "PNG", "WEBP"], inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         from PIL import Image, ImageFilter

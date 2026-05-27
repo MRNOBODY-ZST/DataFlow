@@ -18,7 +18,7 @@
                       <DialogTitle class="text-base font-semibold text-gray-900 dark:text-white">{{ t('task.taskId', { id: task.id }) }}</DialogTitle>
                       <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ t('task.pipelineId', { id: task.pipelineId }) }}</p>
                     </div>
-                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium" :class="statusClass(task.status)">{{ task.status }}</span>
+                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium" :class="statusClass(task.status)">{{ statusLabel(task.status) }}</span>
                   </div>
 
                   <!-- Progress -->
@@ -28,7 +28,7 @@
                       <span>{{ task.progress }}%</span>
                     </div>
                     <div class="mt-1.5 h-2 rounded-full bg-gray-200 dark:bg-gray-700">
-                      <div class="h-2 rounded-full transition-all" :class="task.status === 'FAILED' ? 'bg-red-400' : 'bg-sky-600 dark:bg-sky-500'" :style="{ width: `${task.progress}%` }" />
+                      <div class="h-2 rounded-full transition-all" :class="progressBarClass(task.status)" :style="{ width: `${task.progress}%` }" />
                     </div>
                   </div>
 
@@ -105,8 +105,28 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="border-t border-gray-100 px-6 py-3 dark:border-white/5">
-                  <button type="button" class="w-full rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="$emit('close')">{{ t('common.close') }}</button>
+                <div class="flex items-center justify-between border-t border-gray-100 px-6 py-3 dark:border-white/5">
+                  <div class="flex gap-2">
+                    <button
+                      v-if="task.status === 'PENDING' || task.status === 'RUNNING'"
+                      type="button"
+                      class="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 shadow-xs inset-ring inset-ring-amber-200 hover:bg-amber-100 dark:bg-amber-400/10 dark:text-amber-400 dark:inset-ring-amber-400/20 dark:hover:bg-amber-400/20"
+                      @click="handleCancel"
+                    >
+                      <XMarkIcon class="size-4" />
+                      {{ t('task.cancelTask') }}
+                    </button>
+                    <button
+                      v-if="task.status === 'SUCCESS' || task.status === 'FAILED' || task.status === 'CANCELLED'"
+                      type="button"
+                      class="inline-flex items-center gap-1.5 rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 shadow-xs inset-ring inset-ring-red-200 hover:bg-red-100 dark:bg-red-400/10 dark:text-red-400 dark:inset-ring-red-400/20 dark:hover:bg-red-400/20"
+                      @click="handleDelete"
+                    >
+                      <TrashIcon class="size-4" />
+                      {{ t('task.deleteTask') }}
+                    </button>
+                  </div>
+                  <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:inset-ring-white/5 dark:hover:bg-white/20" @click="$emit('close')">{{ t('common.close') }}</button>
                 </div>
               </template>
             </DialogPanel>
@@ -121,7 +141,7 @@
 import { ref, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-import { EyeIcon } from '@heroicons/vue/24/outline'
+import { EyeIcon, XMarkIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { taskApi, type Task } from '@/api/task'
 import { fileApi, type FileMetadata } from '@/api/file'
 import { useTaskStore } from '@/stores/task'
@@ -145,7 +165,7 @@ interface PreviewGroup {
 }
 
 const props = defineProps<{ open: boolean; taskId: number | null }>()
-defineEmits<{ close: [] }>()
+const emit = defineEmits<{ close: [] }>()
 
 const taskStore = useTaskStore()
 const { t } = useI18n()
@@ -170,7 +190,7 @@ watch(() => [props.open, props.taskId] as const, async ([isOpen, id]) => {
       task.value.status = event.status as Task['status']
       if (event.outputKey) task.value.outputPath = event.outputKey
       if (event.message && event.status === 'FAILED') task.value.errorMsg = event.message
-      if (event.status === 'SUCCESS' || event.status === 'FAILED') {
+      if (event.status === 'SUCCESS' || event.status === 'FAILED' || event.status === 'CANCELLED') {
         task.value.finishedAt = new Date().toISOString()
         loadPreviews(id)
       }
@@ -257,12 +277,43 @@ async function downloadPreview(pv: PreviewItem) {
   window.open(url, '_blank')
 }
 
+async function handleCancel() {
+  if (!task.value || !confirm(t('task.confirmCancel'))) return
+  await taskStore.cancelTask(task.value.id)
+  const { data } = await taskApi.get(task.value.id)
+  task.value = data
+}
+
+async function handleDelete() {
+  if (!task.value || !confirm(t('task.confirmDelete'))) return
+  await taskStore.deleteTask(task.value.id)
+  emit('close')
+}
+
 function statusClass(status: string) {
   return {
     PENDING: 'bg-gray-100 text-gray-700 dark:bg-gray-400/10 dark:text-gray-400',
     RUNNING: 'bg-blue-100 text-blue-700 dark:bg-blue-400/10 dark:text-blue-400',
     SUCCESS: 'bg-green-100 text-green-700 dark:bg-green-400/10 dark:text-green-400',
     FAILED: 'bg-red-100 text-red-700 dark:bg-red-400/10 dark:text-red-400',
+    CANCELLED: 'bg-amber-100 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400',
   }[status] || 'bg-gray-100 text-gray-700 dark:bg-gray-400/10 dark:text-gray-400'
+}
+
+function progressBarClass(status: string) {
+  if (status === 'FAILED') return 'bg-red-400'
+  if (status === 'CANCELLED') return 'bg-amber-400'
+  return 'bg-sky-600 dark:bg-sky-500'
+}
+
+function statusLabel(status: string) {
+  const map: Record<string, string> = {
+    PENDING: t('task.pending'),
+    RUNNING: t('task.running'),
+    SUCCESS: t('task.success'),
+    FAILED: t('task.failed'),
+    CANCELLED: t('task.cancelled'),
+  }
+  return map[status] || status
 }
 </script>

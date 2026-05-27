@@ -27,7 +27,7 @@ public class Task {
     @Column("user_id")
     private Long userId;
 
-    private String status;  // PENDING, RUNNING, SUCCESS, FAILED
+    private String status;  // PENDING, RUNNING, SUCCESS, FAILED, CANCELLED
 
     private Integer progress;
 

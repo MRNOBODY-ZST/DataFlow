@@ -1,5 +1,5 @@
 import io
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class ImageResizeNode(BaseNode):
@@ -10,6 +10,25 @@ class ImageResizeNode(BaseNode):
         height: int (optional)
         format: str — output format, default "JPEG"
     """
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="image_resize",
+            label="图片缩放",
+            category="media",
+            icon="PhotoIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/image.jpg"),
+                FieldDef(key="width", label="宽度 (px)", type="number",
+                         placeholder="800", inline=True),
+                FieldDef(key="height", label="高度 (px)", type="number",
+                         placeholder="600", inline=True),
+                FieldDef(key="format", label="输出格式", type="select",
+                         placeholder="JPEG", options=["JPEG", "PNG", "WEBP"], inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         from PIL import Image

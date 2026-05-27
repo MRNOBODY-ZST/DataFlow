@@ -1,6 +1,6 @@
 import io
 import pathlib
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 FORMAT_MAP = {
@@ -22,6 +22,19 @@ def _detect(data: bytes) -> tuple[str, str]:
 
 
 class PreviewNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="preview",
+            label="预览",
+            category="utils",
+            icon="EyeIcon",
+            fields=[
+                FieldDef(key="label", label="自定义文件名", type="text",
+                         placeholder="留空则使用原文件名", inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         import json

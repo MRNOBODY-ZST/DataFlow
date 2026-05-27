@@ -1,5 +1,5 @@
 import io
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class ImageFormatConvertNode(BaseNode):
@@ -10,6 +10,22 @@ class ImageFormatConvertNode(BaseNode):
         height: int (optional)
         format: str — output format, default "JPEG"
     """
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="image_format_convert",
+            label="图片格式转换",
+            category="media",
+            icon="ArrowPathIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/image.jpg"),
+                FieldDef(key="format", label="目标格式", type="select",
+                         placeholder="PNG", required=True,
+                         options=["JPEG", "PNG", "WEBP", "BMP", "TIFF"], inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         from PIL import Image

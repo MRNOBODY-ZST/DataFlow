@@ -17,6 +17,7 @@ MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "dataflow123")
 MINIO_INPUT_BUCKET = os.getenv("MINIO_INPUT_BUCKET", "dataflow-input")
 MINIO_OUTPUT_BUCKET = os.getenv("MINIO_OUTPUT_BUCKET", "dataflow-output")
 MINIO_TEMP_BUCKET = os.getenv("MINIO_TEMP_BUCKET", "dataflow-temp")
+NODE_TIMEOUT = int(os.getenv("NODE_TIMEOUT_SECONDS", "300"))
 
 
 def _make_minio():
@@ -93,7 +94,7 @@ def _execute_batch_item(node_type: str, item_data, config: dict, ctx_kwargs: dic
     return node_cls().execute(inputs, ctx)
 
 
-def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "") -> str | None:
+def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "", cancel_check=None, node_timeout: int = NODE_TIMEOUT) -> str | None:
     nodes = graph.get("nodes", [])
     edges = graph.get("edges", [])
 
@@ -110,9 +111,12 @@ def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "") -> str 
         node_type = node["type"]
         config = dict(node.get("data", {}))
 
+        if cancel_check and cancel_check():
+            raise RuntimeError("Task cancelled")
+
         input_node_ids = _get_input_node_ids(node_id, edges)
         input_refs = [results[src] for src in input_node_ids]
-        resolved_inputs = ray.get(input_refs) if input_refs else []
+        resolved_inputs = ray.get(input_refs, timeout=node_timeout) if input_refs else []
 
         any_batch_upstream = any(batch_mode.get(src, False) for src in input_node_ids)
 
@@ -166,7 +170,7 @@ def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "") -> str 
 
                 refs.append(_execute_batch_item.remote(node_type, item, scoped_config, item_ctx))
 
-            collected = ray.get(refs)
+            collected = ray.get(refs, timeout=node_timeout)
             target_fmt = config.get("format", "")
             wrapped = []
             for idx, result in enumerate(collected):
@@ -192,7 +196,7 @@ def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "") -> str 
             )
         else:
             ref = _execute_node_remote.remote(node_type, resolved_inputs, scoped_config, ctx_kwargs)
-            output = ray.get(ref)
+            output = ray.get(ref, timeout=node_timeout)
 
             if _is_batch_result(output):
                 results[node_id] = ray.put(output)
@@ -204,7 +208,7 @@ def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "") -> str 
 
     last_node_id = ordered[-1]["id"] if ordered else None
     if last_node_id:
-        output = ray.get(results[last_node_id])
+        output = ray.get(results[last_node_id], timeout=node_timeout)
         strip = (user_prefix + "/") if user_prefix else ""
         if isinstance(output, list):
             full = f"{output_prefix}/"

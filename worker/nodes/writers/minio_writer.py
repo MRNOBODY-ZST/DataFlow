@@ -1,5 +1,5 @@
 import io
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class MinioWriterNode(BaseNode):
@@ -15,6 +15,21 @@ class MinioWriterNode(BaseNode):
         key: str      — destination object key
         bucket: str   — destination bucket (default: output)
     """
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="minio_writer",
+            label="MinIO 写出",
+            category="writers",
+            icon="CloudArrowUpIcon",
+            fields=[
+                FieldDef(key="key", label="输出 Key", type="text",
+                         placeholder="output/result", inline=True),
+                FieldDef(key="bucket", label="目标 Bucket（默认 dataflow-output）", type="text",
+                         placeholder="dataflow-output"),
+            ],
+        )
 
     _SIGNATURES = {
         b"\xff\xd8\xff": ("image/jpeg", ".jpg"),
@@ -38,8 +53,19 @@ class MinioWriterNode(BaseNode):
         import pandas as pd
 
         data = inputs[0]
-        key = ctx.config.get("key") or ctx.source_key or "result"
+        key = ctx.config.get("key") or ctx.source_key or ""
         bucket = ctx.config.get("bucket", ctx.output_bucket)
+
+        if not key:
+            import pandas as pd
+            if isinstance(data, (bytes, bytearray)):
+                key = "result"
+            elif hasattr(pd, 'DataFrame') and isinstance(data, pd.DataFrame):
+                key = "result.csv"
+            elif isinstance(data, (list, dict)):
+                key = "result.json"
+            else:
+                key = "result"
 
         if isinstance(data, (bytes, bytearray)):
             raw = bytes(data)

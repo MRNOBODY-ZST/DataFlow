@@ -2,7 +2,7 @@ import os
 import pathlib
 import tempfile
 
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 def _stem(key: str) -> str:
@@ -10,6 +10,25 @@ def _stem(key: str) -> str:
 
 
 class VideoTranscodeNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="video_transcode",
+            label="视频转码",
+            category="media",
+            icon="VideoCameraIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/video.mp4"),
+                FieldDef(key="codec", label="编码格式", type="select",
+                         placeholder="h264", required=True,
+                         options=["h264", "h265", "vp9"], inline=True),
+                FieldDef(key="bitrate", label="码率 (kbps)", type="number",
+                         placeholder="2000", inline=True),
+            ],
+        )
+
     def execute(self, inputs: list, ctx: NodeContext):
         import ffmpeg
 

@@ -1,8 +1,34 @@
 import io
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class ImageSharpenNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="image_sharpen",
+            label="图片锐化",
+            category="media",
+            icon="SparklesIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/image.jpg"),
+                FieldDef(key="method", label="锐化方法", type="select",
+                         placeholder="unsharp_mask", required=True,
+                         options=["unsharp_mask", "sharpen_filter", "detail"], inline=True),
+                FieldDef(key="radius", label="USM 半径", type="number",
+                         placeholder="2", inline=True),
+                FieldDef(key="percent", label="USM 强度 (%)", type="number",
+                         placeholder="150", inline=True),
+                FieldDef(key="threshold", label="USM 阈值", type="number",
+                         placeholder="3", inline=True),
+                FieldDef(key="factor", label="额外锐化因子（1.0=不变）", type="number",
+                         placeholder="1.0"),
+                FieldDef(key="format", label="输出格式", type="select",
+                         placeholder="JPEG", options=["JPEG", "PNG", "WEBP"], inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         from PIL import Image, ImageFilter, ImageEnhance

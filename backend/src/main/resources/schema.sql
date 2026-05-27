@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     pipeline_id BIGINT NOT NULL,
     user_id     BIGINT NOT NULL,
-    status      ENUM('PENDING','RUNNING','SUCCESS','FAILED') NOT NULL DEFAULT 'PENDING',
+    status      ENUM('PENDING','RUNNING','SUCCESS','FAILED','CANCELLED') NOT NULL DEFAULT 'PENDING',
     progress    INT    NOT NULL DEFAULT 0 COMMENT '0-100',
     input_path  VARCHAR(512) COMMENT 'MinIO object key for input',
     output_path VARCHAR(512) COMMENT 'MinIO object key for output',

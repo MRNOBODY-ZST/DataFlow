@@ -1,10 +1,23 @@
 import io
 import pandas as pd
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class CsvReaderNode(BaseNode):
     """Read a CSV from MinIO and return a pandas DataFrame."""
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="csv_reader",
+            label="CSV 读取",
+            category="readers",
+            icon="DocumentTextIcon",
+            fields=[
+                FieldDef(key="key", label="MinIO 对象 Key", type="file-picker",
+                         placeholder="input/xxx/data.csv", required=True, inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         key = ctx.config.get("key") or ctx.config.get("input_key")

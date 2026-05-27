@@ -1,8 +1,30 @@
 import io
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class ImagePoolingNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="image_pooling",
+            label="图片池化",
+            category="media",
+            icon="Squares2X2Icon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/image.jpg"),
+                FieldDef(key="method", label="池化方法", type="select",
+                         placeholder="max", required=True,
+                         options=["max", "avg"], inline=True),
+                FieldDef(key="pool_size", label="池化窗口大小", type="select",
+                         placeholder="2", options=["2", "3", "4", "8"], inline=True),
+                FieldDef(key="stride", label="步长（默认等于窗口大小）", type="number",
+                         placeholder="2", inline=True),
+                FieldDef(key="format", label="输出格式", type="select",
+                         placeholder="JPEG", options=["JPEG", "PNG", "WEBP"], inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         from PIL import Image

@@ -1,8 +1,29 @@
 import io
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class ImageThresholdNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="image_threshold",
+            label="图片二值化",
+            category="media",
+            icon="SunIcon",
+            fields=[
+                FieldDef(key="key", label="源文件 Key（无上游时必填）", type="file-picker",
+                         placeholder="input/xxx/image.jpg"),
+                FieldDef(key="method", label="阈值方法", type="select",
+                         placeholder="binary", required=True,
+                         options=["binary", "binary_inv", "truncate", "to_zero", "otsu"],
+                         inline=True),
+                FieldDef(key="threshold", label="阈值（0-255，Otsu 时自动计算）", type="number",
+                         placeholder="128", inline=True),
+                FieldDef(key="format", label="输出格式", type="select",
+                         placeholder="PNG", options=["JPEG", "PNG", "WEBP"], inline=True),
+            ],
+        )
 
     def execute(self, inputs: list, ctx: NodeContext):
         from PIL import Image

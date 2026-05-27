@@ -47,10 +47,12 @@ export const useTaskStore = defineStore('task', () => {
           task.errorMsg = data.message
         }
       }
-      if (data.status === 'SUCCESS' || data.status === 'FAILED') {
+      if (data.status === 'SUCCESS' || data.status === 'FAILED' || data.status === 'CANCELLED') {
         const notify = useNotificationStore()
         if (data.status === 'SUCCESS') {
           notify.add('success', `Task #${taskId}`, data.message || 'Completed successfully')
+        } else if (data.status === 'CANCELLED') {
+          notify.add('info', `Task #${taskId}`, data.message || 'Task cancelled')
         } else {
           notify.add('error', `Task #${taskId}`, data.message || 'Task failed')
         }
@@ -63,5 +65,21 @@ export const useTaskStore = defineStore('task', () => {
     return () => source.close()
   }
 
-  return { tasks, loading, fetchAll, submit, subscribeProgress }
+  async function cancelTask(id: number) {
+    const { data } = await taskApi.cancel(id)
+    const idx = tasks.value.findIndex((t) => t.id === id)
+    if (idx !== -1) tasks.value[idx] = data
+    const notify = useNotificationStore()
+    notify.add('info', `Task #${id}`, 'Task cancelled')
+    return data
+  }
+
+  async function deleteTask(id: number) {
+    await taskApi.remove(id)
+    tasks.value = tasks.value.filter((t) => t.id !== id)
+    const notify = useNotificationStore()
+    notify.add('info', `Task #${id}`, 'Task deleted')
+  }
+
+  return { tasks, loading, fetchAll, submit, subscribeProgress, cancelTask, deleteTask }
 })

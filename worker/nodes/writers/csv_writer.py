@@ -2,10 +2,24 @@ import io
 
 import pandas as pd
 
-from nodes.base import BaseNode, NodeContext
+from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
 
 
 class CsvWriterNode(BaseNode):
+
+    @classmethod
+    def schema(cls) -> NodeSchema:
+        return NodeSchema(
+            type="csv_writer",
+            label="CSV 写出",
+            category="writers",
+            icon="TableCellsIcon",
+            fields=[
+                FieldDef(key="key", label="输出 Key", type="text",
+                         placeholder="output/result.csv", inline=True),
+            ],
+        )
+
     def execute(self, inputs: list, ctx: NodeContext):
         if not inputs:
             raise ValueError("csv_writer requires an input DataFrame")
