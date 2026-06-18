@@ -1,0 +1,13 @@
+ray
+kafka-python
+minio
+pillow
+opencv-python-headless
+easyocr
+ffmpeg-python
+pandas
+jmespath
+pytest
+pymongo
+numpy
+rasterio

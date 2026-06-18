@@ -1,0 +1,182 @@
+﻿.........................F................FFFFFFFFFFFFF................. [ 42%]
+....ss.................................................................. [ 84%]
+...........................                                              [100%]
+================================== FAILURES ===================================
+___________________________ test_s2_ndvi_node_range ___________________________
+tests\S2Indices\test_s2_nodes.py:118: in test_s2_ndvi_node_range
+    assert np.all(finite <= 2.0)
+E   assert np.False_
+E    +  where np.False_ = <function all at 0x000001C9FF786170>(array([55., 56., 55., ...,  0.,  0.,  0.], shape=(1306520,), dtype=float32) <= 2.0)
+E    +    where <function all at 0x000001C9FF786170> = np.all
+_______________________________ test_drone_ndvi _______________________________
+tests\droneIndices\test_drone_nodes.py:94: in test_drone_ndvi
+    out = image_drone_ndvi.ImageDroneNdviNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_ndvi.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_ndvi: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'R', 'e', 'd', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+______________________________ test_drone_gndvi _______________________________
+tests\droneIndices\test_drone_nodes.py:102: in test_drone_gndvi
+    out = image_drone_gndvi.ImageDroneGndviNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_gndvi.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_gndvi: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'G', 'r', 'e', 'e', 'n', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+_______________________________ test_drone_ndre _______________________________
+tests\droneIndices\test_drone_nodes.py:108: in test_drone_ndre
+    out = image_drone_ndre.ImageDroneNdreNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_ndre.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_ndre: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'R', 'e', 'd', 'E', 'd', 'g', 'e', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+_______________________________ test_drone_lci ________________________________
+tests\droneIndices\test_drone_nodes.py:114: in test_drone_lci
+    out = image_drone_lci.ImageDroneLciNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_lci.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_lci: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'R', 'e', 'd', 'E', 'd', 'g', 'e', "'", ',', "'", 'R', 'e', 'd', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+______________________________ test_drone_sipi2 _______________________________
+tests\droneIndices\test_drone_nodes.py:120: in test_drone_sipi2
+    out = image_drone_sipi2.ImageDroneSipi2Node().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_sipi2.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_sipi2: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'G', 'r', 'e', 'e', 'n', "'", ',', "'", 'R', 'e', 'd', 'E', 'd', 'g', 'e', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+_______________________________ test_drone_gci ________________________________
+tests\droneIndices\test_drone_nodes.py:126: in test_drone_gci
+    out = image_drone_gci.ImageDroneGciNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_gci.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_gci: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'G', 'r', 'e', 'e', 'n', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+____________________________ test_drone_cirededge _____________________________
+tests\droneIndices\test_drone_nodes.py:132: in test_drone_cirededge
+    out = image_drone_cirededge.ImageDroneCirededgeNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_cirededge.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_cirededge: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'R', 'e', 'd', 'E', 'd', 'g', 'e', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+______________________________ test_drone_ngrdi _______________________________
+tests\droneIndices\test_drone_nodes.py:138: in test_drone_ngrdi
+    out = image_drone_ngrdi.ImageDroneNgrdiNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_ngrdi.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_ngrdi: 影像缺少必要波段 ['[', "'", 'G', 'r', 'e', 'e', 'n', "'", ',', "'", 'R', 'e', 'd', "'", ',', "'", 'B', 'l', 'u', 'e', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+_______________________________ test_drone_rvi ________________________________
+tests\droneIndices\test_drone_nodes.py:144: in test_drone_rvi
+    out = image_drone_rvi.ImageDroneRviNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_rvi.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_rvi: 影像缺少必要波段 ['[', "'", 'R', 'e', 'd', "'", ',', "'", 'N', 'I', 'R', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+_______________________________ test_drone_dvi ________________________________
+tests\droneIndices\test_drone_nodes.py:150: in test_drone_dvi
+    out = image_drone_dvi.ImageDroneDviNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_dvi.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_dvi: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'R', 'e', 'd', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+_______________________________ test_drone_savi _______________________________
+tests\droneIndices\test_drone_nodes.py:156: in test_drone_savi
+    out = image_drone_savi.ImageDroneSaviNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_savi.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_savi: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'R', 'e', 'd', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+___________________________ test_drone_msavi_finite ___________________________
+tests\droneIndices\test_drone_nodes.py:162: in test_drone_msavi_finite
+    out = image_drone_msavi.ImageDroneMsaviNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_msavi.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_msavi: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'R', 'e', 'd', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+__________________________ test_drone_ndvi_in_range ___________________________
+tests\droneIndices\test_drone_nodes.py:175: in test_drone_ndvi_in_range
+    out = image_drone_ndvi.ImageDroneNdviNode().execute([raw], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\image_drone_ndvi.py:17: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:352: in execute
+    return _bytes_to_bytes_drone(
+nodes\droneIndices\_drone_base.py:330: in _bytes_to_bytes_drone
+    raise RuntimeError(f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}")
+E   RuntimeError: drone_ndvi: 影像缺少必要波段 ['[', "'", 'N', 'I', 'R', "'", ',', "'", 'R', 'e', 'd', "'", ']']，当前识别到 ['Green', 'Red', 'RedEdge', 'NIR']
+=========================== short test summary info ===========================
+FAILED tests/S2Indices/test_s2_nodes.py::test_s2_ndvi_node_range - assert np....
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_ndvi - RuntimeError...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_gndvi - RuntimeErro...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_ndre - RuntimeError...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_lci - RuntimeError:...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_sipi2 - RuntimeErro...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_gci - RuntimeError:...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_cirededge - Runtime...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_ngrdi - RuntimeErro...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_rvi - RuntimeError:...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_dvi - RuntimeError:...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_savi - RuntimeError...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_msavi_finite - Runt...
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_ndvi_in_range - Run...
+14 failed, 155 passed, 2 skipped in 10.65s

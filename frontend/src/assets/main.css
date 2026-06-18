@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
