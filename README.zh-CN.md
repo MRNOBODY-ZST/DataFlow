@@ -17,11 +17,11 @@
   <a href="README.md">English</a>
 </p>
 
----
+***
 
 DataFlow 是一个全栈可视化数据流水线平台，通过在画布上拖拽和连接节点来构建、执行和监控数据处理工作流。支持结构化数据（CSV、JSON）、图像、视频和音频的批量处理，由分布式 Python Worker 集群驱动，提供实时任务进度追踪。
 
----
+***
 
 ## 功能特性
 
@@ -35,16 +35,16 @@ DataFlow 是一个全栈可视化数据流水线平台，通过在画布上拖�
 
 ### 处理节点
 
-| 分类 | 节点 | 数量 |
-|---|---|---|
-| **数据读取** | CSV Reader, JSON Reader, MinIO Reader | 3 |
-| **数据转换** | Filter, Map, Aggregate, JSON Transform, JSON Mapper | 5 |
-| **图像处理** | Resize, OCR, Format Convert, Convolution, Edge Detect, Gaussian Blur, Pooling, Sharpen, Threshold | 9 |
-| **视频/音频** | Frame Extract, Video Transcode, Audio Extract | 3 |
-| **无人机多光谱指数** | NDVI, GNDVI, NDRE, SAVI, MSAVI, RVI, NGRDI, GCI, LCI, SIPI2, DVI, CI RedEdge, CIREdge, 通用无人机指数 | 14 |
-| **Sentinel‑2 多光谱指数** | NDVI, GNDVI, NDRE, IRECI, SAVI, MSAVI2, OSAVI, LSWI, NDWI, MNDWI, NDMI, EVI, NDSI, NDTI, 通用哨兵2指数 | 15 |
-| **数据写出** | CSV Writer, JSON Writer, MinIO Writer | 3 |
-| **工具** | Preview | 1 |
+| 分类                   | 节点                                                                                                | 数量 |
+| -------------------- | ------------------------------------------------------------------------------------------------- | -- |
+| **数据读取**             | CSV Reader, JSON Reader, MinIO Reader                                                             | 3  |
+| **数据转换**             | Filter, Map, Aggregate, JSON Transform, JSON Mapper                                               | 5  |
+| **图像处理**             | Resize, OCR, Format Convert, Convolution, Edge Detect, Gaussian Blur, Pooling, Sharpen, Threshold | 9  |
+| **视频/音频**            | Frame Extract, Video Transcode, Audio Extract                                                     | 3  |
+| **无人机多光谱指数**         | NDVI, GNDVI, NDRE, SAVI, MSAVI, RVI, NGRDI, GCI, LCI, SIPI2, DVI, CI RedEdge, CIREdge, 通用无人机指数    | 14 |
+| **Sentinel‑2 多光谱指数** | NDVI, GNDVI, NDRE, IRECI, SAVI, MSAVI2, OSAVI, LSWI, NDWI, MNDWI, NDMI, EVI, NDSI, NDTI, 通用哨兵2指数  | 15 |
+| **数据写出**             | CSV Writer, JSON Writer, MinIO Writer                                                             | 3  |
+| **工具**               | Preview                                                                                           | 1  |
 
 ### 任务监控
 
@@ -66,7 +66,7 @@ DataFlow 是一个全栈可视化数据流水线平台，通过在画布上拖�
 - **命令面板** — 键盘驱动的快速导航。
 - **通知系统** — 应用内通知面板，推送任务状态更新。
 
----
+***
 
 ## 系统架构
 
@@ -132,14 +132,14 @@ DataFlow 是一个全栈可视化数据流水线平台，通过在画布上拖�
 
 ### 技术栈
 
-| 层 | 技术 |
-|---|---|
-| **前端** | Vue 3, TypeScript, Vite, VueFlow, Pinia, Tailwind CSS 4, HeadlessUI, Heroicons, ECharts, vue-i18n, Axios |
-| **后端** | Spring Boot 4 (WebFlux), Java 25, R2DBC (MySQL), MongoDB Reactive, Redis Reactive, Spring Kafka, Spring Security, JWT (JJWT), MinIO SDK, MapStruct, Lombok |
-| **Worker** | Python 3.12, Ray, kafka-python, MinIO SDK, Pandas, Pillow, OpenCV, EasyOCR, ffmpeg-python, JMESPath, rasterio |
-| **基础设施** | MySQL 9, MongoDB 8, Redis 8, Apache Kafka (Confluent 8), MinIO, Docker Compose |
+| 层          | 技术                                                                                                                                                         |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **前端**     | Vue 3, TypeScript, Vite, VueFlow, Pinia, Tailwind CSS 4, HeadlessUI, Heroicons, ECharts, vue-i18n, Axios                                                   |
+| **后端**     | Spring Boot 4 (WebFlux), Java 25, R2DBC (MySQL), MongoDB Reactive, Redis Reactive, Spring Kafka, Spring Security, JWT (JJWT), MinIO SDK, MapStruct, Lombok |
+| **Worker** | Python 3.12, Ray, kafka-python, MinIO SDK, Pandas, Pillow, OpenCV, EasyOCR, ffmpeg-python, JMESPath, rasterio                                              |
+| **基础设施**   | MySQL 9, MongoDB 8, Redis 8, Apache Kafka (Confluent 8), MinIO, Docker Compose                                                                             |
 
----
+***
 
 ## 项目结构
 
@@ -195,7 +195,7 @@ DataFlow/
     └── requirements.txt
 ```
 
----
+***
 
 ## 快速开始
 
@@ -246,13 +246,13 @@ python cli.py start
 
 Worker 管理命令:
 
-| 命令 | 说明 |
-|---|---|
-| `python cli.py start` | 启动 Worker 进程 |
-| `python cli.py stop` | 停止 Worker 进程 |
-| `python cli.py restart` | 重启 Worker 进程 |
-| `python cli.py status` | 查看 Worker 状态 |
-| `python cli.py logs` | 查看 Worker 日志 |
+| 命令                      | 说明             |
+| ----------------------- | -------------- |
+| `python cli.py start`   | 启动 Worker 进程   |
+| `python cli.py stop`    | 停止 Worker 进程   |
+| `python cli.py restart` | 重启 Worker 进程   |
+| `python cli.py status`  | 查看 Worker 状态   |
+| `python cli.py logs`    | 查看 Worker 日志   |
 | `python cli.py logs -f` | 实时追踪 Worker 日志 |
 
 Worker 将 PID 写入 `worker.pid`，日志写入 `worker.log`。
@@ -265,44 +265,44 @@ Worker 将 PID 写入 `worker.pid`，日志写入 `worker.log`。
 4. 将节点拖拽到画布上，连接节点，配置参数，点击 **运行**。
 5. 在 **任务** 页面实时监控执行进度。
 
----
+***
 
 ## API 接口
 
 ### 认证
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| `POST` | `/api/auth/register` | 注册新用户 |
-| `POST` | `/api/auth/login` | 登录获取 JWT |
+| 方法     | 路径                   | 说明       |
+| ------ | -------------------- | -------- |
+| `POST` | `/api/auth/register` | 注册新用户    |
+| `POST` | `/api/auth/login`    | 登录获取 JWT |
 
 ### 流水线
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| `GET` | `/api/pipelines` | 获取用户流水线列表 |
-| `POST` | `/api/pipelines` | 创建流水线 |
-| `GET` | `/api/pipelines/{id}` | 获取流水线详情（含节点图） |
-| `PUT` | `/api/pipelines/{id}` | 更新流水线图 |
-| `DELETE` | `/api/pipelines/{id}` | 删除流水线 |
+| 方法       | 路径                    | 说明            |
+| -------- | --------------------- | ------------- |
+| `GET`    | `/api/pipelines`      | 获取用户流水线列表     |
+| `POST`   | `/api/pipelines`      | 创建流水线         |
+| `GET`    | `/api/pipelines/{id}` | 获取流水线详情（含节点图） |
+| `PUT`    | `/api/pipelines/{id}` | 更新流水线图        |
+| `DELETE` | `/api/pipelines/{id}` | 删除流水线         |
 
 ### 任务
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| `POST` | `/api/tasks` | 提交任务执行 |
-| `GET` | `/api/tasks` | 获取任务列表（分页） |
-| `GET` | `/api/tasks/{id}` | 获取任务详情 |
-| `GET` | `/api/tasks/{id}/progress` | SSE 进度推送流 |
+| 方法     | 路径                         | 说明         |
+| ------ | -------------------------- | ---------- |
+| `POST` | `/api/tasks`               | 提交任务执行     |
+| `GET`  | `/api/tasks`               | 获取任务列表（分页） |
+| `GET`  | `/api/tasks/{id}`          | 获取任务详情     |
+| `GET`  | `/api/tasks/{id}/progress` | SSE 进度推送流  |
 
 ### 文件
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| `POST` | `/api/files/presign-upload` | 获取预签名上传 URL |
-| `GET` | `/api/files/presign-download` | 获取预签名下载 URL |
+| 方法     | 路径                            | 说明          |
+| ------ | ----------------------------- | ----------- |
+| `POST` | `/api/files/presign-upload`   | 获取预签名上传 URL |
+| `GET`  | `/api/files/presign-download` | 获取预签名下载 URL |
 
----
+***
 
 ## 开发指南
 
@@ -327,28 +327,28 @@ npm run format       # 代码格式化 (Prettier)
 
 ### 默认端口
 
-| 服务 | 端口 |
-|---|---|
-| 前端 (Vite) | 5173 |
-| 后端 (Spring Boot) | 8080 |
-| MySQL | 3306 |
-| MongoDB | 27017 |
-| Redis | 6379 |
-| Kafka | 9092 |
-| MinIO API | 9000 |
-| MinIO 控制台 | 9001 |
+| 服务               | 端口    |
+| ---------------- | ----- |
+| 前端 (Vite)        | 5173  |
+| 后端 (Spring Boot) | 8080  |
+| MySQL            | 3306  |
+| MongoDB          | 27017 |
+| Redis            | 6379  |
+| Kafka            | 9092  |
+| MinIO API        | 9000  |
+| MinIO 控制台        | 9001  |
 
 ### 默认凭据
 
-| 服务 | 用户名 | 密码 |
-|---|---|---|
-| MySQL | `dataflow` | `dataflow123` |
+| 服务      | 用户名        | 密码            |
+| ------- | ---------- | ------------- |
+| MySQL   | `dataflow` | `dataflow123` |
 | MongoDB | `dataflow` | `dataflow123` |
-| MinIO | `dataflow` | `dataflow123` |
+| MinIO   | `dataflow` | `dataflow123` |
 
 > **注意**: 以上为开发环境默认值，非本地部署时请务必修改。
 
----
+***
 
 ## 工作原理
 
@@ -359,8 +359,8 @@ npm run format       # 代码格式化 (Prettier)
 5. **上报** — 每个节点向 Kafka topic `task.progress` 上报进度。后端消费事件，更新 MySQL/Redis，并通过 SSE 推送至前端。
 6. **结果** — 输出文件写入 MinIO，用户通过预签名 URL 下载结果。
 
----
+***
 
 ## 许可证
 
-[MIT](LICENSE) &copy; 2026 Hades
+[MIT](LICENSE) © 2026 Hades
