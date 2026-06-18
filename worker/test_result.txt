@@ -1,0 +1,19 @@
+﻿python.exe : ImportError while loading conftest 'D:\zuoye\DataFl
+ow-main\worker\tests\conftest.py'.
+所在位置 行:1 字符: 1
++ & "C:\Users\gc\anaconda3\envs\py312.2\python.exe" -m pytest te
+sts/ -v ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~
+    + CategoryInfo          : NotSpecified: (ImportError whi... 
+   s\conftest.py'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+tests\conftest.py:61: in <module>
+    from nodes.base import NodeContext
+nodes\__init__.py:38: in <module>
+    from .droneIndices.image_drone_ndvi import ImageDroneNdviNod
+e
+E   ImportError: cannot import name 'ImageDroneNdviNode' from 'n
+odes.droneIndices.image_drone_ndvi' (D:\zuoye\DataFlow-main\work
+er\nodes\droneIndices\image_drone_ndvi.py)

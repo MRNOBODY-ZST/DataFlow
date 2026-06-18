@@ -1,0 +1,101 @@
+RC=1
+STDOUT:
+
+E        ^
+
+During handling of the above exception, another exception occurred:
+tests\transforms\test_json_transform.py:28: in test_json_transform_bad_expression
+    JsonTransformNode().execute([{"foo": 1}], ctx)
+nodes\transforms\json_transform.py:14: in execute
+    raise RuntimeError(
+E   RuntimeError: JSON转换: JMESPath 表达式解析失败。请检查 expression='foo[' 是否合法。底层错误: Invalid jmespath expression: Incomplete expression:
+E   "foo["
+E        ^
+________________________ test_json_transform_no_input _________________________
+tests\transforms\test_json_transform.py:34: in test_json_transform_no_input
+    JsonTransformNode().execute([], ctx)
+nodes\transforms\json_transform.py:9: in execute
+    data = get_first_input(inputs, "json_transform")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\_input_utils.py:64: in get_first_input
+    raise RuntimeError(
+E   RuntimeError: JSON转换: 上游没有传输出数据（输入为空列表）。请检查上游节点是否已成功执行，或连接上游。
+___________________________ test_map_non_df_raises ____________________________
+tests\transforms\test_map.py:38: in test_map_non_df_raises
+    MapNode().execute([{"a": 1}], ctx)
+nodes\transforms\map_node.py:13: in execute
+    raise RuntimeError(
+E   RuntimeError: 字段映射: 输入必须是 pandas DataFrame，实际收到的是 dict。请将本节点连接到 DataFrame 输出节点。
+________________________ test_csv_writer_non_df_raises ________________________
+tests\writers\test_csv_writer.py:32: in test_csv_writer_non_df_raises
+    CsvWriterNode().execute([{"a": 1}], ctx)
+nodes\writers\csv_writer.py:15: in execute
+    raise RuntimeError(
+E   RuntimeError: CSV写入: 输入必须是 pandas DataFrame，实际收到的是 dict。
+_______________________ test_csv_writer_no_input_raises _______________________
+tests\writers\test_csv_writer.py:37: in test_csv_writer_no_input_raises
+    CsvWriterNode().execute([], ctx)
+nodes\writers\csv_writer.py:10: in execute
+    raise RuntimeError(
+E   RuntimeError: CSV写入: 没有收到上游数据。请将本节点连接到 DataFrame 输出节点。
+_______________________ test_writer_bytes_jpeg_auto_ext _______________________
+tests\writers\test_minio_writer.py:22: in test_writer_bytes_jpeg_auto_ext
+    key = MinioWriterNode().execute([_jpeg_bytes()], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\writers\minio_writer.py:46: in execute
+    raise RuntimeError(
+E   RuntimeError: MinIO写入: 写入 CSV 需要 pandas DataFrame，实际收到 bytes。
+___________________________ test_writer_str_as_txt ____________________________
+tests\writers\test_minio_writer.py:41: in test_writer_str_as_txt
+    key = MinioWriterNode().execute(["hello"], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\writers\minio_writer.py:46: in execute
+    raise RuntimeError(
+E   RuntimeError: MinIO写入: 写入 CSV 需要 pandas DataFrame，实际收到 str。
+__________________________ test_writer_dict_as_json ___________________________
+tests\writers\test_minio_writer.py:50: in test_writer_dict_as_json
+    key = MinioWriterNode().execute([{"a": [1, 2]}], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\writers\minio_writer.py:46: in execute
+    raise RuntimeError(
+E   RuntimeError: MinIO写入: 写入 CSV 需要 pandas DataFrame，实际收到 dict。
+________________________ test_writer_multi_files_dict _________________________
+tests\writers\test_minio_writer.py:67: in test_writer_multi_files_dict
+    key = MinioWriterNode().execute([{"multi_files": [b, b]}], ctx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\writers\minio_writer.py:46: in execute
+    raise RuntimeError(
+E   RuntimeError: MinIO写入: 写入 CSV 需要 pandas DataFrame，实际收到 dict。
+_____________________ test_writer_unsupported_type_raises _____________________
+tests\writers\test_minio_writer.py:78: in test_writer_unsupported_type_raises
+    MinioWriterNode().execute([Obj()], ctx)
+nodes\writers\minio_writer.py:46: in execute
+    raise RuntimeError(
+E   RuntimeError: MinIO写入: 写入 CSV 需要 pandas DataFrame，实际收到 Obj。
+=========================== short test summary info ===========================
+FAILED tests/media/test_audio_extract.py::test_audio_extract_fput_called - Ru...
+FAILED tests/media/test_image_format_convert.py::test_input_required - Runtim...
+FAILED tests/media/test_image_gaussian_blur.py::test_gaussian_blur_from_minio
+FAILED tests/media/test_image_resize.py::test_resize_from_minio_when_no_input
+FAILED tests/media/test_video_extract.py::test_video_extract_uploads_frames
+FAILED tests/media/test_video_transcode.py::test_video_transcode_h264 - Runti...
+FAILED tests/media/test_video_transcode.py::test_video_transcode_h265 - Runti...
+FAILED tests/media/test_video_transcode.py::test_video_transcode_vp9_webm - R...
+FAILED tests/readers/test_json_reader.py::test_json_reader_malformed - Runtim...
+FAILED tests/readers/test_minio_reader.py::test_minio_reader_batch_empty_prefix
+FAILED tests/readers/test_minio_reader.py::test_minio_reader_no_key - Runtime...
+FAILED tests/readers/test_minio_reader.py::test_minio_reader_missing_key_raises
+FAILED tests/transforms/test_aggregate.py::test_aggregate_non_df_raises - Run...
+FAILED tests/transforms/test_filter.py::test_filter_non_df_raises - RuntimeEr...
+FAILED tests/transforms/test_json_mapper.py::test_json_mapper_no_input - Runt...
+FAILED tests/transforms/test_json_transform.py::test_json_transform_bad_expression
+FAILED tests/transforms/test_json_transform.py::test_json_transform_no_input
+FAILED tests/transforms/test_map.py::test_map_non_df_raises - RuntimeError: ...
+FAILED tests/writers/test_csv_writer.py::test_csv_writer_non_df_raises - Runt...
+FAILED tests/writers/test_csv_writer.py::test_csv_writer_no_input_raises - Ru...
+FAILED tests/writers/test_minio_writer.py::test_writer_bytes_jpeg_auto_ext - ...
+FAILED tests/writers/test_minio_writer.py::test_writer_str_as_txt - RuntimeEr...
+FAILED tests/writers/test_minio_writer.py::test_writer_dict_as_json - Runtime...
+FAILED tests/writers/test_minio_writer.py::test_writer_multi_files_dict - Run...
+FAILED tests/writers/test_minio_writer.py::test_writer_unsupported_type_raises
+================= 25 failed, 165 passed, 2 skipped in 12.69s ==================

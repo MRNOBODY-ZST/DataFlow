@@ -1,0 +1,33 @@
+﻿..F.................................................................F... [ 37%]
+....................................ss.................................. [ 75%]
+........................F.......................                         [100%]
+================================== FAILURES ===================================
+___________________ test_s2_empty_input_raises_runtimeerror ___________________
+tests\S2Indices\test_exception_handling.py:61: in test_s2_empty_input_raises_runtimeerror
+    image_s2_ndvi.ImageS2NdviNode().execute([], ctx)
+nodes\S2Indices\image_s2_ndvi.py:15: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\S2Indices\_s2_base.py:409: in execute
+    data = inputs[0]
+           ^^^^^^^^^
+E   IndexError: list index out of range
+________________________ test_drone_empty_input_raises ________________________
+tests\droneIndices\test_exception_handling.py:76: in test_drone_empty_input_raises
+    image_drone_ndvi.ImageDroneNdviNode().execute([], ctx)
+nodes\droneIndices\image_drone_ndvi.py:14: in execute
+    return _impl(self, inputs, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+nodes\droneIndices\_drone_base.py:355: in execute
+    data = inputs[0]
+           ^^^^^^^^^
+E   IndexError: list index out of range
+________________________ test_json_transform_no_input _________________________
+tests\transforms\test_json_transform.py:33: in test_json_transform_no_input
+    with pytest.raises(RuntimeError):
+E   Failed: DID NOT RAISE <class 'RuntimeError'>
+=========================== short test summary info ===========================
+FAILED tests/S2Indices/test_exception_handling.py::test_s2_empty_input_raises_runtimeerror
+FAILED tests/droneIndices/test_exception_handling.py::test_drone_empty_input_raises
+FAILED tests/transforms/test_json_transform.py::test_json_transform_no_input
+3 failed, 187 passed, 2 skipped in 11.94s

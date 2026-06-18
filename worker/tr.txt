@@ -1,0 +1,7 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.2, pytest-9.0.3, pluggy-1.6.0
+rootdir: D:\zuoye\DataFlow-main\worker
+configfile: pytest.ini
+collected 171 items
+
+tests\S2Indices\test_s2_base.py ...............                          [  8%]

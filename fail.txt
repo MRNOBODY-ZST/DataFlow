@@ -1,0 +1,32 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.2, pytest-9.0.3, pluggy-1.6.0
+rootdir: D:\zuoye\DataFlow-main\worker
+configfile: pytest.ini
+collected 1 item
+
+tests\S2Indices\test_s2_nodes.py F                                       [100%]
+
+================================== FAILURES ===================================
+___________________________ test_s2_ndvi_node_range ___________________________
+
+ctx = NodeContext(task_id='t1', node_id='n1', config={}, minio_client=<tests.conftest._FakeMinio object at 0x0000024A3B912B10>, input_bucket='in', output_bucket='out', temp_bucket='tmp', output_prefix='run_t1', source_key='sample/input.bin')
+s2_real_tiff_bytes = b'II+\x00\x08\x00\x00\x00\xc8\x00\x00\x00\x00\x00\x00\x00GDAL_STRUCTURAL_METADATA_SIZE=000140 bytes\nLAYOUT=IFDS_BEFOR...\xdd[\xafvn\xdd\xdd\xbb\xf7\x86\xf1\xde[\xcfzo]\xed\xbd\xf7\xc6\xf9\xdf[\xef~o\xdd\xfd\xbf\xe0\x01\x01\xbf\xe0\x01\x01'
+
+    def test_s2_ndvi_node_range(ctx, s2_real_tiff_bytes):
+        raw = s2_real_tiff_bytes
+        node = image_s2_ndvi.ImageS2NdviNode()
+        out = node.execute([raw], ctx)
+        with rasterio.open(io.BytesIO(out)) as src:
+            arr = src.read(1).astype(np.float32)
+            finite = arr[np.isfinite(arr)]
+            if finite.size > 0:
+                assert np.all(finite >= -2.0)
+>               assert np.all(finite <= 2.0)
+E               assert np.False_
+E                +  where np.False_ = <function all at 0x0000024A369368F0>(array([55., 56., 55., ...,  0.,  0.,  0.], shape=(1306520,), dtype=float32) <= 2.0)
+E                +    where <function all at 0x0000024A369368F0> = np.all
+
+tests\S2Indices\test_s2_nodes.py:118: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/S2Indices/test_s2_nodes.py::test_s2_ndvi_node_range - assert np....
+============================== 1 failed in 1.92s ==============================

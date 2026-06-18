@@ -1,0 +1,8 @@
+tailwindui_template
+.vscode
+.idea
+worker/venv
+.claude/
+.claude/settings.local.json
+DataFlow.pptx
+generate_ppt.py

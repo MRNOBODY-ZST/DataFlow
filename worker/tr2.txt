@@ -1,0 +1,22 @@
+﻿python.exe : ERROR: not found: D:\zuoye\DataFlow-main\worker\tests\readers\test_json_reader.py::test_json_reader_invalid_json
+所在位置 行:1 字符: 36
++ ... in\worker ; & "C:\Users\gc\anaconda3\envs\py312.2\python.exe" -m pyte ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR: not foun...er_invalid_json:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(no match in any of [<Module test_json_reader.py>])
+
+ERROR: not found: D:\zuoye\DataFlow-main\worker\tests\transforms\test_json_transform.py::test_json_transform_invalid_jmespath
+(no match in any of [<Module test_json_transform.py>])
+
+ERROR: not found: D:\zuoye\DataFlow-main\worker\tests\transforms\test_json_transform.py::test_json_transform_no_input_raises
+(no match in any of [<Module test_json_transform.py>])
+
+============================= test session starts =============================
+platform win32 -- Python 3.12.2, pytest-9.0.3, pluggy-1.6.0
+rootdir: D:\zuoye\DataFlow-main\worker
+configfile: pytest.ini
+collected 3 items
+
+============================ no tests ran in 0.21s ============================

@@ -1,0 +1,7 @@
+﻿.........................F.......................F...................... [ 42%]
+....ss.................................................................. [ 84%]
+...........................                                              [100%]
+=========================== short test summary info ===========================
+FAILED tests/S2Indices/test_s2_nodes.py::test_s2_ndvi_node_range - assert np....
+FAILED tests/droneIndices/test_drone_nodes.py::test_drone_ngrdi - RuntimeErro...
+2 failed, 167 passed, 2 skipped in 8.38s

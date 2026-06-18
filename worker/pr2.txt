@@ -1,0 +1,124 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.9, pytest-8.4.2, pluggy-1.5.0
+rootdir: D:\zuoye\DataFlow-main\worker
+configfile: pytest.ini
+plugins: anyio-4.10.0
+collected 192 items
+
+tests\S2Indices\test_exception_handling.py ..F.......                    [  5%]
+tests\S2Indices\test_s2_base.py ...............                          [ 13%]
+tests\S2Indices\test_s2_nodes.py ...........                             [ 18%]
+tests\droneIndices\test_drone_base.py ................                   [ 27%]
+tests\droneIndices\test_drone_nodes.py .............                     [ 33%]
+tests\droneIndices\test_exception_handling.py ...F..................     [ 45%]
+tests\media\test_audio_extract.py .                                      [ 45%]
+tests\media\test_image_convolution.py ...                                [ 47%]
+tests\media\test_image_drone_index.py ..                                 [ 48%]
+tests\media\test_image_edge_detect.py ......                             [ 51%]
+tests\media\test_image_format_convert.py .....                           [ 54%]
+tests\media\test_image_gaussian_blur.py ....                             [ 56%]
+tests\media\test_image_ocr.py ss                                         [ 57%]
+tests\media\test_image_pooling.py ....                                   [ 59%]
+tests\media\test_image_resize.py .....                                   [ 61%]
+tests\media\test_image_s2_indices.py ...                                 [ 63%]
+tests\media\test_image_sharpen.py ....                                   [ 65%]
+tests\media\test_image_threshold.py ......                               [ 68%]
+tests\media\test_video_extract.py .                                      [ 69%]
+tests\media\test_video_transcode.py ...                                  [ 70%]
+tests\readers\test_csv_reader.py ....                                    [ 72%]
+tests\readers\test_json_reader.py ....                                   [ 75%]
+tests\readers\test_minio_reader.py ......                                [ 78%]
+tests\transforms\test_aggregate.py ....                                  [ 80%]
+tests\transforms\test_filter.py ....                                     [ 82%]
+tests\transforms\test_json_mapper.py ......                              [ 85%]
+tests\transforms\test_json_transform.py ....F                            [ 88%]
+tests\transforms\test_map.py .....                                       [ 90%]
+tests\utils\test_preview.py .......                                      [ 94%]
+tests\writers\test_csv_writer.py ....                                    [ 96%]
+tests\writers\test_minio_writer.py .......                               [100%]
+
+================================== FAILURES ===================================
+___________________ test_s2_empty_input_raises_runtimeerror ___________________
+
+ctx = NodeContext(task_id='t1', node_id='n1', config={}, minio_client=<tests.conftest._FakeMinio object at 0x0000027958D90050>, input_bucket='in', output_bucket='out', temp_bucket='tmp', output_prefix='run_t1', source_key='sample/input.bin')
+
+    def test_s2_empty_input_raises_runtimeerror(ctx):
+        with pytest.raises(RuntimeError):
+>           image_s2_ndvi.ImageS2NdviNode().execute([], ctx)
+
+tests\S2Indices\test_exception_handling.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <nodes.S2Indices.image_s2_ndvi.Operator object at 0x0000027958BDB4D0>
+inputs = []
+ctx = NodeContext(task_id='t1', node_id='n1', config={}, minio_client=<tests.conftest._FakeMinio object at 0x0000027958D90050>, input_bucket='in', output_bucket='out', temp_bucket='tmp', output_prefix='run_t1', source_key='sample/input.bin')
+
+    def execute(self, inputs, ctx):
+        from ._s2_base import make_execute_for_s2
+        _impl = make_execute_for_s2('NDVI')
+>       return _impl(self, inputs, ctx)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+
+nodes\S2Indices\image_s2_ndvi.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <nodes.S2Indices.image_s2_ndvi.Operator object at 0x0000027958BDB4D0>
+inputs = []
+ctx = NodeContext(task_id='t1', node_id='n1', config={}, minio_client=<tests.conftest._FakeMinio object at 0x0000027958D90050>, input_bucket='in', output_bucket='out', temp_bucket='tmp', output_prefix='run_t1', source_key='sample/input.bin')
+
+    def execute(self, inputs, ctx):
+>       data = inputs[0]
+               ^^^^^^^^^
+E       IndexError: list index out of range
+
+nodes\S2Indices\_s2_base.py:409: IndexError
+________________________ test_drone_empty_input_raises ________________________
+
+ctx = NodeContext(task_id='t1', node_id='n1', config={}, minio_client=<tests.conftest._FakeMinio object at 0x0000027958E460F0>, input_bucket='in', output_bucket='out', temp_bucket='tmp', output_prefix='run_t1', source_key='sample/input.bin')
+
+    def test_drone_empty_input_raises(ctx):
+        with pytest.raises(RuntimeError):
+>           image_drone_ndvi.ImageDroneNdviNode().execute([], ctx)
+
+tests\droneIndices\test_exception_handling.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <nodes.droneIndices.image_drone_ndvi.Operator object at 0x0000027958C16F90>
+inputs = []
+ctx = NodeContext(task_id='t1', node_id='n1', config={}, minio_client=<tests.conftest._FakeMinio object at 0x0000027958E460F0>, input_bucket='in', output_bucket='out', temp_bucket='tmp', output_prefix='run_t1', source_key='sample/input.bin')
+
+    def execute(self, inputs, ctx):
+        _impl = B.make_execute_for_drone(
+            'ndvi', B.calc_ndvi, ['NIR','Red'], 'drone_ndvi')
+>       return _impl(self, inputs, ctx)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+
+nodes\droneIndices\image_drone_ndvi.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <nodes.droneIndices.image_drone_ndvi.Operator object at 0x0000027958C16F90>
+inputs = []
+ctx = NodeContext(task_id='t1', node_id='n1', config={}, minio_client=<tests.conftest._FakeMinio object at 0x0000027958E460F0>, input_bucket='in', output_bucket='out', temp_bucket='tmp', output_prefix='run_t1', source_key='sample/input.bin')
+
+    def execute(self, inputs, ctx):
+>       data = inputs[0]
+               ^^^^^^^^^
+E       IndexError: list index out of range
+
+nodes\droneIndices\_drone_base.py:355: IndexError
+________________________ test_json_transform_no_input _________________________
+
+ctx = NodeContext(task_id='t1', node_id='n1', config={'expression': '@'}, minio_client=<tests.conftest._FakeMinio object at ...5B0>, input_bucket='in', output_bucket='out', temp_bucket='tmp', output_prefix='run_t1', source_key='sample/input.bin')
+
+    def test_json_transform_no_input(ctx):
+        ctx.config = {"expression": "@"}
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests\transforms\test_json_transform.py:33: Failed
+=========================== short test summary info ===========================
+FAILED tests/S2Indices/test_exception_handling.py::test_s2_empty_input_raises_runtimeerror
+FAILED tests/droneIndices/test_exception_handling.py::test_drone_empty_input_raises
+FAILED tests/transforms/test_json_transform.py::test_json_transform_no_input
+================== 3 failed, 187 passed, 2 skipped in 10.86s ==================
