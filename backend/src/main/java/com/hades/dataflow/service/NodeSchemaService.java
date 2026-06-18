@@ -1,15 +1,77 @@
 package com.hades.dataflow.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hades.dataflow.domain.dto.NodeSchemaDTO;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.util.*;
 
 @Service
 public class NodeSchemaService {
 
+    private static final Logger log = LoggerFactory.getLogger(NodeSchemaService.class);
+
+    @Value("${dataflow.node-schema.path:../worker/node_schemas.json}")
+    private String schemaFilePath;
+
+    private List<NodeSchemaDTO> cachedSchemas;
+
+    @PostConstruct
+    public void init() {
+        this.cachedSchemas = loadSchemas();
+    }
+
     public List<NodeSchemaDTO> getAll() {
+        return cachedSchemas;
+    }
+
+    public void refresh() {
+        this.cachedSchemas = loadSchemas();
+        log.info("Node schemas refreshed, total: {}", cachedSchemas.size());
+    }
+
+    private List<NodeSchemaDTO> loadSchemas() {
+        List<NodeSchemaDTO> jsonSchemas = loadFromJson();
+        List<NodeSchemaDTO> fallback = getFallbackSchemas();
+
+        if (jsonSchemas != null && !jsonSchemas.isEmpty()) {
+            Map<String, NodeSchemaDTO> merged = new LinkedHashMap<>();
+            for (NodeSchemaDTO s : fallback) {
+                merged.put(s.getType(), s);
+            }
+            for (NodeSchemaDTO s : jsonSchemas) {
+                merged.put(s.getType(), s);
+            }
+            log.info("Loaded {} node schemas from JSON (fallback: {})", jsonSchemas.size(), fallback.size());
+            return new ArrayList<>(merged.values());
+        }
+
+        log.warn("JSON schema file not available, using fallback schemas");
+        return fallback;
+    }
+
+    private List<NodeSchemaDTO> loadFromJson() {
+        try {
+            File file = new File(schemaFilePath);
+            if (!file.exists()) {
+                log.warn("Schema file not found: {}", file.getAbsolutePath());
+                return null;
+            }
+            ObjectMapper om = new ObjectMapper();
+            return om.readValue(file, new TypeReference<List<NodeSchemaDTO>>() {});
+        } catch (Exception e) {
+            log.warn("Failed to load node schemas from JSON: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private List<NodeSchemaDTO> getFallbackSchemas() {
         List<NodeSchemaDTO> schemas = new ArrayList<>();
 
         schemas.add(new NodeSchemaDTO("csv_reader", "CSV 读取", "readers", "DocumentTextIcon", List.of(
@@ -140,127 +202,43 @@ public class NodeSchemaService {
                 new NodeSchemaDTO.FieldDef("bucket", "目标 Bucket（默认 dataflow-output）", "text", "dataflow-output", false, false, null, null, null, false)
         )));
 
+        schemas.add(new NodeSchemaDTO("json_writer", "JSON 写出", "writers", "CodeBracketIcon", List.of(
+            new NodeSchemaDTO.FieldDef("key", "输出 Key", "text", "output/result.json", false, false, null, null, null, true),
+            new NodeSchemaDTO.FieldDef("indent", "缩进空格数", "number", "2", false, false, null, null, null, false),
+            new NodeSchemaDTO.FieldDef("ensure_ascii", "转义非 ASCII 字符", "checkbox", null, false, false, null, null, null, false)
+        )));
+
         schemas.add(new NodeSchemaDTO("csv_writer", "CSV 写出", "writers", "TableCellsIcon", List.of(
           new NodeSchemaDTO.FieldDef("key", "输出 Key", "text", "output/result.csv", false, false, null, null, null, true)
         )));
 
-        schemas.add(new NodeSchemaDTO("image_drone_index", "无人机植被指数", "media", "PhotoIcon", List.of(
-          new NodeSchemaDTO.FieldDef("green", "绿光波段 Green", "file-picker", "input/xxx/Green.tif", true, false, null, null, null, true),
-          new NodeSchemaDTO.FieldDef("red", "红光波段 Red", "file-picker", "input/xxx/Red.tif", true, false, null, null, null, true),
-          new NodeSchemaDTO.FieldDef("rededge", "红边波段 RedEdge", "file-picker", "input/xxx/RedEdge.tif", true, false, null, null, null, true),
-          new NodeSchemaDTO.FieldDef("nir", "近红外波段 NIR", "file-picker", "input/xxx/NIR.tif", true, false, null, null, null, true),
-          new NodeSchemaDTO.FieldDef("bucket", "Bucket", "text", "dataflow-input", false, false, null, null, null, false)
-        )));
-        schemas.add(new NodeSchemaDTO("image_s2_indices", "Sentinel-2 光谱指数", "media", "PhotoIcon", List.of(
-        new NodeSchemaDTO.FieldDef("blue", "Blue (B2)", "file-picker", "input/blue.tif", false, false, null, null, null, false),
-        new NodeSchemaDTO.FieldDef("green", "Green (B3)", "file-picker", "input/green.tif", true, false, null, null, null, true),
-        new NodeSchemaDTO.FieldDef("red", "Red (B4)", "file-picker", "input/red.tif", false, false, null, null, null, false),
-        new NodeSchemaDTO.FieldDef("re1", "RedEdge1 (B5)", "file-picker", "input/re1.tif", false, false, null, null, null, false),
-        new NodeSchemaDTO.FieldDef("re2", "RedEdge2 (B6)", "file-picker", "input/re2.tif", false, false, null, null, null, false),
-        new NodeSchemaDTO.FieldDef("re3", "RedEdge3 (B7)", "file-picker", "input/re3.tif", false, false, null, null, null, false),
-        new NodeSchemaDTO.FieldDef("nir", "NIR (B8)", "file-picker", "input/nir.tif", false, false, null, null, null, false),
-        new NodeSchemaDTO.FieldDef("nirn", "NIRn (B8A)", "file-picker", "input/nirn.tif", false, false, null, null, null, false),
-        new NodeSchemaDTO.FieldDef("swir1", "SWIR1 (B11)", "file-picker", "input/swir1.tif", false, false, null, null, null, false),
-        new NodeSchemaDTO.FieldDef("bucket", "Bucket", "text", "dataflow-input", false, false, null, null, null, false)
+        schemas.add(new NodeSchemaDTO("image_s2_indices", "S2 通用多光谱指数", "spectral-s2", "GlobeEuropeAfricaIcon", List.of(
+            new NodeSchemaDTO.FieldDef("key", "Sentinel-2 多光谱 TIFF Key", "file-picker", "input/xxx/s2.tif", false, false, null, null, null, false),
+            new NodeSchemaDTO.FieldDef("format", "输出格式", "select", "GTiff", false, false, List.of("GTiff", "PNG", "JPEG"), null, null, true)
         )));
 
-        // ============================
-        // 卫星植被识别
-        // ============================
-        schemas.add(new NodeSchemaDTO("image_s2_ndvi", "Sentinel-2 NDVI", "卫星植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/image.tif", true, false, null, null, null, false),
-                new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)
+        schemas.add(new NodeSchemaDTO("image_drone_index", "无人机通用多光谱指数", "spectral-drone", "CameraIcon", List.of(
+            new NodeSchemaDTO.FieldDef("key", "无人机多光谱 TIFF Key", "file-picker", "input/xxx/drone.tif", false, false, null, null, null, false),
+            new NodeSchemaDTO.FieldDef("format", "输出格式", "select", "GTiff", false, false, List.of("GTiff", "PNG", "JPEG"), null, null, true)
         )));
 
-        schemas.add(new NodeSchemaDTO("image_s2_gndvi", "Sentinel-2 GNDVI", "卫星植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/image.tif", true, false, null, null, null, false),
-                new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)
-        )));
+        String[] S2_NODES = {"ndvi","gndvi","ndre","ireci","savi","msavi2","osavi","lswi","ndwi","mndwi","ndmi","evi","ndsi","ndti"};
+        String[] S2_LABELS = {"NDVI（植被指数）","GNDVI（绿色 NDVI）","NDRE（红边植被指数）","IRECI（反演红边指数）","SAVI（土壤调节植被指数）","MSAVI2（修改 SAVI）","OSAVI（优化 SAVI）","LSWI（地表水指数）","NDWI（归一化水指数）","MNDWI（改进 NDWI）","NDMI（归一化湿度指数）","EVI（增强植被指数）","NDSI（归一化差异雪指数）","NDTI（归一化差异温度指数）"};
+        for (int i = 0; i < S2_NODES.length; i++) {
+            schemas.add(new NodeSchemaDTO("image_s2_" + S2_NODES[i], S2_LABELS[i], "spectral-s2", "LeafIcon", List.of(
+                new NodeSchemaDTO.FieldDef("key", "Sentinel-2 多光谱 TIFF Key", "file-picker", "input/xxx/s2.tif", false, false, null, null, null, false),
+                new NodeSchemaDTO.FieldDef("format", "输出格式", "select", "GTiff", false, false, List.of("GTiff", "PNG", "JPEG"), null, null, true)
+            )));
+        }
 
-        schemas.add(new NodeSchemaDTO("image_s2_ndre", "Sentinel-2 NDRE", "卫星植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/image.tif", true, false, null, null, null, false),
-                new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_s2_ireci", "Sentinel-2 IRECI", "卫星植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/image.tif", true, false, null, null, null, false),
-                new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_s2_savi", "Sentinel-2 SAVI", "卫星植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/image.tif", true, false, null, null, null, false),
-                new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_s2_lswi", "Sentinel-2 LSWI", "卫星植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/image.tif", true, false, null, null, null, false),
-                new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_s2_ndwi", "Sentinel-2 NDWI", "卫星植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/image.tif", true, false, null, null, null, false),
-                new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_s2_mndwi", "Sentinel-2 MNDWI", "卫星植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/image.tif", true, false, null, null, null, false),
-                new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_s2_evi", "Sentinel-2 EVI", "卫星植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/image.tif", true, false, null, null, null, false),
-                new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)
-        )));
-
-
-        schemas.add(new NodeSchemaDTO("image_drone_ndvi", "Drone NDVI", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_gndvi", "Drone GNDVI", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_ndre", "Drone NDRE", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_lci", "Drone LCI", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_sipi2", "Drone SIPI2", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_gci", "Drone GCI", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_cirededge", "Drone CIredEdge", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_ngrdi", "Drone NGRDI", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_rvi", "Drone RVI", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_dvi", "Drone DVI", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_savi", "Drone SAVI", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
-        schemas.add(new NodeSchemaDTO("image_drone_msavi", "Drone MSAVI", "无人机植被识别", "PhotoIcon", List.of(
-                new NodeSchemaDTO.FieldDef("key", "输入影像", "file-picker", "input/xxx/image.tif", false, false, null, null, null, false)
-        )));
-
+        String[] DRONE_NODES = {"ndvi","gndvi","ndre","savi","msavi","rvi","ngrdi","gci","lci","sipi2","dvi","ciredge","cirededge"};
+        String[] DRONE_LABELS = {"Drone NDVI","Drone GNDVI","Drone NDRE","Drone SAVI","Drone MSAVI","Drone RVI","Drone NGRDI","Drone GCI","Drone LCI","Drone SIPI2","Drone DVI","Drone CI RedEdge","Drone CIREdge"};
+        for (int i = 0; i < DRONE_NODES.length; i++) {
+            schemas.add(new NodeSchemaDTO("image_drone_" + DRONE_NODES[i], DRONE_LABELS[i], "spectral-drone", "CameraIcon", List.of(
+                new NodeSchemaDTO.FieldDef("key", "无人机多光谱 TIFF Key", "file-picker", "input/xxx/drone.tif", false, false, null, null, null, false),
+                new NodeSchemaDTO.FieldDef("format", "输出格式", "select", "GTiff", false, false, List.of("GTiff", "PNG", "JPEG"), null, null, true)
+            )));
+        }
 
         return schemas;
     }

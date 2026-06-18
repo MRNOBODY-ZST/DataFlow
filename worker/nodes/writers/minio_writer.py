@@ -2,6 +2,12 @@ import io
 import json
 import pandas as pd
 from nodes.base import BaseNode, NodeContext
+from nodes._input_utils import (
+    err_no_upstream,
+    err_bad_input_type,
+    err_minio_upload,
+    err_generic,
+)
 
 
 class MinioWriterNode(BaseNode):
@@ -9,9 +15,7 @@ class MinioWriterNode(BaseNode):
     def execute(self, inputs: list, ctx: NodeContext):
         try:
             if not inputs:
-                raise RuntimeError(
-                    "MinIO写入: 没有收到上游数据。请将本节点连接到上游数据节点。"
-                )
+                err_no_upstream("minio_writer")
             data = inputs[0]
 
             if isinstance(data, dict) and data.get("multi_files"):
@@ -19,13 +23,16 @@ class MinioWriterNode(BaseNode):
                 key = ctx.config.get("key") or ctx.source_filename or "multi"
                 for idx, raw in enumerate(files):
                     obj_key = f"{key}_{idx}.jpg"
-                    ctx.minio_client.put_object(
-                        ctx.output_bucket,
-                        obj_key,
-                        io.BytesIO(raw),
-                        length=len(raw),
-                        content_type="image/jpeg",
-                    )
+                    try:
+                        ctx.minio_client.put_object(
+                            ctx.output_bucket,
+                            obj_key,
+                            io.BytesIO(raw),
+                            length=len(raw),
+                            content_type="image/jpeg",
+                        )
+                    except Exception as e:
+                        err_minio_upload("minio_writer", obj_key, f"{e}")
                 return key
 
             fmt = ctx.config.get("format") or ctx.config.get("fmt")
@@ -52,9 +59,7 @@ class MinioWriterNode(BaseNode):
 
             if fmt == "csv":
                 if not isinstance(data, pd.DataFrame):
-                    raise RuntimeError(
-                        f"MinIO写入: 写入 CSV 需要 pandas DataFrame，实际收到 {type(data).__name__}。"
-                    )
+                    err_bad_input_type("minio_writer", type(data).__name__, "pandas DataFrame")
                 if key and not key.lower().endswith(".csv"):
                     key = key + ".csv"
                 key = ctx.output_key(key or "result.csv")
@@ -108,15 +113,18 @@ class MinioWriterNode(BaseNode):
                 ct = "application/octet-stream"
 
             bucket = ctx.config.get("bucket", ctx.output_bucket)
-            ctx.minio_client.put_object(
-                bucket,
-                key,
-                io.BytesIO(raw),
-                length=len(raw),
-                content_type=ct,
-            )
+            try:
+                ctx.minio_client.put_object(
+                    bucket,
+                    key,
+                    io.BytesIO(raw),
+                    length=len(raw),
+                    content_type=ct,
+                )
+            except Exception as e:
+                err_minio_upload("minio_writer", key, f"{e}")
             return key
         except RuntimeError:
             raise
         except Exception as e:
-            raise RuntimeError(f"MinIO写入: {e}")
+            err_generic("minio_writer", f"MinIO 写入失败: {e}")

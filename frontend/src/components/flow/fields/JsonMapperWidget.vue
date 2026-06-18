@@ -32,6 +32,7 @@
       :open="showMapper"
       :model-value="mappings"
       :sample="sample"
+      :upstream-nodes="props.upstreamNodes"
       @update:model-value="onUpdate"
       @update:sample="$emit('update:sample', $event)"
       @close="showMapper = false"
@@ -45,6 +46,8 @@ import { useI18n } from 'vue-i18n'
 import { ArrowLongRightIcon } from '@heroicons/vue/24/outline'
 import JsonMapperModal from './JsonMapperModal.vue'
 
+import type { Node } from '@vue-flow/core'
+
 interface MappingEntry {
   source: string
   target: string
@@ -54,6 +57,7 @@ interface MappingEntry {
 const props = defineProps<{
   modelValue: MappingEntry[] | string | null
   sample?: string
+  upstreamNodes?: Node[]
 }>()
 
 const emit = defineEmits<{

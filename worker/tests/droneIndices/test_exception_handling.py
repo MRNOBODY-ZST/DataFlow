@@ -53,7 +53,7 @@ def test_drone_invalid_tiff_raises_runtimeerror(ctx):
         with pytest.raises(RuntimeError) as excinfo:
             node.execute([b"not a tiff file at all"], ctx)
         msg = str(excinfo.value)
-        assert "TIFF 解析失败" in msg or "打开影像失败" in msg
+        assert "无法打开为 TIFF 文件" in msg or "无法解析" in msg
 
 
 def test_drone_missing_nir_raises_runtimeerror(ctx):
@@ -88,7 +88,7 @@ def test_drone_non_bytes_input_raises(ctx):
     (image_drone_lci, "ImageDroneLciNode", "drone_lci", "RedEdge"),
     (image_drone_sipi2, "ImageDroneSipi2Node", "drone_sipi2", "RedEdge"),
     (image_drone_gci, "ImageDroneGciNode", "drone_gci", "Green"),
-    (image_drone_cirededge, "ImageDroneCirededgeNode", "drone_ciredge", "RedEdge"),
+    (image_drone_cirededge, "ImageDroneCirededgeNode", "drone_cirededge", "RedEdge"),
     (image_drone_ngrdi, "ImageDroneNgrdiNode", "drone_ngrdi", "Green"),
     (image_drone_rvi, "ImageDroneRviNode", "drone_rvi", "NIR"),
     (image_drone_dvi, "ImageDroneDviNode", "drone_dvi", "NIR"),
@@ -100,7 +100,7 @@ def test_drone_all_nodes_have_runtime_error_wrapping(ctx, node_mod, cls_name, la
     with pytest.raises(RuntimeError) as excinfo:
         node.execute([b"garbage bytes not a tiff"], ctx)
     msg = str(excinfo.value)
-    assert "TIFF 解析失败" in msg or "打开影像失败" in msg or label_hint in msg
+    assert ("无法打开为 TIFF 文件" in msg or "无法解析" in msg or label_hint in msg)
 
 
 def test_drone_runtimeerror_has_node_label(ctx):

@@ -1,16 +1,4 @@
-﻿pytest : ImportError while loading conftest 'D:\zuoye\DataFlow-main\worker\te
-sts\conftest.py'.
-所在位置 行:1 字符: 1
-+ pytest worker/tests -q --tb=short 2>&1 | Out-File -FilePath D:/zuoye/ ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (ImportError whi...s\conftest.py 
-   '.:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-worker\tests\conftest.py:61: in <module>
-    from nodes.base import NodeContext
-worker\nodes\__init__.py:9: in <module>
-    from nodes.media.audio_extract import AudioExtractNode
-worker\nodes\media\audio_extract.py:5: in <module>
-    import ffmpeg
-E   ModuleNotFoundError: No module named 'ffmpeg'
+﻿........................................................................ [ 37%]
+....................................ss.................................. [ 75%]
+................................................                         [100%]
+190 passed, 2 skipped in 12.92s

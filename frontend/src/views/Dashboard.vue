@@ -141,7 +141,7 @@ function handleResize() {
 }
 
 const taskCounts = computed(() => {
-  const counts = { PENDING: 0, RUNNING: 0, SUCCESS: 0, FAILED: 0 }
+  const counts = { PENDING: 0, RUNNING: 0, SUCCESS: 0, FAILED: 0, CANCELLED: 0 }
   for (const task of taskStore.tasks) {
     counts[task.status] = (counts[task.status] || 0) + 1
   }
@@ -217,6 +217,7 @@ function updateStatusPieChart() {
         { value: taskCounts.value.FAILED, name: t('task.failed'), itemStyle: { color: '#ef4444' } },
         { value: taskCounts.value.RUNNING, name: t('task.running'), itemStyle: { color: '#3b82f6' } },
         { value: taskCounts.value.PENDING, name: t('dashboard.pending'), itemStyle: { color: '#9ca3af' } },
+        { value: taskCounts.value.CANCELLED, name: t('task.cancelled'), itemStyle: { color: '#f59e0b' } },
       ].filter(d => d.value > 0),
     }],
   })

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import reactor.core.publisher.Mono;
 
@@ -32,9 +33,14 @@ public class ProgressConsumer {
         // 1. Update MySQL task record and create notification on completion
         taskRepository.findById(event.getTaskId())
                 .flatMap(task -> {
+                    // Don't overwrite CANCELLED with a later event from worker
+                    if ("CANCELLED".equals(task.getStatus())) {
+                        log.debug("Ignoring progress event for cancelled task {}", event.getTaskId());
+                        return Mono.empty();
+                    }
                     task.setProgress(event.getProgress());
                     task.setStatus(event.getStatus());
-                    if ("SUCCESS".equals(event.getStatus()) || "FAILED".equals(event.getStatus())) {
+                    if ("SUCCESS".equals(event.getStatus()) || "FAILED".equals(event.getStatus()) || "CANCELLED".equals(event.getStatus())) {
                         task.setFinishedAt(LocalDateTime.now());
                         if ("SUCCESS".equals(event.getStatus()) && event.getOutputKey() != null && !event.getOutputKey().isBlank()) {
                             task.setOutputPath(event.getOutputKey());

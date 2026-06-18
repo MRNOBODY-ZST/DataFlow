@@ -1,26 +1,20 @@
 from nodes.base import BaseNode, NodeContext
-from nodes._input_utils import get_first_input
+from nodes._input_utils import (
+    get_first_input,
+    err_bad_input_type,
+    err_generic,
+)
 
 
 class JsonMapperNode(BaseNode):
-    """Declarative JSON field mapper — no JMESPath required.
-
-    Config:
-        mappings: list[dict] — each mapping has:
-            source: str  — dot-separated path, [*] for array expansion
-            target: str  — dot-separated output path
-            default: any — fallback value if source is None
-    """
+    """Declarative JSON field mapper - no JMESPath required."""
 
     def execute(self, inputs: list, ctx: NodeContext):
         try:
             data = get_first_input(inputs, "json_mapper")
             mappings = ctx.config.get("mappings", [])
             if not isinstance(data, (dict, list)):
-                raise RuntimeError(
-                    f"JSON映射: 输入必须是 dict/list，实际收到的是 {type(data).__name__}。"
-                    f"请将本节点连接到 JSON 输出节点。"
-                )
+                err_bad_input_type("json_mapper", type(data).__name__, "dict 或 list")
 
             if not mappings:
                 return data
@@ -43,7 +37,7 @@ class JsonMapperNode(BaseNode):
         except RuntimeError:
             raise
         except Exception as e:
-            raise RuntimeError(f"JSON映射: {e}")
+            err_generic("json_mapper", f"JSON 映射失败: {e}")
 
 
 def _get_by_path(obj, path_parts: list[str]):

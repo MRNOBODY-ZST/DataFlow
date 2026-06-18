@@ -28,20 +28,23 @@ DataFlow is a full-stack visual data pipeline platform that lets you build, exec
 ### Visual Flow Editor
 
 - **Drag-and-drop canvas** — Build pipelines by dragging nodes from the panel onto a VueFlow-powered canvas, connecting them with edges to define data flow.
-- **20+ built-in processing nodes** — Readers, transforms, media processing, and writers covering common data pipeline scenarios.
+- **47 built-in processing nodes** — Readers, transforms, media processing, spectral indices, and writers covering common data pipeline scenarios.
 - **Real-time node configuration** — Double-click any node to open a configuration modal with type-specific settings (file paths, filter conditions, resize dimensions, etc.).
 - **Auto-save & run** — Save pipeline graphs and execute them directly from the editor with one-click run.
+- **Chinese error messages** — Every failure comes with a reason, possible cause, and suggested fix, all in Chinese — no Ray / rasterio / OpenCV English stack traces in the UI.
 
 ### Processing Nodes
 
-| Category | Nodes |
-|---|---|
-| **Readers** | CSV Reader, JSON Reader, MinIO Reader |
-| **Transforms** | Filter, Map, Aggregate, JSON Transform, JSON Mapper |
-| **Image** | Resize, OCR, Format Convert, Convolution, Edge Detect, Gaussian Blur, Pooling, Sharpen, Threshold |
-| **Video/Audio** | Frame Extract, Video Transcode, Audio Extract |
-| **Writers** | CSV Writer, MinIO Writer |
-| **Utils** | Preview |
+| Category | Nodes | Count |
+|---|---|---|
+| **Readers** | CSV Reader, JSON Reader, MinIO Reader | 3 |
+| **Transforms** | Filter, Map, Aggregate, JSON Transform, JSON Mapper | 5 |
+| **Image** | Resize, OCR, Format Convert, Convolution, Edge Detect, Gaussian Blur, Pooling, Sharpen, Threshold | 9 |
+| **Video / Audio** | Frame Extract, Video Transcode, Audio Extract | 3 |
+| **Drone Spectral Indices** | NDVI, GNDVI, NDRE, SAVI, MSAVI, RVI, NGRDI, GCI, LCI, SIPI2, DVI, CI RedEdge, CIREdge, Generic Drone Index | 14 |
+| **Sentinel‑2 Spectral Indices** | NDVI, GNDVI, NDRE, IRECI, SAVI, MSAVI2, OSAVI, LSWI, NDWI, MNDWI, NDMI, EVI, NDSI, NDTI, Generic S2 Index | 15 |
+| **Writers** | CSV Writer, JSON Writer, MinIO Writer | 3 |
+| **Utils** | Preview | 1 |
 
 ### Task Monitoring
 
@@ -68,27 +71,67 @@ DataFlow is a full-stack visual data pipeline platform that lets you build, exec
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Frontend (Vue 3 + Vite)                 │
-│  VueFlow Canvas  │  Dashboard  │  Task Monitor  │  Files    │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ HTTP REST + SSE
-┌───────────────────────────▼─────────────────────────────────┐
-│               Backend (Spring Boot 4 + WebFlux)             │
-│  Auth  │  Pipeline CRUD  │  Task Submit  │  File Presign    │
-│        MySQL (R2DBC)  │  MongoDB  │  Redis  │  MinIO        │
-└──────┬──────────────────────────────────────┬───────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                        Frontend (Vue 3 + Vite)                   │
+│  VueFlow Canvas  │  Dashboard  │  Task Monitor  │  Files  │ Node │
+└──────────────────────────────┬───────────────────────────────────┘
+                                │ HTTP REST + SSE + direct upload to MinIO
+┌───────────────────────────────▼───────────────────────────────────┐
+│               Backend (Spring Boot 4 + WebFlux)                   │
+│  Auth  │  Pipeline CRUD  │  Task Submit  │  File Presign  │ Node  │
+│           MySQL (R2DBC)  │  MongoDB  │  Redis  │  MinIO            │
+└──────┬──────────────────────────────────────┬───────────────────────┘
        │ Kafka                                │ MinIO SDK
-       │  topic: task.dispatch                │
+       │  topic: task.dispatch                │  (read/write buckets)
        │  topic: task.progress                │
-┌──────▼──────────────────────────────────────▼───────────────┐
-│                Python Worker (Ray Cluster)                   │
-│  Kafka Consumer → DAG Executor → Node Registry (20+ nodes)  │
-│  Progress Reporter → Kafka → Redis Pub/Sub → SSE            │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                   MinIO Object Storage
-              (input / output / temp buckets)
+┌──────▼──────────────────────────────────────▼───────────────────────┐
+│                Python Worker (Ray Cluster)                            │
+│                                                                      │
+│  dispatcher.py    Kafka consumer entry point (single process)         │
+│       │                                                              │
+│       ▼                                                              │
+│  executor.py      DAG executor (topological sort + parallel branches)│
+│       │                                                              │
+│       ▼                                                              │
+│  nodes/           47 nodes — NODE_REGISTRY (single source of truth)   │
+│   ├── readers/      CSV, JSON, MinIO                                 │
+│   ├── transforms/   filter, map, aggregate, json_transform,          │
+│   │                  json_mapper                                      │
+│   ├── media/        image (9) + video (extract, transcode) + audio    │
+│   ├── S2Indices/   Sentinel‑2 spectral indices (14 + generic)         │
+│   ├── droneIndices/  Drone spectral indices (13 + generic)           │
+│   ├── writers/      csv, json, minio                                 │
+│   ├── utils/        preview                                          │
+│   ├── base.py       BaseNode ABC + NodeContext (config / minio)      │
+│   └── _input_utils.py  Unified validation + Chinese error template   │
+│                        (reason + possible cause + suggested fix)     │
+│                                                                      │
+│  reporter.py       Progress reporting (Ray → Kafka → Redis Pub/Sub → │
+│                    SSE)                                              │
+│  schema_export.py  Generates node_schemas.json consumed by backend   │
+└──────────────────────────────────────────────────────────────────────┘
+                                │
+                        MinIO Object Storage
+           (dataflow-input / dataflow-output / dataflow-temp)
+```
+
+### How an Error Reaches the UI
+
+```
+User drags a PNG into the Sentinel‑2 NDVI node
+  └ nodes/S2Indices/_s2_base.py  detects only 1 physical band
+      raise RuntimeError(
+          "Sentinel-2 NDVI: No Sentinel-2 bands detected in the image."
+          "\nPossible cause: you uploaded a JPEG/PNG instead of a"
+          " multispectral TIFF."
+          "\nFix: upload a Sentinel-2 TIFF with B2/B3/B4/B8/B11… bands."
+      )
+  └ executor.py::_friendly()     RuntimeErrors pass through unchanged
+  └ executor.py::run_pipeline()  wraps as "node xxx failed: ..."
+  └ _extract_friendly_from_ray_error()   extracts body from RayTaskError
+  └ Kafka → Backend → Redis Pub/Sub → SSE → Frontend
+  └ TaskDetailModal.vue          whitespace-pre-line preserves newlines
+      UI shows three lines: reason + possible cause + suggested fix
 ```
 
 ### Tech Stack
@@ -97,7 +140,7 @@ DataFlow is a full-stack visual data pipeline platform that lets you build, exec
 |---|---|
 | **Frontend** | Vue 3, TypeScript, Vite, VueFlow, Pinia, Tailwind CSS 4, HeadlessUI, Heroicons, ECharts, vue-i18n, Axios |
 | **Backend** | Spring Boot 4 (WebFlux), Java 25, R2DBC (MySQL), MongoDB Reactive, Redis Reactive, Spring Kafka, Spring Security, JWT (JJWT), MinIO SDK, MapStruct, Lombok |
-| **Worker** | Python 3.12, Ray, kafka-python, MinIO SDK, Pandas, Pillow, OpenCV, EasyOCR, ffmpeg-python, JMESPath |
+| **Worker** | Python 3.12, Ray, kafka-python, MinIO SDK, Pandas, Pillow, OpenCV, EasyOCR, ffmpeg-python, JMESPath, rasterio |
 | **Infrastructure** | MySQL 9, MongoDB 8, Redis 8, Apache Kafka (Confluent 8), MinIO, Docker Compose |
 
 ---
@@ -137,17 +180,22 @@ DataFlow/
 │
 └── worker/                     # Python distributed worker
     ├── dispatcher.py           # Kafka consumer entry point
-    ├── executor.py             # Ray DAG executor (topological sort → parallel execution)
+    ├── executor.py             # Ray DAG executor (topological sort → parallel branches, friendly errors)
     ├── reporter.py             # Progress reporter (Kafka → backend → SSE)
     ├── cli.py                  # Worker process management CLI
-    ├── nodes/                  # Node implementations
-    │   ├── base.py             # BaseNode ABC & NodeContext
+    ├── schema_export.py        # Generates node_schemas.json from NODE_REGISTRY
+    ├── node_schemas.json      # Backend NodeSchemaService reads this first (generated)
+    ├── nodes/                  # 47 nodes — NODE_REGISTRY (single source of truth)
+    │   ├── __init__.py         # NODE_REGISTRY dict
+    │   ├── base.py             # BaseNode ABC + NodeContext (config / minio)
+    │   ├── _input_utils.py     # Unified validation + Chinese error template
+    │   │                        #   20+ err_* helpers (reason + cause + fix)
     │   ├── readers/            # csv_reader, json_reader, minio_reader
     │   ├── transforms/         # filter, map, aggregate, json_transform, json_mapper
-    │   ├── media/              # image (resize, ocr, convolution, edge_detect, blur,
-    │   │                       #   pooling, sharpen, threshold, format_convert)
-    │   │                       # video (extract, transcode), audio (extract)
-    │   ├── writers/            # csv_writer, minio_writer
+    │   ├── media/              # image (9) + video (extract, transcode) + audio (extract)
+    │   ├── S2Indices/          # Sentinel‑2 spectral indices (14 + generic)
+    │   ├── droneIndices/        # Drone spectral indices (13 + generic)
+    │   ├── writers/            # csv_writer, json_writer, minio_writer
     │   └── utils/              # preview
     └── requirements.txt
 ```

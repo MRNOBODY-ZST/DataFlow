@@ -11,7 +11,7 @@ public class TaskProgressEvent {
     private Long taskId;
     private String nodeId;
     private int progress;       // 0-100
-    private String status;      // RUNNING, SUCCESS, FAILED
+    private String status;      // RUNNING, SUCCESS, FAILED, CANCELLED
     private String message;
     private String outputKey;
 }

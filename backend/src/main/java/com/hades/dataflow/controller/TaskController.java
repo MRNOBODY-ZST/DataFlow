@@ -34,6 +34,16 @@ public class TaskController {
         return taskService.getById(id, getUserId(auth));
     }
 
+    @PostMapping("/{id}/cancel")
+    public Mono<TaskResponse> cancel(@PathVariable Long id, Authentication auth) {
+        return taskService.cancelTask(id, getUserId(auth));
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<Void> delete(@PathVariable Long id, Authentication auth) {
+        return taskService.deleteTask(id, getUserId(auth));
+    }
+
     @GetMapping(value = "/{id}/progress", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<TaskProgressEvent>> progress(
             @PathVariable Long id, Authentication auth) {

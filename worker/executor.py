@@ -87,9 +87,7 @@ def _stem(key: str) -> str:
 def _friendly(err: Exception) -> str:
     if isinstance(err, NodeExecutionError):
         return err.message
-    if isinstance(err, RuntimeError) and str(err).startswith(("S2_", "drone_",
-            "image_", "csv_", "json_", "minio_", "filter_", "aggregate_",
-            "map_", "json_transform_", "json_mapper_", "video_", "audio_")):
+    if isinstance(err, RuntimeError):
         return str(err)
     return f"{type(err).__name__}: {err}"
 
@@ -128,16 +126,12 @@ def _execute_batch_item(node_type: str, item_data, config: dict, ctx_kwargs: dic
         raise NodeExecutionError(_friendly(e)) from None
 
 
-_RTREE_MSG_RE = re.compile(r"(?:RuntimeError|NodeExecutionError):\s*(.+?)(?:\n|$)", re.S)
-
-
 def _extract_friendly_from_ray_error(ray_err) -> str:
     s = str(ray_err)
-    for pat in [r"NodeExecutionError:\s*(.+?)(?:\n|File|$)",
-                r"RuntimeError:\s*(.+?)(?:\n|File|$)"]:
+    for pat in [r"NodeExecutionError:\s*(.+)", r"RuntimeError:\s*(.+)"]:
         m = re.search(pat, s, re.S)
         if m:
-            return re.sub(r"\s*\n\s*", " ", m.group(1)).strip()
+            return m.group(1).strip()
     last_line = s.strip().split("\n")[-1] if s else ""
     return last_line[:400] if last_line else str(ray_err)[:400]
 

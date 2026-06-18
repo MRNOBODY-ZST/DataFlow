@@ -1,6 +1,7 @@
 import io
 import pandas as pd
 from nodes.base import BaseNode, NodeContext
+from nodes._input_utils import err_minio_missing_key, err_minio_not_found, err_generic
 
 
 class CsvReaderNode(BaseNode):
@@ -10,18 +11,18 @@ class CsvReaderNode(BaseNode):
         try:
             key = ctx.config.get("key") or ctx.config.get("input_key")
             if not key:
-                raise RuntimeError(
-                    "CSV读取: 请在节点配置中提供 key 或 input_key（MinIO 中的 CSV 对象路径）。"
-                )
+                err_minio_missing_key("csv_reader")
             bucket = ctx.config.get("bucket", ctx.input_bucket)
-            response = ctx.minio_client.get_object(bucket, key)
             try:
-                try:
-                    df = pd.read_csv(io.BytesIO(response.read()))
-                except Exception as e:
-                    raise RuntimeError(
-                        f"CSV读取: CSV 文件解析失败。请确认 {key} 是有效的 CSV。底层错误: {e}"
-                    )
+                response = ctx.minio_client.get_object(bucket, key)
+            except Exception as e:
+                err_minio_not_found("csv_reader", key, bucket)
+            try:
+                df = pd.read_csv(io.BytesIO(response.read()))
+            except Exception as e:
+                raise RuntimeError(
+                    f"CSV读取: CSV 文件解析失败。请确认 {key} 是有效的 CSV。底层错误: {e}"
+                )
             finally:
                 response.close()
                 response.release_conn()
@@ -29,4 +30,4 @@ class CsvReaderNode(BaseNode):
         except RuntimeError:
             raise
         except Exception as e:
-            raise RuntimeError(f"CSV读取: {e}")
+            err_generic("csv_reader", f"CSV 解析失败，请检查文件是否是合法 CSV。底层: {e}")

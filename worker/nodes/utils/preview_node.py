@@ -1,6 +1,7 @@
 import io
 import pathlib
 from nodes.base import BaseNode, NodeContext
+from nodes._input_utils import err_minio_upload, err_generic
 
 
 FORMAT_MAP = {
@@ -72,15 +73,18 @@ class PreviewNode(BaseNode):
                 return data
 
             key = f"{prefix}/{file_path}"
-            ctx.minio_client.put_object(
-                ctx.temp_bucket,
-                key,
-                io.BytesIO(raw),
-                length=len(raw),
-                content_type=content_type,
-            )
+            try:
+                ctx.minio_client.put_object(
+                    ctx.temp_bucket,
+                    key,
+                    io.BytesIO(raw),
+                    length=len(raw),
+                    content_type=content_type,
+                )
+            except Exception as e:
+                err_minio_upload("preview_node", key, f"{e}")
             return data
         except RuntimeError:
             raise
         except Exception as e:
-            raise RuntimeError(f"preview_node: {e}")
+            err_generic("preview_node", f"预览失败: {e}")

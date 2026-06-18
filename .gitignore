@@ -6,3 +6,5 @@ worker/venv
 .claude/settings.local.json
 DataFlow.pptx
 generate_ppt.py
+example.json
+worker/node_schemas.json

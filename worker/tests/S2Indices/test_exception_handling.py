@@ -45,7 +45,7 @@ def test_s2_invalid_tiff_raises_runtimeerror(ctx):
         with pytest.raises(RuntimeError) as excinfo:
             node.execute([b"not a tiff file at all"], ctx)
         msg = str(excinfo.value)
-        assert "TIFF 解析失败" in msg or "打开影像失败" in msg or "RuntimeError" in msg
+        assert "无法打开为 TIFF 文件" in msg or "无法解析" in msg or "RuntimeError" in msg
 
 
 def test_s2_missing_bands_raises_runtimeerror(ctx):

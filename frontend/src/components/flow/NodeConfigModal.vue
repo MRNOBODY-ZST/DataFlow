@@ -60,6 +60,7 @@
                       v-else-if="field.widget === 'json-mapper'"
                       :model-value="localConfig[field.key]"
                       :sample="localConfig['sample']"
+                      :upstream-nodes="upstreamNodes"
                       @update:model-value="localConfig[field.key] = $event"
                       @update:sample="localConfig['sample'] = $event"
                     />
@@ -135,7 +136,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { Cog6ToothIcon } from '@heroicons/vue/24/outline'
-import type { Node } from '@vue-flow/core'
+import type { Node, Edge } from '@vue-flow/core'
 import { useNodeSchemaStore } from '@/stores/nodeSchema'
 import FilePickerModal from '@/components/ui/FilePickerModal.vue'
 import JMESPathBuilder from '@/components/flow/fields/JMESPathBuilder.vue'
@@ -144,7 +145,7 @@ import KeyValueEditor from '@/components/flow/fields/KeyValueEditor.vue'
 import JsonMapperWidget from '@/components/flow/fields/JsonMapperWidget.vue'
 import type { FileMetadata } from '@/api/file'
 
-const props = defineProps<{ open: boolean; node: Node | null }>()
+const props = defineProps<{ open: boolean; node: Node | null; edges?: Edge[]; allNodes?: Node[] }>()
 const emit = defineEmits<{ update: [node: Node]; close: [] }>()
 
 const { t } = useI18n()
@@ -155,6 +156,14 @@ const pickerField = ref('key')
 const manualMode = ref<Record<string, boolean>>({})
 
 const schema = computed(() => props.node ? nodeSchemaStore.byType[props.node.type] : null)
+
+const upstreamNodes = computed(() => {
+  if (!props.node || !props.edges || !props.allNodes) return []
+  const srcIds = props.edges
+    .filter(e => e.target === props.node!.id)
+    .map(e => e.source)
+  return props.allNodes.filter(n => srcIds.includes(n.id))
+})
 
 watch(
   () => props.node?.id,

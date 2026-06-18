@@ -170,6 +170,11 @@ function updateField(key: string, value: any) {
 
 const summary = computed(() => {
   if (!props.data) return ''
-  return props.data.key || props.data.query || props.data.format || props.data.output_prefix || ''
+  const val = props.data.key || props.data.query || props.data.format || props.data.output_prefix || ''
+  if (typeof val === 'object' && val !== null) {
+    const s = JSON.stringify(val)
+    return s.length > 60 ? s.slice(0, 57) + '...' : s
+  }
+  return String(val)
 })
 </script>

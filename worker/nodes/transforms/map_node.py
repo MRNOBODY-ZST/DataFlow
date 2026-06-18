@@ -1,5 +1,9 @@
 from nodes.base import BaseNode, NodeContext
-from nodes._input_utils import get_first_input
+from nodes._input_utils import (
+    get_first_input,
+    err_bad_input_type,
+    err_generic,
+)
 
 
 class MapNode(BaseNode):
@@ -10,10 +14,7 @@ class MapNode(BaseNode):
             import pandas as pd
             df = get_first_input(inputs, "map_node")
             if not isinstance(df, pd.DataFrame):
-                raise RuntimeError(
-                    f"字段映射: 输入必须是 pandas DataFrame，实际收到的是 {type(df).__name__}。"
-                    f"请将本节点连接到 DataFrame 输出节点。"
-                )
+                err_bad_input_type("map_node", type(df).__name__, "pandas DataFrame")
             rename = ctx.config.get("rename", {})
             if rename:
                 df = df.rename(columns=rename)
@@ -24,4 +25,4 @@ class MapNode(BaseNode):
         except RuntimeError:
             raise
         except Exception as e:
-            raise RuntimeError(f"字段映射: {e}")
+            err_generic("map_node", f"字段映射失败: {e}")

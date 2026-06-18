@@ -1,5 +1,10 @@
 from nodes.base import BaseNode, NodeContext
-from nodes._input_utils import get_first_input
+from nodes._input_utils import (
+    get_first_input,
+    err_bad_input_type,
+    err_agg_field_missing,
+    err_generic,
+)
 
 
 class AggregateNode(BaseNode):
@@ -10,10 +15,7 @@ class AggregateNode(BaseNode):
             import pandas as pd
             df = get_first_input(inputs, "aggregate_node")
             if not isinstance(df, pd.DataFrame):
-                raise RuntimeError(
-                    f"聚合: 输入必须是 pandas DataFrame，实际收到的是 {type(df).__name__}。"
-                    f"请将本节点连接到 DataFrame 输出节点（如 CSV读取、JSON读取）。"
-                )
+                err_bad_input_type("aggregate_node", type(df).__name__, "pandas DataFrame")
             group_by = ctx.config.get("group_by", [])
             agg = ctx.config.get("agg", {})
             if not group_by or not agg:
@@ -21,6 +23,14 @@ class AggregateNode(BaseNode):
             try:
                 return df.groupby(group_by).agg(agg).reset_index()
             except Exception as e:
+                missing = None
+                cols_str = str(df.columns.tolist())
+                if isinstance(e, KeyError):
+                    missing = str(e).strip("'\"")
+                elif isinstance(e, NotImplementedError):
+                    missing = "group_by/agg expression"
+                if missing is not None:
+                    err_agg_field_missing("aggregate_node", missing, cols_str)
                 raise RuntimeError(
                     f"聚合: 计算失败。请检查 group_by={group_by} 与 agg={agg}"
                     f"是否与 DataFrame 列名匹配。底层错误: {e}"
@@ -28,4 +38,4 @@ class AggregateNode(BaseNode):
         except RuntimeError:
             raise
         except Exception as e:
-            raise RuntimeError(f"聚合: {e}")
+            err_generic("aggregate_node", f"聚合失败: {e}")

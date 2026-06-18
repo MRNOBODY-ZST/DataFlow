@@ -21,6 +21,7 @@ from nodes.media.video_transcode import VideoTranscodeNode
 from nodes.utils.preview_node import PreviewNode
 from nodes.writers.csv_writer import CsvWriterNode
 from nodes.writers.minio_writer import MinioWriterNode
+from nodes.writers.json_writer import JsonWriterNode
 
 from nodes.media.image_s2_indices import ImageS2IndicesNode
 from nodes.media.image_drone_index import ImageDroneIndexNode
@@ -99,4 +100,5 @@ NODE_REGISTRY: dict = {
     "preview": PreviewNode,
     "minio_writer": MinioWriterNode,
     "csv_writer": CsvWriterNode,
+    "json_writer": JsonWriterNode,
 }

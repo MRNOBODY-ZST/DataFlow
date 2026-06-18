@@ -26,13 +26,25 @@
                 <div class="flex w-1/2 flex-col border-r border-gray-200 dark:border-white/10">
                   <div class="flex items-center justify-between border-b border-gray-100 px-4 py-2 dark:border-white/5">
                     <span class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ t('jsonMapper.sourceJson') }}</span>
-                    <button
-                      type="button"
-                      class="text-xs text-sky-600 hover:text-sky-500 dark:text-sky-400"
-                      @click="showSampleEditor = !showSampleEditor"
-                    >
-                      {{ showSampleEditor ? t('jsonMapper.hideEditor') : t('jsonMapper.editSample') }}
-                    </button>
+                    <div class="flex items-center gap-2">
+                      <button
+                        v-if="hasUpstreamReader"
+                        type="button"
+                        class="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-500 disabled:opacity-50 dark:text-emerald-400"
+                        :disabled="fetchingUpstream"
+                        @click="fetchFromUpstream"
+                      >
+                        <ArrowDownTrayIcon class="size-3.5" />
+                        {{ fetchingUpstream ? t('jsonMapper.fetchingUpstream') : t('jsonMapper.fetchUpstream') }}
+                      </button>
+                      <button
+                        type="button"
+                        class="text-xs text-sky-600 hover:text-sky-500 dark:text-sky-400"
+                        @click="showSampleEditor = !showSampleEditor"
+                      >
+                        {{ showSampleEditor ? t('jsonMapper.hideEditor') : t('jsonMapper.editSample') }}
+                      </button>
+                    </div>
                   </div>
 
                   <!-- Sample JSON editor -->
@@ -47,12 +59,29 @@
                     <p v-if="parseError" class="mt-1 text-xs text-red-500">{{ parseError }}</p>
                   </div>
 
+                  <!-- Fetch error -->
+                  <div v-if="fetchError" class="border-b border-gray-100 px-4 py-1.5 dark:border-white/5">
+                    <p class="text-xs text-red-500">{{ fetchError }}</p>
+                  </div>
+
                   <!-- Tree view -->
                   <div class="flex-1 overflow-y-auto p-3">
                     <div v-if="!parsedSample" class="flex h-full items-center justify-center">
-                      <p class="text-center text-sm text-gray-400 dark:text-gray-500">
-                        {{ t('jsonMapper.emptySourceHint') }}
-                      </p>
+                      <div class="text-center">
+                        <p class="text-sm text-gray-400 dark:text-gray-500">
+                          {{ t('jsonMapper.emptySourceHint') }}
+                        </p>
+                        <button
+                          v-if="hasUpstreamReader"
+                          type="button"
+                          class="mt-3 inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
+                          :disabled="fetchingUpstream"
+                          @click="fetchFromUpstream"
+                        >
+                          <ArrowDownTrayIcon class="size-3.5" />
+                          {{ fetchingUpstream ? t('jsonMapper.fetchingUpstream') : t('jsonMapper.fetchUpstream') }}
+                        </button>
+                      </div>
                     </div>
                     <JsonFieldTree v-else :json="parsedSample" @drag-field="onSourceDrag" />
                   </div>
@@ -178,11 +207,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-import { XMarkIcon, TrashIcon, ArrowLongRightIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon, TrashIcon, ArrowLongRightIcon, ArrowDownTrayIcon } from '@heroicons/vue/24/outline'
+import type { Node } from '@vue-flow/core'
 import JsonFieldTree from './JsonFieldTree.vue'
+import { fileApi } from '@/api/file'
 
 interface MappingEntry {
   source: string
@@ -194,6 +225,7 @@ const props = defineProps<{
   open: boolean
   modelValue: MappingEntry[]
   sample?: string
+  upstreamNodes?: Node[]
 }>()
 
 const emit = defineEmits<{
@@ -211,6 +243,15 @@ const parseError = ref('')
 const showSampleEditor = ref(false)
 const dropHighlight = ref(false)
 const dragCounter = ref(0)
+const fetchingUpstream = ref(false)
+const fetchError = ref('')
+
+const hasUpstreamReader = computed(() => {
+  if (!props.upstreamNodes?.length) return false
+  return props.upstreamNodes.some(n =>
+    ['json_reader', 'minio_reader'].includes(n.type)
+  )
+})
 
 watch(() => props.open, (val) => {
   if (val) {
@@ -235,6 +276,38 @@ function parseSample() {
   } catch (e: any) {
     parseError.value = `${t('jsonMapper.parseError', { msg: e.message })}`
     parsedSample.value = null
+  }
+}
+
+async function fetchFromUpstream() {
+  if (!props.upstreamNodes?.length) return
+  const reader = props.upstreamNodes.find(n =>
+    ['json_reader', 'minio_reader'].includes(n.type)
+  )
+  if (!reader) {
+    fetchError.value = t('jsonMapper.noUpstreamReader')
+    return
+  }
+  const key = reader.data?.key as string | undefined
+  if (!key) {
+    fetchError.value = t('jsonMapper.noUpstreamReader')
+    return
+  }
+
+  fetchingUpstream.value = true
+  fetchError.value = ''
+  try {
+    const { url } = await fileApi.presignDownload(key, 'input')
+    const resp = await fetch(url)
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+    const text = await resp.text()
+    sampleText.value = text
+    showSampleEditor.value = false
+    parseSample()
+  } catch (e: any) {
+    fetchError.value = t('jsonMapper.fetchUpstreamError', { msg: e.message || String(e) })
+  } finally {
+    fetchingUpstream.value = false
   }
 }
 

@@ -1,6 +1,7 @@
 import io
 import json
 from nodes.base import BaseNode, NodeContext
+from nodes._input_utils import err_minio_missing_key, err_minio_not_found, err_json_malformed, err_generic
 
 
 class JsonReaderNode(BaseNode):
@@ -10,11 +11,12 @@ class JsonReaderNode(BaseNode):
         try:
             key = ctx.config.get("key") or ctx.config.get("input_key")
             if not key:
-                raise RuntimeError(
-                    "JSON读取: 请在节点配置中提供 key 或 input_key（MinIO 中的 JSON 对象路径）。"
-                )
+                err_minio_missing_key("json_reader")
             bucket = ctx.config.get("bucket", ctx.input_bucket)
-            response = ctx.minio_client.get_object(bucket, key)
+            try:
+                response = ctx.minio_client.get_object(bucket, key)
+            except Exception as e:
+                err_minio_not_found("json_reader", key, bucket)
             try:
                 raw = response.read()
             finally:
@@ -23,11 +25,9 @@ class JsonReaderNode(BaseNode):
             try:
                 data = json.loads(raw.decode())
             except json.JSONDecodeError as e:
-                raise RuntimeError(
-                    f"JSON读取: JSON 解析失败。请确认 {key} 是有效的 JSON 格式。底层错误: {e}"
-                )
+                err_json_malformed("json_reader", f"{e}")
             return data
         except RuntimeError:
             raise
         except Exception as e:
-            raise RuntimeError(f"JSON读取: {e}")
+            err_generic("json_reader", f"JSON 读取失败: {e}")

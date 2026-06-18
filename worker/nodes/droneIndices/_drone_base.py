@@ -7,6 +7,7 @@ import shutil
 import numpy as np
 import rasterio
 from nodes.base import BaseNode, NodeContext
+from nodes._input_utils import err_s2_no_bands, err_s2_missing, err_drone_no_bands, err_tiff_open, err_math, err_tiff_write, err_minio_upload, err_no_upstream, err_generic, err_minio_not_found, err_minio_missing_key, err_bad_input_type, err_empty_bytes
 
 # ─────────────────────────────────────────────
 # 基本参数
@@ -184,7 +185,7 @@ def _get_input_bytes(raw_inputs: list, ctx: NodeContext) -> bytes:
     bucket = getattr(ctx, "input_bucket", None) or (ctx.config.get("bucket", "") if getattr(ctx, "config", None) else "")
     key = getattr(ctx, "input_key", None) or (ctx.config.get("key", "") if getattr(ctx, "config", None) else "")
     if not key:
-        raise RuntimeError(f"{getattr(ctx, 'node_id', '?')}: 未指定输入 key")
+        err_minio_missing_key(getattr(ctx, 'node_id', '?'))
     try:
         response = ctx.minio_client.get_object(bucket, key)
         try:
@@ -194,7 +195,7 @@ def _get_input_bytes(raw_inputs: list, ctx: NodeContext) -> bytes:
             response.release_conn()
         return raw
     except Exception as e:
-        raise RuntimeError(f"{getattr(ctx, 'node_id', '?')}: MinIO 读取失败 bucket={bucket} key={key}: {e}")
+        err_minio_not_found(getattr(ctx, 'node_id', '?'), key, bucket or "dataflow-input")
 
 
 def run_single_index(
@@ -208,7 +209,7 @@ def run_single_index(
     if calc_fn is None:
         calc_fn = globals().get(f"calc_{index_name.lower()}")
         if calc_fn is None:
-            raise RuntimeError(f"drone_{index_name}: 未找到 calc_{index_name.lower()}")
+            err_generic(f"drone_{index_name}", f"未找到 calc_{index_name.lower()}")
 
     if required_bands is None:
         required_bands = ["NIR", "Red", "Green", "RedEdge"]
@@ -220,7 +221,7 @@ def run_single_index(
     except RuntimeError:
         raise
     except Exception as e:
-        raise RuntimeError(f"{label}: 取输入失败: {e}")
+        err_no_upstream(label, "取输入失败: " + str(e))
 
     with tempfile.TemporaryDirectory() as tmpdir:
         out_path = os.path.join(tmpdir, "result.tif")
@@ -235,28 +236,25 @@ def run_single_index(
                         for name, idx in band_map.items():
                             bands[name] = load_band(src, idx)
             except rasterio.RasterioIOError as e:
-                raise RuntimeError(f"{label}: TIFF 解析失败: {e}")
+                err_tiff_open(label, str(e))
             except Exception as e:
-                raise RuntimeError(f"{label}: 打开影像失败: {e}")
+                err_tiff_open(label, str(e))
 
             missing = [b for b in required_bands if b not in bands]
             if missing:
-                raise RuntimeError(
-                    f"{label}: 影像缺少必要波段 {missing}，"
-                    f"当前识别到 {list(bands.keys())}"
-                )
+                err_s2_missing(label, str(missing), str(list(bands.keys())))
 
             try:
                 arr = calc_fn(bands)
             except Exception as e:
-                raise RuntimeError(f"{label}: {index_name} 公式计算失败: {e}")
+                err_math(label, index_name, str(e))
 
             try:
                 tiff_bytes = array_to_tiff_bytes(arr, profile)
                 with open(out_path, "wb") as f:
                     f.write(tiff_bytes)
             except Exception as e:
-                raise RuntimeError(f"{label}: 结果 TIFF 写出失败: {e}")
+                err_tiff_write(label, str(e))
 
             source_key = getattr(ctx, "source_key", None)
             if source_key is None:
@@ -271,7 +269,7 @@ def run_single_index(
                     out_path,
                 )
             except Exception as e:
-                raise RuntimeError(f"{label}: MinIO 上传失败 key={out_key}: {e}")
+                err_minio_upload(label, out_key, str(e))
             final_key = out_key
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
@@ -288,14 +286,11 @@ def _bytes_to_bytes_drone(
 ) -> bytes:
     required_bands = list(required_bands) if not isinstance(required_bands, list) else required_bands
     if raw is None:
-        raise RuntimeError(f"{node_label}: 未接收到输入文件，请在流水线中连接上游节点或传入影像数据。")
+        err_no_upstream(node_label)
     if not isinstance(raw, (bytes, bytearray)):
-        raise RuntimeError(
-            f"{node_label}: 输入必须是影像字节流（bytes），"
-            f"实际收到的是 {type(raw).__name__}。"
-        )
+        err_bad_input_type(node_label, type(raw).__name__, "影像字节流 bytes")
     if len(raw) == 0:
-        raise RuntimeError(f"{node_label}: 输入文件为空，请确认已正确上传无人机多光谱影像。")
+        err_empty_bytes(node_label)
     try:
         with rasterio.MemoryFile(raw) as mf:
             with mf.open() as src:
@@ -308,41 +303,28 @@ def _bytes_to_bytes_drone(
                 if not bands:
                     total = src.count
                     fmt = profile.get("driver", "?")
-                    raise RuntimeError(
-                        f"{node_label}: 未在影像中识别到任何无人机波段。"
-                        f" 当前共 {total} 个物理波段（格式={fmt}，描述={list(src.descriptions)}），"
-                        f"请确认输入是无人机多光谱 TIFF（如 Green/Red/NIR/RedEdge…），"
-                        f"而不是 RGB/JPEG/PNG 或单波段影像。"
-                    )
+                    d = str(list(src.descriptions))[:200]
+                    err_drone_no_bands(node_label, total, f"driver={fmt}, descriptions={d}")
     except RuntimeError:
         raise
     except rasterio.RasterioIOError as e:
-        msg = str(e)
-        if "bad header" in msg.lower() or "not a geotiff" in msg.lower():
-            raise RuntimeError(
-                f"{node_label}: 文件格式无法识别，可能是 JPEG/PNG/普通图片。"
-                f"请上传无人机多光谱 TIFF 影像。"
-            )
-        raise RuntimeError(f"{node_label}: TIFF 解析失败: {e}")
+        err_tiff_open(node_label, str(e))
     except Exception as e:
-        raise RuntimeError(f"{node_label}: 打开影像失败: {e}")
+        err_tiff_open(node_label, str(e))
 
     missing = [b for b in required_bands if b not in bands]
     if missing:
-        raise RuntimeError(
-            f"{node_label}: 影像缺少必要波段 {missing}，当前识别到 {list(bands.keys())}。"
-            f"请使用包含所有必要波段的无人机多光谱 TIFF。"
-        )
+        err_s2_missing(node_label, str(missing), str(list(bands.keys())))
 
     try:
         arr = calc_fn(bands)
     except Exception as e:
-        raise RuntimeError(f"{node_label}: {index_name} 公式计算失败: {e}")
+        err_math(node_label, index_name, str(e))
 
     try:
         return array_to_tiff_bytes(arr, profile)
     except Exception as e:
-        raise RuntimeError(f"{node_label}: 结果 TIFF 写出失败: {e}")
+        err_tiff_write(node_label, str(e))
 
 
 def make_execute_for_drone(
@@ -353,18 +335,14 @@ def make_execute_for_drone(
 ):
     def execute(self, inputs, ctx):
         if not inputs:
-            raise RuntimeError(
-                f"{node_label}: 上游没有传输出数据（输入为空列表）。请检查上游节点是否已成功执行，或连接上游。"
-            )
+            err_no_upstream(node_label)
         data = inputs[0]
         if isinstance(data, list):
             data = data[0]
         if isinstance(data, dict):
             data = data.get("data", b"")
         if data is None or data == b"":
-            raise RuntimeError(
-                f"{node_label}: 上游没有传输出数据（输入为空）。请检查上游节点是否已成功执行，或连接上游。"
-            )
+            err_no_upstream(node_label)
         return _bytes_to_bytes_drone(
             index_name, data, calc_fn, required_bands, node_label,
         )

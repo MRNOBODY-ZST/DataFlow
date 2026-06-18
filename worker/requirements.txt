@@ -9,3 +9,5 @@ pandas
 jmespath
 pytest
 pymongo
+numpy
+rasterio
