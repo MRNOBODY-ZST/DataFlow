@@ -212,6 +212,34 @@ public class NodeSchemaService {
           new NodeSchemaDTO.FieldDef("key", "输出 Key", "text", "output/result.csv", false, false, null, null, null, true)
         )));
 
+        schemas.add(new NodeSchemaDTO("image_s2_indices", "S2 通用多光谱指数", "spectral-s2", "GlobeEuropeAfricaIcon", List.of(
+            new NodeSchemaDTO.FieldDef("key", "Sentinel-2 多光谱 TIFF Key", "file-picker", "input/xxx/s2.tif", false, false, null, null, null, false),
+            new NodeSchemaDTO.FieldDef("format", "输出格式", "select", "GTiff", false, false, List.of("GTiff", "PNG", "JPEG"), null, null, true)
+        )));
+
+        schemas.add(new NodeSchemaDTO("image_drone_index", "无人机通用多光谱指数", "spectral-drone", "CameraIcon", List.of(
+            new NodeSchemaDTO.FieldDef("key", "无人机多光谱 TIFF Key", "file-picker", "input/xxx/drone.tif", false, false, null, null, null, false),
+            new NodeSchemaDTO.FieldDef("format", "输出格式", "select", "GTiff", false, false, List.of("GTiff", "PNG", "JPEG"), null, null, true)
+        )));
+
+        String[] S2_NODES = {"ndvi","gndvi","ndre","ireci","savi","msavi2","osavi","lswi","ndwi","mndwi","ndmi","evi","ndsi","ndti"};
+        String[] S2_LABELS = {"NDVI（植被指数）","GNDVI（绿色 NDVI）","NDRE（红边植被指数）","IRECI（反演红边指数）","SAVI（土壤调节植被指数）","MSAVI2（修改 SAVI）","OSAVI（优化 SAVI）","LSWI（地表水指数）","NDWI（归一化水指数）","MNDWI（改进 NDWI）","NDMI（归一化湿度指数）","EVI（增强植被指数）","NDSI（归一化差异雪指数）","NDTI（归一化差异温度指数）"};
+        for (int i = 0; i < S2_NODES.length; i++) {
+            schemas.add(new NodeSchemaDTO("image_s2_" + S2_NODES[i], S2_LABELS[i], "spectral-s2", "LeafIcon", List.of(
+                new NodeSchemaDTO.FieldDef("key", "Sentinel-2 多光谱 TIFF Key", "file-picker", "input/xxx/s2.tif", false, false, null, null, null, false),
+                new NodeSchemaDTO.FieldDef("format", "输出格式", "select", "GTiff", false, false, List.of("GTiff", "PNG", "JPEG"), null, null, true)
+            )));
+        }
+
+        String[] DRONE_NODES = {"ndvi","gndvi","ndre","savi","msavi","rvi","ngrdi","gci","lci","sipi2","dvi","ciredge","cirededge"};
+        String[] DRONE_LABELS = {"Drone NDVI","Drone GNDVI","Drone NDRE","Drone SAVI","Drone MSAVI","Drone RVI","Drone NGRDI","Drone GCI","Drone LCI","Drone SIPI2","Drone DVI","Drone CI RedEdge","Drone CIREdge"};
+        for (int i = 0; i < DRONE_NODES.length; i++) {
+            schemas.add(new NodeSchemaDTO("image_drone_" + DRONE_NODES[i], DRONE_LABELS[i], "spectral-drone", "CameraIcon", List.of(
+                new NodeSchemaDTO.FieldDef("key", "无人机多光谱 TIFF Key", "file-picker", "input/xxx/drone.tif", false, false, null, null, null, false),
+                new NodeSchemaDTO.FieldDef("format", "输出格式", "select", "GTiff", false, false, List.of("GTiff", "PNG", "JPEG"), null, null, true)
+            )));
+        }
+
         return schemas;
     }
 }

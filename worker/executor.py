@@ -2,6 +2,7 @@
 import logging
 import os
 import pathlib
+import re
 from collections import defaultdict, deque
 
 import ray
@@ -17,7 +18,20 @@ MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "dataflow123")
 MINIO_INPUT_BUCKET = os.getenv("MINIO_INPUT_BUCKET", "dataflow-input")
 MINIO_OUTPUT_BUCKET = os.getenv("MINIO_OUTPUT_BUCKET", "dataflow-output")
 MINIO_TEMP_BUCKET = os.getenv("MINIO_TEMP_BUCKET", "dataflow-temp")
-NODE_TIMEOUT = int(os.getenv("NODE_TIMEOUT_SECONDS", "300"))
+
+
+class NodeExecutionError(Exception):
+    """
+    Raised by worker to wrap any failure inside a node's execute().
+    Driver-side run_pipeline extracts just the friendly message.
+    """
+
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self) -> str:
+        return self.message
 
 
 def _make_minio():
@@ -70,14 +84,27 @@ def _stem(key: str) -> str:
     return pathlib.PurePosixPath(key).stem
 
 
+def _friendly(err: Exception) -> str:
+    if isinstance(err, NodeExecutionError):
+        return err.message
+    if isinstance(err, RuntimeError):
+        return str(err)
+    return f"{type(err).__name__}: {err}"
+
+
 @ray.remote
 def _execute_node_remote(node_type: str, inputs: list, config: dict, ctx_kwargs: dict):
     minio_client = _make_minio()
     ctx = NodeContext(minio_client=minio_client, **ctx_kwargs)
     node_cls = NODE_REGISTRY.get(node_type)
     if node_cls is None:
-        raise ValueError(f"Unknown node type: {node_type}")
-    return node_cls().execute(inputs, ctx)
+        raise NodeExecutionError(f"Unknown node type: {node_type}")
+    try:
+        return node_cls().execute(inputs, ctx)
+    except NodeExecutionError:
+        raise
+    except Exception as e:
+        raise NodeExecutionError(_friendly(e)) from None
 
 
 @ray.remote
@@ -86,15 +113,30 @@ def _execute_batch_item(node_type: str, item_data, config: dict, ctx_kwargs: dic
     ctx = NodeContext(minio_client=minio_client, **ctx_kwargs)
     node_cls = NODE_REGISTRY.get(node_type)
     if node_cls is None:
-        raise ValueError(f"Unknown node type: {node_type}")
+        raise NodeExecutionError(f"Unknown node type: {node_type}")
     if isinstance(item_data, dict) and "data" in item_data:
         inputs = [item_data["data"]]
     else:
         inputs = [item_data]
-    return node_cls().execute(inputs, ctx)
+    try:
+        return node_cls().execute(inputs, ctx)
+    except NodeExecutionError:
+        raise
+    except Exception as e:
+        raise NodeExecutionError(_friendly(e)) from None
 
 
-def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "", cancel_check=None, node_timeout: int = NODE_TIMEOUT) -> str | None:
+def _extract_friendly_from_ray_error(ray_err) -> str:
+    s = str(ray_err)
+    for pat in [r"NodeExecutionError:\s*(.+)", r"RuntimeError:\s*(.+)"]:
+        m = re.search(pat, s, re.S)
+        if m:
+            return m.group(1).strip()
+    last_line = s.strip().split("\n")[-1] if s else ""
+    return last_line[:400] if last_line else str(ray_err)[:400]
+
+
+def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "") -> str | None:
     nodes = graph.get("nodes", [])
     edges = graph.get("edges", [])
 
@@ -111,12 +153,13 @@ def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "", cancel_
         node_type = node["type"]
         config = dict(node.get("data", {}))
 
-        if cancel_check and cancel_check():
-            raise RuntimeError("Task cancelled")
-
         input_node_ids = _get_input_node_ids(node_id, edges)
         input_refs = [results[src] for src in input_node_ids]
-        resolved_inputs = ray.get(input_refs, timeout=node_timeout) if input_refs else []
+
+        try:
+            resolved_inputs = ray.get(input_refs) if input_refs else []
+        except Exception as e:
+            raise RuntimeError(f"上游节点输入获取失败: {_extract_friendly_from_ray_error(e)}") from None
 
         any_batch_upstream = any(batch_mode.get(src, False) for src in input_node_ids)
 
@@ -170,7 +213,11 @@ def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "", cancel_
 
                 refs.append(_execute_batch_item.remote(node_type, item, scoped_config, item_ctx))
 
-            collected = ray.get(refs, timeout=node_timeout)
+            try:
+                collected = ray.get(refs)
+            except Exception as e:
+                raise RuntimeError(f"节点 {node_id} 批处理失败: {_extract_friendly_from_ray_error(e)}") from None
+
             target_fmt = config.get("format", "")
             wrapped = []
             for idx, result in enumerate(collected):
@@ -196,7 +243,10 @@ def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "", cancel_
             )
         else:
             ref = _execute_node_remote.remote(node_type, resolved_inputs, scoped_config, ctx_kwargs)
-            output = ray.get(ref, timeout=node_timeout)
+            try:
+                output = ray.get(ref)
+            except Exception as e:
+                raise RuntimeError(f"节点 {node_id} 执行失败: {_extract_friendly_from_ray_error(e)}") from None
 
             if _is_batch_result(output):
                 results[node_id] = ray.put(output)
@@ -208,7 +258,11 @@ def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "", cancel_
 
     last_node_id = ordered[-1]["id"] if ordered else None
     if last_node_id:
-        output = ray.get(results[last_node_id], timeout=node_timeout)
+        try:
+            output = ray.get(results[last_node_id])
+        except Exception as e:
+            raise RuntimeError(f"最终节点结果获取失败: {_extract_friendly_from_ray_error(e)}") from None
+
         strip = (user_prefix + "/") if user_prefix else ""
         if isinstance(output, list):
             full = f"{output_prefix}/"

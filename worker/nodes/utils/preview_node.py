@@ -1,6 +1,7 @@
 import io
 import pathlib
-from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
+from nodes.base import BaseNode, NodeContext
+from nodes._input_utils import err_minio_upload, err_generic
 
 
 FORMAT_MAP = {
@@ -23,70 +24,67 @@ def _detect(data: bytes) -> tuple[str, str]:
 
 class PreviewNode(BaseNode):
 
-    @classmethod
-    def schema(cls) -> NodeSchema:
-        return NodeSchema(
-            type="preview",
-            label="预览",
-            category="utils",
-            icon="EyeIcon",
-            fields=[
-                FieldDef(key="label", label="自定义文件名", type="text",
-                         placeholder="留空则使用原文件名", inline=True),
-            ],
-        )
-
     def execute(self, inputs: list, ctx: NodeContext):
-        import json
-        import pandas as pd
+        try:
+            import json
+            import pandas as pd
 
-        data = inputs[0] if inputs else None
-        if data is None:
+            data = inputs[0] if inputs else None
+            if data is None:
+                return data
+
+            prefix = f"{ctx.output_prefix}/{ctx.node_id}"
+
+            custom_label = ctx.config.get("label", "").strip()
+            if custom_label:
+                file_path = custom_label
+            elif ctx.source_key:
+                file_path = ctx.source_key
+            else:
+                file_path = "preview"
+
+            name = pathlib.PurePosixPath(file_path).name
+            has_ext = "." in name
+            path_obj = pathlib.PurePosixPath(file_path)
+            if path_obj.suffix.lower() == ".tif":
+                file_path = str(path_obj.with_suffix(".tiff"))
+
+            if isinstance(data, (bytes, bytearray)):
+                raw = bytes(data)
+                ext, content_type = _detect(raw)
+                if not has_ext:
+                    file_path += ext
+            elif isinstance(data, pd.DataFrame):
+                raw = data.to_csv(index=False).encode()
+                content_type = "text/csv"
+                if not has_ext:
+                    file_path += ".csv"
+            elif isinstance(data, str):
+                raw = data.encode()
+                content_type = "text/plain"
+                if not has_ext:
+                    file_path += ".txt"
+            elif isinstance(data, (list, dict)):
+                raw = json.dumps(data, ensure_ascii=False, indent=2).encode()
+                content_type = "application/json"
+                if not has_ext:
+                    file_path += ".json"
+            else:
+                return data
+
+            key = f"{prefix}/{file_path}"
+            try:
+                ctx.minio_client.put_object(
+                    ctx.temp_bucket,
+                    key,
+                    io.BytesIO(raw),
+                    length=len(raw),
+                    content_type=content_type,
+                )
+            except Exception as e:
+                err_minio_upload("preview_node", key, f"{e}")
             return data
-
-        prefix = f"{ctx.output_prefix}/{ctx.node_id}"
-
-        custom_label = ctx.config.get("label", "").strip()
-        if custom_label:
-            file_path = custom_label
-        elif ctx.source_key:
-            file_path = ctx.source_key
-        else:
-            file_path = "preview"
-
-        name = pathlib.PurePosixPath(file_path).name
-        has_ext = "." in name
-
-        if isinstance(data, (bytes, bytearray)):
-            raw = bytes(data)
-            ext, content_type = _detect(raw)
-            if not has_ext:
-                file_path += ext
-        elif isinstance(data, pd.DataFrame):
-            raw = data.to_csv(index=False).encode()
-            content_type = "text/csv"
-            if not has_ext:
-                file_path += ".csv"
-        elif isinstance(data, str):
-            raw = data.encode()
-            content_type = "text/plain"
-            if not has_ext:
-                file_path += ".txt"
-        elif isinstance(data, (list, dict)):
-            raw = json.dumps(data, ensure_ascii=False, indent=2).encode()
-            content_type = "application/json"
-            if not has_ext:
-                file_path += ".json"
-        else:
-            return data
-
-        key = f"{prefix}/{file_path}"
-        ctx.minio_client.put_object(
-            ctx.temp_bucket,
-            key,
-            io.BytesIO(raw),
-            length=len(raw),
-            content_type=content_type,
-        )
-
-        return data
+        except RuntimeError:
+            raise
+        except Exception as e:
+            err_generic("preview_node", f"预览失败: {e}")

@@ -1,0 +1,14 @@
+﻿python.exe : ERROR: file or directory not found: tests/
+所在位置 行:1 字符: 1
++ & "C:\Users\gc\anaconda3\envs\py312.2\python.exe" -m pytest tests/ -- ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR: file or ...t found: tests/:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+============================= test session starts =============================
+platform win32 -- Python 3.12.2, pytest-9.0.3, pluggy-1.6.0
+rootdir: D:\zuoye\DataFlow-main
+collected 0 items
+
+============================ no tests ran in 0.01s ============================

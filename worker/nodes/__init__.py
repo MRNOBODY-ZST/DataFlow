@@ -20,8 +20,34 @@ from nodes.media.image_threshold import ImageThresholdNode
 from nodes.media.video_transcode import VideoTranscodeNode
 from nodes.utils.preview_node import PreviewNode
 from nodes.writers.csv_writer import CsvWriterNode
-from nodes.writers.json_writer import JsonWriterNode
 from nodes.writers.minio_writer import MinioWriterNode
+from nodes.writers.json_writer import JsonWriterNode
+
+from nodes.media.image_s2_indices import ImageS2IndicesNode
+from nodes.media.image_drone_index import ImageDroneIndexNode
+
+from .S2Indices.image_s2_ndvi import ImageS2NdviNode
+from .S2Indices.image_s2_gndvi import ImageS2GndviNode
+from .S2Indices.image_s2_ndre import ImageS2NdreNode
+from .S2Indices.image_s2_ireci import ImageS2IreciNode
+from .S2Indices.image_s2_savi import ImageS2SaviNode
+from .S2Indices.image_s2_lswi import ImageS2LswiNode
+from .S2Indices.image_s2_ndwi import ImageS2NdwiNode
+from .S2Indices.image_s2_mndwi import ImageS2MndwiNode
+from .S2Indices.image_s2_evi import ImageS2EviNode
+
+from .droneIndices.image_drone_ndvi import ImageDroneNdviNode
+from .droneIndices.image_drone_gndvi import ImageDroneGndviNode
+from .droneIndices.image_drone_ndre import ImageDroneNdreNode
+from .droneIndices.image_drone_lci import ImageDroneLciNode
+from .droneIndices.image_drone_sipi2 import ImageDroneSipi2Node
+from .droneIndices.image_drone_gci import ImageDroneGciNode
+from .droneIndices.image_drone_cirededge import ImageDroneCirededgeNode
+from .droneIndices.image_drone_ngrdi import ImageDroneNgrdiNode
+from .droneIndices.image_drone_rvi import ImageDroneRviNode
+from .droneIndices.image_drone_dvi import ImageDroneDviNode
+from .droneIndices.image_drone_savi import ImageDroneSaviNode
+from .droneIndices.image_drone_msavi import ImageDroneMsaviNode
 
 NODE_REGISTRY: dict = {
     "csv_reader": CsvReaderNode,
@@ -44,8 +70,35 @@ NODE_REGISTRY: dict = {
     "image_sharpen": ImageSharpenNode,
     "image_edge_detect": ImageEdgeDetectNode,
     "image_threshold": ImageThresholdNode,
+
+    "image_drone_index": ImageDroneIndexNode,
+    "image_s2_indices": ImageS2IndicesNode,
+
+     "image_s2_ndvi": ImageS2NdviNode,
+    "image_s2_gndvi": ImageS2GndviNode,
+    "image_s2_ndre": ImageS2NdreNode,
+    "image_s2_ireci": ImageS2IreciNode,
+    "image_s2_savi": ImageS2SaviNode,
+    "image_s2_lswi": ImageS2LswiNode,
+    "image_s2_ndwi": ImageS2NdwiNode,
+    "image_s2_mndwi": ImageS2MndwiNode,
+    "image_s2_evi": ImageS2EviNode,
+
+    "image_drone_ndvi": ImageDroneNdviNode,
+    "image_drone_gndvi": ImageDroneGndviNode,
+    "image_drone_ndre": ImageDroneNdreNode,
+    "image_drone_lci": ImageDroneLciNode,
+    "image_drone_sipi2": ImageDroneSipi2Node,
+    "image_drone_gci": ImageDroneGciNode,
+    "image_drone_cirededge": ImageDroneCirededgeNode,
+    "image_drone_ngrdi": ImageDroneNgrdiNode,
+    "image_drone_rvi": ImageDroneRviNode,
+    "image_drone_dvi": ImageDroneDviNode,
+    "image_drone_savi": ImageDroneSaviNode,
+    "image_drone_msavi": ImageDroneMsaviNode,
+    
     "preview": PreviewNode,
     "minio_writer": MinioWriterNode,
-    "json_writer": JsonWriterNode,
     "csv_writer": CsvWriterNode,
+    "json_writer": JsonWriterNode,
 }

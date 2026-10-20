@@ -1,4 +1,43 @@
-from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
+from nodes.base import BaseNode, NodeContext
+from nodes._input_utils import (
+    get_first_input,
+    err_bad_input_type,
+    err_generic,
+)
+
+
+class JsonMapperNode(BaseNode):
+    """Declarative JSON field mapper - no JMESPath required."""
+
+    def execute(self, inputs: list, ctx: NodeContext):
+        try:
+            data = get_first_input(inputs, "json_mapper")
+            mappings = ctx.config.get("mappings", [])
+            if not isinstance(data, (dict, list)):
+                err_bad_input_type("json_mapper", type(data).__name__, "dict 或 list")
+
+            if not mappings:
+                return data
+
+            result = {}
+            for m in mappings:
+                source = m.get("source", "")
+                target = m.get("target", source)
+                default = m.get("default")
+
+                value = _resolve_source(data, source)
+                if value is None and default is not None:
+                    value = default
+
+                target_parts = [p for p in target.split(".") if p]
+                if target_parts:
+                    _set_by_path(result, target_parts, value)
+
+            return result
+        except RuntimeError:
+            raise
+        except Exception as e:
+            err_generic("json_mapper", f"JSON 映射失败: {e}")
 
 
 def _get_by_path(obj, path_parts: list[str]):
@@ -54,55 +93,3 @@ def _resolve_source(data, source_path: str):
     if not suffix:
         return arr
     return [_get_by_path(item, suffix) for item in arr]
-
-
-class JsonMapperNode(BaseNode):
-    """Declarative JSON field mapper — no JMESPath required.
-
-    Config:
-        mappings: list[dict] — each mapping has:
-            source: str  — dot-separated path, [*] for array expansion
-            target: str  — dot-separated output path
-            default: any — fallback value if source is None
-    """
-
-    @classmethod
-    def schema(cls) -> NodeSchema:
-        return NodeSchema(
-            type="json_mapper",
-            label="JSON 可视化映射",
-            category="transforms",
-            icon="MapIcon",
-            fields=[
-                FieldDef(key="mappings", label="字段映射", type="text",
-                         widget="json-mapper", inline=True),
-                FieldDef(key="sample", label="JSON 样本（用于解析字段树）", type="textarea",
-                         placeholder=""),
-            ],
-        )
-
-    def execute(self, inputs: list, ctx: NodeContext):
-        if not inputs:
-            raise ValueError("json_mapper requires an input payload")
-
-        data = inputs[0]
-        mappings = ctx.config.get("mappings", [])
-
-        if not mappings:
-            return data
-
-        result = {}
-        for m in mappings:
-            source = m.get("source", "")
-            target = m.get("target", source)
-            default = m.get("default")
-
-            value = _resolve_source(data, source)
-            if value is None and default is not None:
-                value = default
-
-            target_parts = [p for p in target.split(".") if p]
-            if target_parts:
-                _set_by_path(result, target_parts, value)
-
-        return result

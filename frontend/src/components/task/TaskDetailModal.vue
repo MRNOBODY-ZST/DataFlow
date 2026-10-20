@@ -32,7 +32,7 @@
                     </div>
                   </div>
 
-                  <p v-if="task.errorMsg" class="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-400">{{ task.errorMsg }}</p>
+                  <pre v-if="task.errorMsg" class="mt-3 whitespace-pre-line rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-400 font-sans">{{ task.errorMsg }}</pre>
                 </div>
 
                 <!-- Preview Section -->

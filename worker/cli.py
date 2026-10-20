@@ -41,10 +41,11 @@ def write_pid(pid: int) -> None:
     os.replace(temp_file, PID_FILE)
 
 
-def process_exists(pid: int) -> bool:
+def process_exists(pid):
     try:
         os.kill(pid, 0)
-    except ProcessLookupError:
+        return True
+    except OSError:
         return False
     except PermissionError:
         return True

@@ -1,100 +1,130 @@
 import io
-from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
+import json
+import pandas as pd
+from nodes.base import BaseNode, NodeContext
+from nodes._input_utils import (
+    err_no_upstream,
+    err_bad_input_type,
+    err_minio_upload,
+    err_generic,
+)
 
 
 class MinioWriterNode(BaseNode):
-    """Write data to MinIO.
-
-    Accepts:
-        - bytes / bytearray  → written directly
-        - pandas DataFrame   → written as CSV
-        - str                → written as UTF-8 text
-        - list               → written as JSON
-
-    Config:
-        key: str      — destination object key
-        bucket: str   — destination bucket (default: output)
-    """
-
-    @classmethod
-    def schema(cls) -> NodeSchema:
-        return NodeSchema(
-            type="minio_writer",
-            label="MinIO 写出",
-            category="writers",
-            icon="CloudArrowUpIcon",
-            fields=[
-                FieldDef(key="key", label="输出 Key", type="text",
-                         placeholder="output/result", inline=True),
-                FieldDef(key="bucket", label="目标 Bucket（默认 dataflow-output）", type="text",
-                         placeholder="dataflow-output"),
-            ],
-        )
-
-    _SIGNATURES = {
-        b"\xff\xd8\xff": ("image/jpeg", ".jpg"),
-        b"\x89PNG\r\n\x1a\n": ("image/png", ".png"),
-        b"RIFF": ("image/webp", ".webp"),
-        b"BM": ("image/bmp", ".bmp"),
-        b"II\x2a\x00": ("image/tiff", ".tiff"),
-        b"MM\x00\x2a": ("image/tiff", ".tiff"),
-        b"GIF8": ("image/gif", ".gif"),
-    }
-
-    @staticmethod
-    def _detect_image(data: bytes) -> tuple[str, str] | None:
-        for sig, result in MinioWriterNode._SIGNATURES.items():
-            if data[:len(sig)] == sig:
-                return result
-        return None
 
     def execute(self, inputs: list, ctx: NodeContext):
-        import json
-        import pandas as pd
+        try:
+            if not inputs:
+                err_no_upstream("minio_writer")
+            data = inputs[0]
 
-        data = inputs[0]
-        key = ctx.config.get("key") or ctx.source_key or ""
-        bucket = ctx.config.get("bucket", ctx.output_bucket)
+            if isinstance(data, dict) and data.get("multi_files"):
+                files = data["multi_files"]
+                key = ctx.config.get("key") or ctx.source_filename or "multi"
+                for idx, raw in enumerate(files):
+                    obj_key = f"{key}_{idx}.jpg"
+                    try:
+                        ctx.minio_client.put_object(
+                            ctx.output_bucket,
+                            obj_key,
+                            io.BytesIO(raw),
+                            length=len(raw),
+                            content_type="image/jpeg",
+                        )
+                    except Exception as e:
+                        err_minio_upload("minio_writer", obj_key, f"{e}")
+                return key
 
-        if not key:
-            import pandas as pd
-            if isinstance(data, (bytes, bytearray)):
-                key = "result"
-            elif hasattr(pd, 'DataFrame') and isinstance(data, pd.DataFrame):
-                key = "result.csv"
-            elif isinstance(data, (list, dict)):
-                key = "result.json"
+            fmt = ctx.config.get("format") or ctx.config.get("fmt")
+            if fmt is None:
+                if isinstance(data, pd.DataFrame):
+                    fmt = "csv"
+                elif isinstance(data, bytes):
+                    ctx.config.setdefault("_auto_key_ext", ".bin")
+                    key_lower = (ctx.config.get("key", ctx.source_filename) or "").lower()
+                    if key_lower.endswith(".jpg") or key_lower.endswith(".jpeg"):
+                        fmt = "bytes_image"
+                    elif key_lower.endswith(".png"):
+                        fmt = "bytes_png"
+                    else:
+                        fmt = "bytes"
+                elif isinstance(data, str):
+                    fmt = "txt"
+                elif isinstance(data, (dict, list)):
+                    fmt = "json"
+                else:
+                    fmt = "csv"
+
+            key = ctx.config.get("key") or ctx.source_filename
+
+            if fmt == "csv":
+                if not isinstance(data, pd.DataFrame):
+                    err_bad_input_type("minio_writer", type(data).__name__, "pandas DataFrame")
+                if key and not key.lower().endswith(".csv"):
+                    key = key + ".csv"
+                key = ctx.output_key(key or "result.csv")
+                raw = data.to_csv(index=False).encode()
+                ct = "text/csv"
+            elif fmt in ("bytes_image", "bytes", "jpeg", "jpg", "image/jpeg"):
+                if isinstance(data, str):
+                    data = data.encode()
+                else:
+                    raw = bytes(data)
+                if key and not (key.lower().endswith(".jpg") or key.lower().endswith(".jpeg")):
+                    key = key + ".jpg"
+                key = ctx.output_key(key or "result.jpg")
+                raw = data if isinstance(data, (bytes, bytearray)) else bytes(data)
+                ct = "image/jpeg"
+            elif fmt in ("bytes_png", "png", "image/png"):
+                if key and not key.lower().endswith(".png"):
+                    key = key + ".png"
+                key = ctx.output_key(key or "result.png")
+                raw = data if isinstance(data, (bytes, bytearray)) else bytes(data)
+                ct = "image/png"
+            elif fmt == "txt":
+                if isinstance(data, bytes):
+                    raw = data
+                else:
+                    raw = str(data).encode()
+                if key and not key.lower().endswith(".txt"):
+                    key = key + ".txt"
+                key = ctx.output_key(key or "result.txt")
+                ct = "text/plain"
+            elif fmt == "json":
+                if isinstance(data, pd.DataFrame):
+                    payload = data.to_dict(orient="records")
+                else:
+                    payload = data
+                raw = json.dumps(payload, ensure_ascii=False, default=str).encode()
+                if key and not key.lower().endswith(".json"):
+                    key = key + ".json"
+                key = ctx.output_key(key or "result.json")
+                ct = "application/json"
             else:
-                key = "result"
+                if isinstance(data, bytes):
+                    raw = data
+                elif isinstance(data, pd.DataFrame):
+                    raw = data.to_csv(index=False).encode()
+                else:
+                    raw = str(data).encode()
+                if not key:
+                    key = "result.bin"
+                key = ctx.output_key(key)
+                ct = "application/octet-stream"
 
-        if isinstance(data, (bytes, bytearray)):
-            raw = bytes(data)
-            detected = self._detect_image(raw)
-            if detected:
-                content_type, ext = detected
-                if not any(key.lower().endswith(e) for e in
-                           (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff", ".gif")):
-                    key += ext
-            else:
-                content_type = "application/octet-stream"
-        elif isinstance(data, pd.DataFrame):
-            raw = data.to_csv(index=False).encode()
-            content_type = "text/csv"
-            if not key.endswith(".csv"):
-                key += ".csv"
-        elif isinstance(data, str):
-            raw = data.encode()
-            content_type = "text/plain"
-            if not any(key.lower().endswith(e) for e in (".txt", ".text", ".log", ".csv", ".json", ".xml", ".html")):
-                key += ".txt"
-        elif isinstance(data, (list, dict)):
-            raw = json.dumps(data, ensure_ascii=False, indent=2).encode()
-            content_type = "application/json"
-            if not key.endswith(".json"):
-                key += ".json"
-        else:
-            raise TypeError(f"MinioWriterNode: unsupported data type {type(data)}")
-
-        key = ctx.output_key(key)
-        ctx.minio_client.put_object(bucket, key, io.BytesIO(raw), length=len(raw), content_type=content_type)
-        return key
+            bucket = ctx.config.get("bucket", ctx.output_bucket)
+            try:
+                ctx.minio_client.put_object(
+                    bucket,
+                    key,
+                    io.BytesIO(raw),
+                    length=len(raw),
+                    content_type=ct,
+                )
+            except Exception as e:
+                err_minio_upload("minio_writer", key, f"{e}")
+            return key
+        except RuntimeError:
+            raise
+        except Exception as e:
+            err_generic("minio_writer", f"MinIO 写入失败: {e}")

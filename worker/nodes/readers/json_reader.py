@@ -1,31 +1,33 @@
 import io
 import json
-from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
+from nodes.base import BaseNode, NodeContext
+from nodes._input_utils import err_minio_missing_key, err_minio_not_found, err_json_malformed, err_generic
 
 
 class JsonReaderNode(BaseNode):
     """Read a JSON file from MinIO and return a Python object."""
 
-    @classmethod
-    def schema(cls) -> NodeSchema:
-        return NodeSchema(
-            type="json_reader",
-            label="JSON 读取",
-            category="readers",
-            icon="CodeBracketIcon",
-            fields=[
-                FieldDef(key="key", label="MinIO 对象 Key", type="file-picker",
-                         placeholder="input/xxx/data.json", required=True, inline=True),
-            ],
-        )
-
     def execute(self, inputs: list, ctx: NodeContext):
-        key = ctx.config.get("key") or ctx.config.get("input_key")
-        bucket = ctx.config.get("bucket", ctx.input_bucket)
-        response = ctx.minio_client.get_object(bucket, key)
         try:
-            data = json.loads(response.read().decode())
-        finally:
-            response.close()
-            response.release_conn()
-        return data
+            key = ctx.config.get("key") or ctx.config.get("input_key")
+            if not key:
+                err_minio_missing_key("json_reader")
+            bucket = ctx.config.get("bucket", ctx.input_bucket)
+            try:
+                response = ctx.minio_client.get_object(bucket, key)
+            except Exception as e:
+                err_minio_not_found("json_reader", key, bucket)
+            try:
+                raw = response.read()
+            finally:
+                response.close()
+                response.release_conn()
+            try:
+                data = json.loads(raw.decode())
+            except json.JSONDecodeError as e:
+                err_json_malformed("json_reader", f"{e}")
+            return data
+        except RuntimeError:
+            raise
+        except Exception as e:
+            err_generic("json_reader", f"JSON 读取失败: {e}")

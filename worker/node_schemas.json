@@ -1,0 +1,1677 @@
+[
+  {
+    "type": "csv_reader",
+    "label": "CSV 读取",
+    "category": "readers",
+    "icon": "DocumentTextIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "json_reader",
+    "label": "JSON 读取",
+    "category": "readers",
+    "icon": "CodeBracketIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "minio_reader",
+    "label": "MinIO 读取",
+    "category": "readers",
+    "icon": "CloudArrowDownIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "文件或文件夹路径",
+        "type": "file-picker",
+        "placeholder": "input/xxx/file",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "bucket",
+        "label": "源 Bucket（默认 dataflow-input）",
+        "type": "text",
+        "placeholder": "dataflow-input",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "prefix",
+        "label": "对象前缀（递归批量时使用）",
+        "type": "text",
+        "placeholder": "input/",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "recursive",
+        "label": "递归读取子目录",
+        "type": "checkbox",
+        "placeholder": null,
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "batch",
+        "label": "批量模式（key 为前缀时自动开启）",
+        "type": "checkbox",
+        "placeholder": null,
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "filter",
+    "label": "过滤",
+    "category": "transforms",
+    "icon": "FunnelIcon",
+    "fields": [
+      {
+        "key": "query",
+        "label": "Pandas Query 表达式",
+        "type": "text",
+        "placeholder": "age > 18",
+        "required": true,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "map",
+    "label": "字段映射",
+    "category": "transforms",
+    "icon": "ArrowsRightLeftIcon",
+    "fields": [
+      {
+        "key": "rename",
+        "label": "字段重命名",
+        "type": "textarea",
+        "placeholder": "{\"old\":\"new\"}",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "widget": "key-value",
+        "widgetConfig": {
+          "keyPlaceholder": "原字段名",
+          "valuePlaceholder": "新字段名"
+        }
+      },
+      {
+        "key": "select",
+        "label": "保留列",
+        "type": "text",
+        "placeholder": "[\"colA\",\"colB\"]",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "widget": "string-array"
+      }
+    ]
+  },
+  {
+    "type": "aggregate",
+    "label": "聚合",
+    "category": "transforms",
+    "icon": "ChartBarIcon",
+    "fields": [
+      {
+        "key": "group_by",
+        "label": "分组列",
+        "type": "text",
+        "placeholder": "[\"category\"]",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "widget": "string-array"
+      },
+      {
+        "key": "agg",
+        "label": "聚合方法",
+        "type": "textarea",
+        "placeholder": "{\"amount\":\"sum\"}",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "widget": "key-value",
+        "widgetConfig": {
+          "keyPlaceholder": "字段名",
+          "valuePlaceholder": "聚合函数",
+          "valueType": "select",
+          "valueOptions": [
+            "sum",
+            "avg",
+            "min",
+            "max",
+            "count",
+            "first",
+            "last"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "type": "json_transform",
+    "label": "JSON 转换",
+    "category": "transforms",
+    "icon": "CodeBracketSquareIcon",
+    "fields": [
+      {
+        "key": "expression",
+        "label": "JMESPath 表达式",
+        "type": "text",
+        "placeholder": "items[*].name",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "widget": "jmespath"
+      }
+    ]
+  },
+  {
+    "type": "json_mapper",
+    "label": "JSON 可视化映射",
+    "category": "transforms",
+    "icon": "MapIcon",
+    "fields": [
+      {
+        "key": "mappings",
+        "label": "字段映射",
+        "type": "text",
+        "placeholder": null,
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "widget": "json-mapper"
+      },
+      {
+        "key": "sample",
+        "label": "JSON 样本（用于解析字段树）",
+        "type": "textarea",
+        "placeholder": "{}",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "image_resize",
+    "label": "图片缩放",
+    "category": "media",
+    "icon": "PhotoIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "width",
+        "label": "宽度 (px)",
+        "type": "number",
+        "placeholder": "800",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "height",
+        "label": "高度 (px)",
+        "type": "number",
+        "placeholder": "600",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "JPEG",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "JPEG",
+          "PNG",
+          "WEBP",
+          "BMP"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_ocr",
+    "label": "图片 OCR",
+    "category": "media",
+    "icon": "LanguageIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "lang",
+        "label": "语言",
+        "type": "text",
+        "placeholder": "[\"ch_sim\",\"en\"]",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "widget": "string-array"
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "text",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "text",
+          "json"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_format_convert",
+    "label": "图片格式转换",
+    "category": "media",
+    "icon": "ArrowPathIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "目标格式",
+        "type": "select",
+        "placeholder": "PNG",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "JPEG",
+          "PNG",
+          "WEBP",
+          "BMP",
+          "TIFF"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "video_extract",
+    "label": "视频抽帧",
+    "category": "media",
+    "icon": "FilmIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "fps",
+        "label": "抽帧率 (FPS)",
+        "type": "number",
+        "placeholder": "1",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "output_prefix",
+        "label": "输出前缀（MinIO 下的子路径）",
+        "type": "text",
+        "placeholder": "frames/task1/",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "图片格式",
+        "type": "select",
+        "placeholder": "JPEG",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "JPEG",
+          "PNG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "video_transcode",
+    "label": "视频转码",
+    "category": "media",
+    "icon": "VideoCameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "codec",
+        "label": "编码格式",
+        "type": "select",
+        "placeholder": "h264",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "h264",
+          "h265",
+          "vp9"
+        ]
+      },
+      {
+        "key": "bitrate",
+        "label": "码率 (kbps)",
+        "type": "number",
+        "placeholder": "2000",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "audio_extract",
+    "label": "音频提取",
+    "category": "media",
+    "icon": "MusicalNoteIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "音频格式",
+        "type": "select",
+        "placeholder": "mp3",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "mp3",
+          "aac",
+          "wav",
+          "flac",
+          "m4a"
+        ]
+      },
+      {
+        "key": "bitrate",
+        "label": "码率 (kbps)",
+        "type": "number",
+        "placeholder": "128",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "image_convolution",
+    "label": "图像卷积",
+    "category": "media",
+    "icon": "AdjustmentsHorizontalIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "preset",
+        "label": "预设卷积核",
+        "type": "select",
+        "placeholder": "blur",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "blur",
+          "sharpen",
+          "contour",
+          "detail",
+          "edge_enhance",
+          "emboss",
+          "smooth",
+          "custom"
+        ]
+      },
+      {
+        "key": "kernel",
+        "label": "自定义卷积核（3x3 JSON 数组）",
+        "type": "textarea",
+        "placeholder": "[0,-1,0,-1,5,-1,0,-1,0]",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "kernel_size",
+        "label": "卷积核尺寸",
+        "type": "select",
+        "placeholder": "3",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "3",
+          "5"
+        ]
+      },
+      {
+        "key": "offset",
+        "label": "偏移量",
+        "type": "number",
+        "placeholder": "0",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "JPEG",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "JPEG",
+          "PNG",
+          "WEBP"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_pooling",
+    "label": "图像池化",
+    "category": "media",
+    "icon": "Squares2X2Icon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "method",
+        "label": "池化方法",
+        "type": "select",
+        "placeholder": "max",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "max",
+          "avg"
+        ]
+      },
+      {
+        "key": "pool_size",
+        "label": "池化窗口大小",
+        "type": "select",
+        "placeholder": "2",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "2",
+          "3",
+          "4",
+          "8"
+        ]
+      },
+      {
+        "key": "stride",
+        "label": "步长（默认等于窗口大小）",
+        "type": "number",
+        "placeholder": "2",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "JPEG",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "JPEG",
+          "PNG",
+          "WEBP"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_gaussian_blur",
+    "label": "高斯模糊",
+    "category": "media",
+    "icon": "EyeDropperIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "radius",
+        "label": "模糊半径 (sigma)",
+        "type": "number",
+        "placeholder": "2",
+        "required": true,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "JPEG",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "JPEG",
+          "PNG",
+          "WEBP"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_sharpen",
+    "label": "图像锐化",
+    "category": "media",
+    "icon": "SparklesIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "method",
+        "label": "锐化方法",
+        "type": "select",
+        "placeholder": "unsharp_mask",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "unsharp_mask",
+          "sharpen_filter",
+          "detail"
+        ]
+      },
+      {
+        "key": "radius",
+        "label": "USM 半径",
+        "type": "number",
+        "placeholder": "2",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "percent",
+        "label": "USM 强度 (%)",
+        "type": "number",
+        "placeholder": "150",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "threshold",
+        "label": "USM 阈值",
+        "type": "number",
+        "placeholder": "3",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "factor",
+        "label": "额外锐化因子（1.0=不变）",
+        "type": "number",
+        "placeholder": "1.0",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "JPEG",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "JPEG",
+          "PNG",
+          "WEBP"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_edge_detect",
+    "label": "边缘检测",
+    "category": "media",
+    "icon": "ViewfinderCircleIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "method",
+        "label": "检测方法",
+        "type": "select",
+        "placeholder": "find_edges",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "find_edges",
+          "sobel",
+          "contour",
+          "edge_enhance",
+          "edge_enhance_more"
+        ]
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "PNG",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "JPEG",
+          "PNG",
+          "WEBP"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_threshold",
+    "label": "图片二值化",
+    "category": "media",
+    "icon": "SunIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "method",
+        "label": "阈值方法",
+        "type": "select",
+        "placeholder": "binary",
+        "required": true,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "binary",
+          "binary_inv",
+          "truncate",
+          "to_zero",
+          "otsu"
+        ]
+      },
+      {
+        "key": "threshold",
+        "label": "阈值 0-255（Otsu 时自动）",
+        "type": "number",
+        "placeholder": "128",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "PNG",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "JPEG",
+          "PNG",
+          "WEBP"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_index",
+    "label": "无人机通用多光谱指数",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_indices",
+    "label": "S2 通用多光谱指数",
+    "category": "spectral-s2",
+    "icon": "GlobeEuropeAfricaIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_ndvi",
+    "label": "NDVI（植被指数）",
+    "category": "spectral-s2",
+    "icon": "LeafIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_gndvi",
+    "label": "GNDVI（绿色 NDVI）",
+    "category": "spectral-s2",
+    "icon": "LeafIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_ndre",
+    "label": "NDRE（红边植被指数）",
+    "category": "spectral-s2",
+    "icon": "LeafIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_ireci",
+    "label": "IRECI（反演红边指数）",
+    "category": "spectral-s2",
+    "icon": "LeafIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_savi",
+    "label": "SAVI（土壤调节植被指数）",
+    "category": "spectral-s2",
+    "icon": "LeafIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_lswi",
+    "label": "LSWI（地表水指数）",
+    "category": "spectral-s2",
+    "icon": "DropletIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_ndwi",
+    "label": "NDWI（归一化水指数）",
+    "category": "spectral-s2",
+    "icon": "DropletIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_mndwi",
+    "label": "MNDWI（改进 NDWI）",
+    "category": "spectral-s2",
+    "icon": "DropletIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_s2_evi",
+    "label": "EVI（增强植被指数）",
+    "category": "spectral-s2",
+    "icon": "LeafIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_ndvi",
+    "label": "Drone NDVI",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_gndvi",
+    "label": "Drone GNDVI",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_ndre",
+    "label": "Drone NDRE",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_lci",
+    "label": "Drone LCI",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_sipi2",
+    "label": "Drone SIPI2",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_gci",
+    "label": "Drone GCI",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_cirededge",
+    "label": "Drone CIREdge",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_ngrdi",
+    "label": "Drone NGRDI",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_rvi",
+    "label": "Drone RVI",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_dvi",
+    "label": "Drone DVI",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_savi",
+    "label": "Drone SAVI",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "image_drone_msavi",
+    "label": "Drone MSAVI",
+    "category": "spectral-drone",
+    "icon": "CameraIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "源文件 Key（无上游时必填）",
+        "type": "file-picker",
+        "placeholder": "input/xxx/image.tif",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "format",
+        "label": "输出格式",
+        "type": "select",
+        "placeholder": "GTiff",
+        "required": false,
+        "autoFilled": false,
+        "inline": false,
+        "options": [
+          "GTiff",
+          "PNG",
+          "JPEG"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "preview",
+    "label": "预览",
+    "category": "utils",
+    "icon": "EyeIcon",
+    "fields": [
+      {
+        "key": "label",
+        "label": "自定义文件名",
+        "type": "text",
+        "placeholder": "留空则使用原文件名",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "minio_writer",
+    "label": "MinIO 写出",
+    "category": "writers",
+    "icon": "CloudArrowUpIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "输出 Key（可留空使用自动命名）",
+        "type": "text",
+        "placeholder": "output/result",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "bucket",
+        "label": "目标 Bucket（默认 dataflow-output）",
+        "type": "text",
+        "placeholder": "dataflow-output",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "csv_writer",
+    "label": "CSV 写出",
+    "category": "writers",
+    "icon": "TableCellsIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "输出 Key",
+        "type": "text",
+        "placeholder": "output/result.csv",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "bucket",
+        "label": "目标 Bucket（默认 dataflow-output）",
+        "type": "text",
+        "placeholder": "dataflow-output",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  },
+  {
+    "type": "json_writer",
+    "label": "JSON 写出",
+    "category": "writers",
+    "icon": "CodeBracketIcon",
+    "fields": [
+      {
+        "key": "key",
+        "label": "输出 Key",
+        "type": "text",
+        "placeholder": "output/result.json",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "bucket",
+        "label": "目标 Bucket（默认 dataflow-output）",
+        "type": "text",
+        "placeholder": "dataflow-output",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "indent",
+        "label": "缩进空格数",
+        "type": "number",
+        "placeholder": "2",
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      },
+      {
+        "key": "ensure_ascii",
+        "label": "转义非 ASCII 字符",
+        "type": "checkbox",
+        "placeholder": null,
+        "required": false,
+        "autoFilled": false,
+        "inline": false
+      }
+    ]
+  }
+]

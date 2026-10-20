@@ -1,7 +1,6 @@
 ray
 kafka-python
 minio
-redis
 pillow
 opencv-python-headless
 easyocr
@@ -10,3 +9,5 @@ pandas
 jmespath
 pytest
 pymongo
+numpy
+rasterio
