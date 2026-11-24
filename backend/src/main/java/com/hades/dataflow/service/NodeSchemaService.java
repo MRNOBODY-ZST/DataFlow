@@ -82,6 +82,20 @@ public class NodeSchemaService {
                 new NodeSchemaDTO.FieldDef("key", "MinIO 对象 Key", "file-picker", "input/xxx/data.json", true, false, null, null, null, true)
         )));
 
+        schemas.add(new NodeSchemaDTO("uav_multispectral", "无人机多光谱地物分类", "media", "PhotoIcon", List.of(
+            new NodeSchemaDTO.FieldDef("input_type", "输入方式", "select", null, false, false, List.of("按角色选择五张图", "raw7", "rgb-vi10"), null, null, false),
+            new NodeSchemaDTO.FieldDef("band_rgb", "RGB 底图", "file-picker", null, false, false, null, "tiff-role", null, true),
+            new NodeSchemaDTO.FieldDef("band_g", "绿光（G）", "file-picker", null, false, false, null, "tiff-role", null, true),
+            new NodeSchemaDTO.FieldDef("band_red", "红光（RED）", "file-picker", null, false, false, null, "tiff-role", null, true),
+            new NodeSchemaDTO.FieldDef("band_re", "红边（RE）", "file-picker", null, false, false, null, "tiff-role", null, true),
+            new NodeSchemaDTO.FieldDef("band_nir", "近红外（NIR）", "file-picker", null, false, false, null, "tiff-role", null, true),
+            new NodeSchemaDTO.FieldDef("key", "合并的多波段 TIFF（或连接上游）", "file-picker", null, false, false, null, null, null, true)
+        )));
+
+        schemas.add(new NodeSchemaDTO("uav_rgb", "无人机 RGB 地物分类", "media", "PhotoIcon", List.of(
+                new NodeSchemaDTO.FieldDef("key", "RGB GeoTIFF", "file-picker", "留空则使用原文件名", false, false, null, null, null, true)
+        )));
+
         schemas.add(new NodeSchemaDTO("minio_reader", "MinIO 读取", "readers", "CloudArrowDownIcon", List.of(
             new NodeSchemaDTO.FieldDef("key", "文件或文件夹路径", "file-picker", "input/xxx/file", true, false, null, null, null, true),
               new NodeSchemaDTO.FieldDef("bucket", "源 Bucket（默认 dataflow-input）", "text", "dataflow-input", false, false, null, null, null, false)

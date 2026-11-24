@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 from minio.error import S3Error
 
-from nodes.base import BaseNode, NodeContext
-=======
 from nodes.base import BaseNode, NodeContext, NodeSchema, FieldDef
->>>>>>> 878b7e2 (feat: auto parser for nodes)
 
 
 class MinioReaderNode(BaseNode):
