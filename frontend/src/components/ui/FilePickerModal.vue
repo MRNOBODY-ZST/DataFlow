@@ -11,7 +11,7 @@
             <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10">
               <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="flex items-center justify-between">
-                  <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">{{ t('filePicker.selectFile') }}</DialogTitle>
+                  <DialogTitle as="h3" class="text-base font-semibold text-gray-900 dark:text-white">{{ title || t('filePicker.selectFile') }}</DialogTitle>
                   <button type="button" class="rounded-md p-1 text-gray-400 hover:text-gray-600 dark:hover:text-white" @click="close">
                     <XMarkIcon class="size-5" />
                   </button>
@@ -19,7 +19,7 @@
 
                 <div class="mt-4 space-y-4">
                   <!-- Mode toggle -->
-                  <div class="flex items-center gap-2">
+                  <div v-if="!tiffOnly" class="flex items-center gap-2">
                     <button
                       v-for="m in pickerModes"
                       :key="m.key"
@@ -111,7 +111,7 @@ import { fileApi, type FileMetadata } from '@/api/file'
 
 type PickerMode = 'file' | 'folder'
 
-const props = defineProps<{ open: boolean; initialMode?: 'file' | 'folder' }>()
+const props = defineProps<{ open: boolean; initialMode?: 'file' | 'folder'; tiffOnly?: boolean; title?: string }>()
 const emit = defineEmits<{ close: []; select: [file: FileMetadata]; 'select-folder': [prefix: string] }>()
 
 const { t } = useI18n()
@@ -157,6 +157,7 @@ const filteredFiles = computed(() => {
         return !rest.includes('/')
       })
     : allFiles.value
+  if (props.tiffOnly) files = files.filter(f => /\.tiff?$/i.test(f.key))
   if (q) {
     files = files.filter((f) => f.key.toLowerCase().includes(q))
   }

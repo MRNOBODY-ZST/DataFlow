@@ -1,0 +1,40 @@
+{
+  "name": "无人机多光谱地物分类 · 大图 26_7_23_5",
+  "description": "同场景五张原始大图（1979 × 2234），按 RGB、绿光、红光、红边、近红外角色读取，输出分类叠加图。",
+  "nodes": [
+    {
+      "id": "ms",
+      "type": "uav_multispectral",
+      "position": {
+        "x": 32,
+        "y": 15
+      },
+      "data": {
+        "input_type": "按角色选择五张图",
+        "band_rgb": "uav-ms-demo/large/26_7_23_5/26_7_23_5_rgb.tif",
+        "band_g": "uav-ms-demo/large/26_7_23_5/26_7_23_5_g.tif",
+        "band_red": "uav-ms-demo/large/26_7_23_5/26_7_23_5_red.tif",
+        "band_re": "uav-ms-demo/large/26_7_23_5/26_7_23_5_re.tif",
+        "band_nir": "uav-ms-demo/large/26_7_23_5/26_7_23_5_nir.tif"
+      }
+    },
+    {
+      "id": "output",
+      "type": "minio_writer",
+      "position": {
+        "x": 435,
+        "y": 120
+      },
+      "data": {
+        "key": "26_7_23_5-multispectral-overlay.png"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "ms_output",
+      "source": "ms",
+      "target": "output"
+    }
+  ]
+}

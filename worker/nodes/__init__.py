@@ -10,6 +10,8 @@ from nodes.media.audio_extract import AudioExtractNode
 from nodes.media.image_format_convert import ImageFormatConvertNode
 from nodes.media.image_ocr import ImageOCRNode
 from nodes.media.image_resize import ImageResizeNode
+from nodes.media.uav_multispectral import UavMultispectralNode
+from nodes.media.uav_rgb import UavRgbNode
 from nodes.media.video_extract import VideoExtractNode
 from nodes.media.image_convolution import ImageConvolutionNode
 from nodes.media.image_edge_detect import ImageEdgeDetectNode
@@ -33,6 +35,8 @@ NODE_REGISTRY: dict = {
     "json_transform": JsonTransformNode,
     "json_mapper": JsonMapperNode,
     "image_resize": ImageResizeNode,
+    "uav_multispectral": UavMultispectralNode,
+    "uav_rgb": UavRgbNode,
     "image_ocr": ImageOCRNode,
     "image_format_convert": ImageFormatConvertNode,
     "video_extract": VideoExtractNode,

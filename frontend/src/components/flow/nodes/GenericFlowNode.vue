@@ -69,13 +69,17 @@
             @change.stop="updateField(field.key, Number(($event.target as HTMLInputElement).value))"
           />
 
+          <button v-else-if="field.widget === 'tiff-role'" type="button"
+            class="nodrag block max-w-80 truncate rounded border px-2 py-1 text-xs text-sky-600" :title="nodeData[field.key] || field.label"
+            @dblclick.stop @click.stop="roleField = field; pickError = ''">{{ nodeData[field.key]?.split('/').pop() || '选择图片' }}</button>
+
           <!-- File-picker: display only, click to open modal -->
           <div
             v-else-if="field.type === 'file-picker'"
-            class="nodrag cursor-pointer truncate rounded-md bg-gray-50 px-2 py-1 text-xs text-gray-500 ring-1 ring-gray-200 hover:ring-sky-300 dark:bg-gray-700 dark:text-gray-400 dark:ring-gray-600 dark:hover:ring-sky-500"
+            class="nodrag min-h-6 cursor-pointer truncate rounded-md bg-gray-50 px-2 py-1 text-xs text-gray-500 ring-1 ring-gray-200 hover:ring-sky-300 dark:bg-gray-700 dark:text-gray-400 dark:ring-gray-600 dark:hover:ring-sky-500"
             @dblclick.stop
           >
-            {{ nodeData[field.key] || field.placeholder || 'Click to set' }}
+            {{ nodeData[field.key] || (field.placeholder ?? 'Click to set') }}
           </div>
 
           <!-- Text (default) -->
@@ -97,12 +101,16 @@
       <div v-else class="text-[11px] text-gray-400 dark:text-gray-500 italic">No config</div>
     </div>
 
+    <p v-if="pickError" role="alert" class="px-2 text-xs text-red-600">{{ pickError }}</p>
+    <FilePickerModal :open="!!roleField" tiff-only :title="roleField?.label" @close="roleField = null" @select="pickRole" />
     <Handle type="source" :position="Position.Right" :style="handleStyle" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import FilePickerModal from '@/components/ui/FilePickerModal.vue'
+import { inputMode, visibleField, manualScene } from '../multispectral'
+import { computed, ref } from 'vue'
 import { Handle, Position, useNode } from '@vue-flow/core'
 import * as HeroIcons from '@heroicons/vue/24/outline'
 import { useNodeSchemaStore } from '@/stores/nodeSchema'
@@ -160,8 +168,18 @@ const mappingCount = computed(() => {
   return (arr as any[]).length
 })
 
-function isFieldVisible(_field: { key: string }) {
-  return true
+const roleField = ref<NodeFieldDef | null>(null)
+const pickError = ref('')
+function pickRole(file: { key: string }) {
+  const f = roleField.value
+  if (!f) return
+  const other = inlineFields.value.find(x => x.widget === 'tiff-role' && x.key !== f.key && nodeData.value[x.key] === file.key)
+  if (other) pickError.value = `该文件已用于${other.label}，请选择不同的图片`
+  else node.data = { ...node.data, input_type: manualScene, [f.key]: file.key }
+  roleField.value = null
+}
+function isFieldVisible(field: NodeFieldDef) {
+  return visibleField(props.type, field, inputMode(nodeData.value))
 }
 
 function updateField(key: string, value: any) {

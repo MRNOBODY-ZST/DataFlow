@@ -8,6 +8,7 @@ import ray
 
 from nodes import NODE_REGISTRY
 from nodes.base import NodeContext
+from nodes.media.uav_multispectral import BANDS
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +135,16 @@ def run_pipeline(graph: dict, task_id: str, reporter, user_id: str = "", cancel_
                 scoped_config["key"] = f"{user_prefix}/{scoped_config['key']}"
             if "prefix" in scoped_config and scoped_config["prefix"]:
                 scoped_config["prefix"] = f"{user_prefix}/{scoped_config['prefix']}"
+
+        if node_type == "uav_multispectral":
+            for band in BANDS:
+                field = "band_" + band
+                value = scoped_config.get(field)
+                if value:
+                    if (not isinstance(value, str) or "\\" in value or
+                            any(part in ("", ".", "..") for part in value.split("/"))):
+                        raise ValueError("请选择当前账号输入目录中的 TIFF 文件")
+                    scoped_config[field] = f"{user_prefix}/{value}" if user_prefix else value
 
         output_prefix = f"{user_prefix}/run_{task_id}" if user_prefix else f"run_{task_id}"
 
